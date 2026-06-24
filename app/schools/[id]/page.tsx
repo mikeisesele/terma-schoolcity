@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { SNNav, Stars, VerifiedBadge, SHead } from '@/components/ui';
 import { EnquireForm } from '@/components/EnquireForm';
+import { GateButton } from '@/components/SignInGate';
 import { Reviews } from '@/components/Sections';
 import { SCHOOLS, getSchool, naira } from '@/lib/data';
 import { SN } from '@/lib/tokens';
@@ -69,7 +70,7 @@ export default function SchoolDetail({ params }: { params: { id: string } }) {
             {s.vacancies.map((v) => (
               <div key={v.title} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 0', borderBottom: `1px solid ${SN.line}` }}>
                 <div style={{ flex: 1 }}><div style={{ fontWeight: 700, color: SN.ink, fontSize: 15 }}>{v.title}</div><div style={{ fontSize: 13, color: SN.ink3, fontWeight: 600 }}>{v.dept}</div></div>
-                <button style={{ background: SN.accent, color: '#fff', border: 'none', borderRadius: SN.pill, padding: '9px 18px', fontWeight: 700, fontSize: 13.5, fontFamily: SN.font, cursor: 'pointer' }}>Apply</button>
+                <GateButton context="apply" style={{ padding: '9px 18px' }}>Apply</GateButton>
               </div>
             ))}
           </Section>

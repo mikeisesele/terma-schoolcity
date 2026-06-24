@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SNNav, SHead } from '@/components/ui';
+import { GateButton } from '@/components/SignInGate';
 import { SCHOOLS } from '@/lib/data';
 import { SN } from '@/lib/tokens';
 
@@ -22,7 +23,7 @@ export default function Vacancies() {
                 <div style={{ fontSize: 13.5, color: SN.ink3, fontWeight: 600 }}>{j.dept} · {j.school} · {j.location}</div>
               </div>
               <Link href={`/schools/${j.schoolId}`} style={{ fontSize: 13.5, fontWeight: 700, color: SN.accent }}>View school →</Link>
-              <button style={{ background: SN.accent, color: '#fff', border: 'none', borderRadius: SN.pill, padding: '10px 18px', fontWeight: 700, fontSize: 13.5, fontFamily: SN.font, cursor: 'pointer' }}>Apply</button>
+              <GateButton context="apply">Apply</GateButton>
             </div>
           ))}
         </div>

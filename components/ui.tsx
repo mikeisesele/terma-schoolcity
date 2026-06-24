@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { SN } from '@/lib/tokens';
+import { NavSignIn } from './SignInGate';
 
 export function SNNav() {
   return (
@@ -12,7 +13,7 @@ export function SNNav() {
         <nav style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 26 }}>
           <Link href="/find" style={{ fontSize: 14, fontWeight: 600, color: SN.ink2 }}>Find a school</Link>
           <Link href="/vacancies" style={{ fontSize: 14, fontWeight: 600, color: SN.ink2 }}>Find a vacancy</Link>
-          <button style={{ fontSize: 14, fontWeight: 700, color: '#fff', background: SN.accent, border: 'none', padding: '9px 18px', borderRadius: SN.pill, cursor: 'pointer', fontFamily: SN.font }}>Sign in</button>
+          <NavSignIn />
         </nav>
       </div>
     </header>
