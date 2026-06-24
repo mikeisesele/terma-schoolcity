@@ -51,7 +51,7 @@ export function KidTrackMarketing() {
             </div>
           ))}
         </div>
-        <button style={{ background: SN.accent, color: '#fff', border: 'none', borderRadius: SN.pill, padding: '12px 26px', fontWeight: 800, fontSize: 14, fontFamily: SN.font, cursor: 'pointer' }}>Tell your school about KidTrack</button>
+        <a href="#ask-your-school" style={{ display: 'inline-block', background: SN.accent, color: '#fff', borderRadius: SN.pill, padding: '12px 26px', fontWeight: 800, fontSize: 14, fontFamily: SN.font, cursor: 'pointer' }}>Tell your school about KidTrack</a>
       </div>
     </section>
   );

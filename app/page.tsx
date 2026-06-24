@@ -1,6 +1,7 @@
 import { SNNav, SHead } from '@/components/ui';
 import { Directory } from '@/components/Directory';
 import { Strip, KidTrackMarketing } from '@/components/Sections';
+import { AskYourSchool } from '@/components/AskYourSchool';
 import { SCHOOLS, topRated, withScholarships, hiring, specialNeedsSchools, naira } from '@/lib/data';
 import { SN } from '@/lib/tokens';
 
@@ -36,19 +37,5 @@ export default function Home() {
       <KidTrackMarketing />
       <AskYourSchool />
     </>
-  );
-}
-
-// Growth loop (ENH-2): persistent bottom bar.
-function AskYourSchool() {
-  return (
-    <div style={{ background: SN.footerBg, color: '#fff', padding: '40px 24px', textAlign: 'center' }}>
-      <div className="sn-head" style={{ fontSize: 28, fontWeight: 600 }}>Is your school on KidTrack?</div>
-      <p style={{ color: 'rgba(253,250,245,.6)', fontWeight: 500, marginTop: 8 }}>Ask them to join — we’ll reach out on your behalf.</p>
-      <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 18, flexWrap: 'wrap' }}>
-        <input placeholder="Your school’s name" style={{ border: 'none', borderRadius: SN.pill, padding: '12px 20px', fontFamily: SN.font, fontSize: 14, fontWeight: 600, minWidth: 260, outline: 'none' }} />
-        <button style={{ background: SN.gold, color: SN.footerBg, border: 'none', borderRadius: SN.pill, padding: '12px 22px', fontWeight: 800, fontSize: 14, fontFamily: SN.font, cursor: 'pointer' }}>Ask them to join</button>
-      </div>
-    </div>
   );
 }
