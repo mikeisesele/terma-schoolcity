@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { SNNav, Stars, VerifiedBadge, SHead } from '@/components/ui';
 import { EnquireForm } from '@/components/EnquireForm';
+import { Reviews } from '@/components/Sections';
 import { SCHOOLS, getSchool, naira } from '@/lib/data';
 import { SN } from '@/lib/tokens';
 
@@ -90,6 +91,10 @@ export default function SchoolDetail({ params }: { params: { id: string } }) {
             style={{ width: '100%', height: 260, border: 'none', borderRadius: 14 }}
             src={`https://www.openstreetmap.org/export/embed.html?bbox=3.30%2C6.40%2C3.50%2C6.55&layer=mapnik`}
           />
+        </Section>
+
+        <Section title="Reviews">
+          <Reviews school={s} />
         </Section>
 
         <Section title="Enquire now">

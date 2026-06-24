@@ -20,7 +20,7 @@ Spec: BUILD.md §0 (SSR profiles, ISR ≈60s) · `SYSTEM.md §9`/§3.12 · Phase
   - Gating/Auth: public
   - Accept: `revalidate ≈ 60`; updated marketing/vacancy data appears within the window; build does not pre-render unverified/unpublished schools.
 
-- [ ] 🔴 **Per-page dynamic metadata** — As a visitor sharing a link, the title/description/OG reflect the specific school so that shares look good and rank well.
+- [~] 🔴 **Per-page dynamic metadata** — As a visitor sharing a link, the title/description/OG reflect the specific school so that shares look good and rank well.
   - Screens: `SNDetail`
   - Spec: Phase 5 · `CLAUDE.md`
   - Backend: `GET /api/schoolnet/schools/:id`
@@ -34,14 +34,14 @@ Spec: BUILD.md §0 (SSR profiles, ISR ≈60s) · `SYSTEM.md §9`/§3.12 · Phase
   - Gating/Auth: public
   - Accept: JSON-LD `EducationalOrganization`/`School` per profile (name, address via `PostalAddress`, telephone, url, geo if available, `aggregateRating` from moderated review summary). Validates in Rich Results Test. Only published data.
 
-- [ ] 🔴 **sitemap.xml** — As a search engine, I can discover every public school so that the directory is fully indexed.
+- [~] 🔴 **sitemap.xml** — As a search engine, I can discover every public school so that the directory is fully indexed.
   - Screens: n/a
   - Spec: Phase 5 · `SYSTEM.md §3.12`
   - Backend: `GET /api/schoolnet/schools` (paginate all verified+published)
   - Gating/Auth: public
   - Accept: `sitemap.ts` enumerates all verified+published school URLs + key static pages; `lastmod` from profile `updated_at`; regenerates with ISR cadence. Excludes drafts/unverified.
 
-- [ ] 🔴 **robots + indexability** — As the site owner, crawlers are guided correctly so that the right pages are indexed and authed/utility pages are not.
+- [~] 🔴 **robots + indexability** — As the site owner, crawlers are guided correctly so that the right pages are indexed and authed/utility pages are not.
   - Screens: n/a
   - Spec: `CLAUDE.md`
   - Backend: n/a
