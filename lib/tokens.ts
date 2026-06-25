@@ -1,31 +1,9 @@
-// School Net (SN) tokens — grove theme from SN_THEMES.grove in schoolnet-app.jsx prototype.
-export const SN = {
-  accent: '#1A3D2C',       // grove accent (forest green — nav logo bg, CTA buttons, compare active)
-  accentLight: '#D6EDE0',
-  accentText: '#FAF7F0',   // grove accentText (cream)
-  gold: '#B87D20',         // grove statsValCol
-  goldLight: '#F5E5C0',
-  bg: '#FAF7F0',           // grove bg (warm cream)
-  cardBg: '#FFFFFF',
-  cardFooterBg: '#EBF0E8',
-  footerBg: '#0F2518',     // grove footerBg
-  navBg: 'rgba(250,247,240,.97)', // grove navBg
-  navBorder: 'rgba(26,61,44,.1)', // grove navBorder
-  navInk: '#1A3D2C',       // grove navInk
-  statsBg: '#1A3D2C',      // grove statsBg
-  statsVal: '#B87D20',     // grove statsValCol
-  statsLbl: 'rgba(250,247,240,.45)', // grove statsLblCol
-  ink: '#1A3D2C',
-  ink2: '#3A5848',
-  ink3: '#7A9880',
-  line: '#D8E8D5',
-  cardBorder: 'rgba(26,61,44,0.10)',
-  shadow: '0 1px 2px rgba(40,80,55,0.05), 0 6px 22px rgba(40,80,55,0.07)',
-  shadowHover: '0 12px 34px rgba(40,80,55,0.16)',
-  cardR: 18,               // grove cardR
-  heroRadius: 0,           // grove heroRadius
-  pill: 9999,
-  btnR: '100px',           // grove btnR
-  font: "var(--font-dm), 'DM Sans', 'Segoe UI', sans-serif",
-  head: "var(--font-cormorant), 'Cormorant Garamond', Georgia, serif",
-} as const;
+const SN_THEME = 'riviera';
+
+export const SN_THEMES = {
+  riviera: { bg:'#FBF8F3', navBg:'rgba(251,248,243,.97)', navBorder:'rgba(42,26,18,.08)', navInk:'#22302A', accent:'#2A5C7A', accentText:'#fff', statsBg:'#2A5C7A', statsValCol:'white', statsLblCol:'rgba(255,255,255,.55)', heroRadius:24, heroPad:28, btnR:'100px', cardR:20, font:"'Plus Jakarta Sans','Segoe UI',sans-serif", headFont:"'Plus Jakarta Sans','Segoe UI',sans-serif", footerBg:'#0E2233' },
+  luxury:  { bg:'#FEFDF8', navBg:'rgba(254,253,248,.97)', navBorder:'rgba(26,21,16,.07)', navInk:'#1A1510', accent:'#1A1510', accentText:'#FEFDF8', statsBg:'#1A1510', statsValCol:'#B87D20', statsLblCol:'rgba(254,253,248,.4)', heroRadius:0,  heroPad:0,  btnR:'100px', cardR:18, font:"'DM Sans','Segoe UI',sans-serif",   headFont:"'Cormorant Garamond',Georgia,serif", footerBg:'#100D09' },
+  grove:   { bg:'#FAF7F0', navBg:'rgba(250,247,240,.97)', navBorder:'rgba(26,61,44,.1)',   navInk:'#1A3D2C', accent:'#1A3D2C', accentText:'#FAF7F0', statsBg:'#1A3D2C', statsValCol:'#B87D20', statsLblCol:'rgba(250,247,240,.45)', heroRadius:0,  heroPad:0,  btnR:'100px', cardR:18, font:"'DM Sans','Segoe UI',sans-serif",   headFont:"'Cormorant Garamond',Georgia,serif", footerBg:'#0F2518' },
+};
+
+export const T = SN_THEMES[SN_THEME as keyof typeof SN_THEMES] || SN_THEMES.riviera;
