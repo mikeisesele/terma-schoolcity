@@ -3,126 +3,337 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { SN } from '@/lib/tokens';
 import { naira, type School } from '@/lib/data';
-import { Stars, VerifiedBadge } from './ui';
+import { Stars, VerifiedBadge, SNCard } from './ui';
 
-const TYPES = ['All', 'All-through', 'Secondary', 'Primary'];
+// ── Filter option types ───────────────────────────────────────────────────────
+type SchoolType = 'All' | 'Primary' | 'Secondary' | 'All-through';
+type GenderFilter = 'All' | 'Mixed' | 'Boys' | 'Girls';
+type BoardingFilter = 'All' | 'Day' | 'Boarding' | 'Day & Boarding';
+type SortKey = 'rating' | 'fee-asc' | 'newest';
 
-export function Directory({ schools }: { schools: School[] }) {
-  const [q, setQ] = useState('');
-  const [type, setType] = useState('All');
-  const [saved, setSaved] = useState<Set<string>>(new Set());
-  const [compare, setCompare] = useState<Set<string>>(new Set());
-  const [showCompare, setShowCompare] = useState(false);
+const TYPES: SchoolType[] = ['All', 'Primary', 'Secondary', 'All-through'];
+const GENDERS: GenderFilter[] = ['All', 'Mixed', 'Boys', 'Girls'];
+const BOARDING: BoardingFilter[] = ['All', 'Day', 'Boarding', 'Day & Boarding'];
+const SORTS: { label: string; value: SortKey }[] = [
+  { label: 'Rating', value: 'rating' },
+  { label: 'Fee: Low to High', value: 'fee-asc' },
+  { label: 'Newest', value: 'newest' },
+];
 
-  const rows = useMemo(() => schools.filter((s) =>
-    (type === 'All' || s.type === type) &&
-    (!q || s.name.toLowerCase().includes(q.toLowerCase()) || s.location.toLowerCase().includes(q.toLowerCase()))), [schools, q, type]);
+// Map display filter → school field values
+const GENDER_MAP: Record<GenderFilter, string[]> = {
+  All: [],
+  Mixed: ['Mixed', 'Co-ed'],
+  Boys: ['Boys'],
+  Girls: ['Girls'],
+};
 
+const PAGE_SIZE = 9;
+
+// ── Pill button helper ────────────────────────────────────────────────────────
+function Pill({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
   return (
-    <>
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 28, alignItems: 'center' }}>
-        <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name or location…"
-          style={{ flex: 1, minWidth: 240, border: `1.5px solid ${SN.line}`, borderRadius: SN.pill, padding: '12px 20px', fontFamily: SN.font, fontSize: 14.5, fontWeight: 500, outline: 'none', background: '#fff', color: SN.ink }} />
-        <div style={{ display: 'flex', gap: 8 }}>
-          {TYPES.map((t) => (
-            <button key={t} onClick={() => setType(t)} style={{
-              border: 'none', cursor: 'pointer', fontFamily: SN.font, fontWeight: 700, fontSize: 13.5, padding: '10px 16px', borderRadius: SN.pill,
-              background: type === t ? SN.accent : SN.accentLight, color: type === t ? '#fff' : SN.ink2,
-            }}>{t}</button>
-          ))}
-        </div>
-      </div>
-
-      <div style={{ columnCount: 3, columnGap: 20 }}>
-        {rows.map((s) => (
-          <div key={s.id} style={{ breakInside: 'avoid', marginBottom: 20, background: SN.cardBg, borderRadius: SN.cardR, border: `1px solid ${SN.line}`, boxShadow: SN.shadow, overflow: 'hidden' }}>
-            <div style={{ height: 150, background: `linear-gradient(135deg, hsl(${s.hue} 38% 52%), hsl(${s.hue + 20} 42% 38%))`, position: 'relative' }}>
-              <div style={{ position: 'absolute', top: 12, left: 12 }}>{s.badge && <VerifiedBadge level={s.badge} />}</div>
-              <button onClick={() => setSaved((x) => { const n = new Set(x); n.has(s.id) ? n.delete(s.id) : n.add(s.id); return n; })}
-                style={{ position: 'absolute', top: 12, right: 12, width: 34, height: 34, borderRadius: '50%', border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,.92)', fontSize: 16, color: saved.has(s.id) ? '#D64545' : SN.ink3 }}>
-                {saved.has(s.id) ? '♥' : '♡'}
-              </button>
-            </div>
-            <div style={{ padding: 18 }}>
-              <div style={{ fontWeight: 800, fontSize: 16.5, color: SN.ink, lineHeight: 1.25 }}>{s.name}</div>
-              <div style={{ fontSize: 13, color: SN.ink3, fontWeight: 600, marginTop: 3 }}>{s.location} · {s.type}</div>
-              <div style={{ margin: '12px 0' }}><Stars rating={s.rating} reviews={s.reviews} /></div>
-              <div style={{ fontSize: 13.5, color: SN.ink2, fontWeight: 600 }}>From <b style={{ color: SN.ink }}>{naira(s.feeFromKobo)}</b>/term</div>
-              <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
-                <Link href={`/schools/${s.id}`} style={{ flex: 1, textAlign: 'center', background: SN.accent, color: '#fff', padding: '10px', borderRadius: SN.pill, fontSize: 13.5, fontWeight: 700 }}>View school</Link>
-                <button onClick={() => setCompare((x) => { const n = new Set(x); n.has(s.id) ? n.delete(s.id) : (n.size < 3 && n.add(s.id)); return n; })}
-                  style={{ border: `1.5px solid ${compare.has(s.id) ? SN.accent : SN.line}`, background: compare.has(s.id) ? SN.accentLight : '#fff', color: SN.ink2, borderRadius: SN.pill, padding: '10px 14px', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: SN.font }}>+ Compare</button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {compare.size > 0 && (
-        <div style={{ position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)', background: SN.footerBg, color: '#fff', borderRadius: SN.pill, padding: '12px 22px', display: 'flex', alignItems: 'center', gap: 16, boxShadow: SN.shadowHover, zIndex: 40 }}>
-          <span style={{ fontSize: 14, fontWeight: 700 }}>{compare.size} school{compare.size === 1 ? '' : 's'} to compare</span>
-          <button onClick={() => setShowCompare(true)} disabled={compare.size < 2} style={{ background: SN.gold, color: SN.footerBg, border: 'none', borderRadius: SN.pill, padding: '8px 16px', fontWeight: 800, fontSize: 13.5, cursor: compare.size < 2 ? 'not-allowed' : 'pointer', opacity: compare.size < 2 ? 0.6 : 1, fontFamily: SN.font }}>Compare</button>
-          <button onClick={() => setCompare(new Set())} style={{ background: 'transparent', border: 'none', color: 'rgba(255,255,255,.6)', cursor: 'pointer', fontSize: 18 }}>×</button>
-        </div>
-      )}
-
-      {showCompare && <CompareModal schools={schools.filter((s) => compare.has(s.id))} onClose={() => setShowCompare(false)} />}
-    </>
+    <button
+      onClick={onClick}
+      style={{
+        border: active ? 'none' : `1.5px solid ${SN.line}`,
+        cursor: 'pointer',
+        fontFamily: SN.font,
+        fontWeight: 700,
+        fontSize: 13,
+        padding: '8px 16px',
+        borderRadius: SN.pill,
+        background: active ? SN.accent : SN.cardBg,
+        color: active ? '#FAF7F0' : SN.ink2,
+        transition: 'background 0.15s, color 0.15s',
+        whiteSpace: 'nowrap' as const,
+      }}
+    >
+      {label}
+    </button>
   );
 }
 
-// Side-by-side comparison of 2–3 selected schools.
-function CompareModal({ schools, onClose }: { schools: School[]; onClose: () => void }) {
-  const rows: [string, (s: School) => React.ReactNode][] = [
-    ['Location', (s) => s.location],
-    ['Type', (s) => s.type],
-    ['Gender', (s) => s.gender],
-    ['Boarding', (s) => s.boarding],
-    ['Fees from', (s) => <b style={{ color: SN.ink }}>{naira(s.feeFromKobo)}/term</b>],
-    ['Rating', (s) => <Stars rating={s.rating} reviews={s.reviews} />],
-    ['Established', (s) => String(s.established)],
-    ['Facilities', (s) => `${s.facilities.length} listed`],
-    ['Scholarships', (s) => (s.scholarships.length ? `${s.scholarships.length} available` : '—')],
-    ['Hiring', (s) => (s.vacancies.length ? `${s.vacancies.length} open` : '—')],
-    ['Special-needs', (s) => (s.specialNeeds ? 'Yes' : '—')],
-  ];
+// ── Active filter chip ────────────────────────────────────────────────────────
+function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(20,30,25,.5)', zIndex: 60, display: 'grid', placeItems: 'center', padding: 20 }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 18, maxWidth: 760, width: '100%', maxHeight: '88vh', overflow: 'auto', boxShadow: SN.shadowHover, fontFamily: SN.font }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', borderBottom: `1px solid ${SN.line}`, position: 'sticky', top: 0, background: '#fff' }}>
-          <span className="sn-head" style={{ fontSize: 24, fontWeight: 600, color: SN.ink }}>Compare schools</span>
-          <button onClick={onClose} aria-label="Close" style={{ border: 'none', background: 'transparent', fontSize: 24, color: SN.ink3, cursor: 'pointer', lineHeight: 1 }}>×</button>
-        </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13.5 }}>
-          <thead>
-            <tr>
-              <th style={{ ...cmpCell, textAlign: 'left', width: 130, color: SN.ink3, fontSize: 11.5, textTransform: 'uppercase', letterSpacing: 0.4 }}>&nbsp;</th>
-              {schools.map((s) => (
-                <th key={s.id} style={{ ...cmpCell, textAlign: 'left', verticalAlign: 'top' }}>
-                  <Link href={`/schools/${s.id}`} style={{ fontWeight: 800, fontSize: 15, color: SN.ink, lineHeight: 1.25 }}>{s.name}</Link>
-                  {s.badge && <div style={{ marginTop: 6 }}><VerifiedBadge level={s.badge} /></div>}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(([label, render]) => (
-              <tr key={label}>
-                <td style={{ ...cmpCell, color: SN.ink3, fontWeight: 700, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.4 }}>{label}</td>
-                {schools.map((s) => <td key={s.id} style={{ ...cmpCell, color: SN.ink2, fontWeight: 600 }}>{render(s)}</td>)}
-              </tr>
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        background: SN.accentLight,
+        color: SN.accent,
+        borderRadius: SN.pill,
+        padding: '5px 12px 5px 14px',
+        fontSize: 12.5,
+        fontWeight: 700,
+        fontFamily: SN.font,
+      }}
+    >
+      {label}
+      <button
+        onClick={onRemove}
+        aria-label={`Remove ${label} filter`}
+        style={{
+          border: 'none',
+          background: 'transparent',
+          cursor: 'pointer',
+          color: SN.accent,
+          padding: 0,
+          lineHeight: 1,
+          fontSize: 15,
+          fontWeight: 700,
+        }}
+      >
+        ×
+      </button>
+    </span>
+  );
+}
+
+// ── Directory ─────────────────────────────────────────────────────────────────
+export function Directory({ schools }: { schools: School[] }) {
+  const [type, setType] = useState<SchoolType>('All');
+  const [gender, setGender] = useState<GenderFilter>('All');
+  const [boarding, setBoarding] = useState<BoardingFilter>('All');
+  const [sort, setSort] = useState<SortKey>('rating');
+  const [page, setPage] = useState(1);
+
+  const filtered = useMemo(() => {
+    let list = schools.filter((s) => {
+      // Type filter — maps to school.levels (Primary contains "Primary", Secondary contains JSS/SSS)
+      if (type !== 'All') {
+        if (type === 'Primary' && !s.levels.toLowerCase().includes('primary')) return false;
+        if (type === 'Secondary' && !(s.levels.includes('JSS') || s.levels.includes('SSS') || s.levels.toLowerCase().includes('secondary'))) return false;
+        if (type === 'All-through' && !(s.levels.includes('Nursery') || s.levels.includes('Primary')) && !(s.levels.includes('JSS') || s.levels.includes('SSS'))) return false;
+        // All-through: must span both primary and secondary
+        if (type === 'All-through') {
+          const hasPrimary = s.levels.toLowerCase().includes('primary') || s.levels.includes('Nursery');
+          const hasSecondary = s.levels.includes('JSS') || s.levels.includes('SSS');
+          if (!hasPrimary || !hasSecondary) return false;
+        }
+      }
+      // Gender filter
+      if (gender !== 'All') {
+        const allowed = GENDER_MAP[gender];
+        if (!allowed.some((g) => s.gender.toLowerCase().includes(g.toLowerCase()))) return false;
+      }
+      // Boarding filter
+      if (boarding !== 'All') {
+        if (boarding === 'Day' && s.type !== 'Day') return false;
+        if (boarding === 'Boarding' && !s.boarding) return false;
+        if (boarding === 'Day & Boarding' && s.type !== 'Day & Boarding') return false;
+      }
+      return true;
+    });
+
+    // Sort
+    if (sort === 'rating') list = [...list].sort((a, b) => b.rating - a.rating);
+    else if (sort === 'fee-asc') list = [...list].sort((a, b) => a.feeFrom - b.feeFrom);
+    else if (sort === 'newest') list = [...list].sort((a, b) => b.established - a.established);
+
+    return list;
+  }, [schools, type, gender, boarding, sort]);
+
+  const shown = filtered.slice(0, page * PAGE_SIZE);
+  const hasMore = shown.length < filtered.length;
+
+  // Build active filter chips
+  const activeChips: { label: string; clear: () => void }[] = [];
+  if (type !== 'All') activeChips.push({ label: type, clear: () => { setType('All'); setPage(1); } });
+  if (gender !== 'All') activeChips.push({ label: gender, clear: () => { setGender('All'); setPage(1); } });
+  if (boarding !== 'All') activeChips.push({ label: boarding, clear: () => { setBoarding('All'); setPage(1); } });
+
+  function resetFilters() {
+    setType('All');
+    setGender('All');
+    setBoarding('All');
+    setPage(1);
+  }
+
+  return (
+    <div>
+      {/* Filter bar */}
+      <div
+        style={{
+          background: SN.cardBg,
+          border: `1px solid ${SN.line}`,
+          borderRadius: SN.cardR,
+          padding: '20px 22px',
+          marginBottom: 24,
+          display: 'flex',
+          flexDirection: 'column' as const,
+          gap: 14,
+        }}
+      >
+        {/* Type */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' as const }}>
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: SN.ink3, fontFamily: SN.font, minWidth: 64 }}>Type</span>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+            {TYPES.map((t) => (
+              <Pill key={t} label={t} active={type === t} onClick={() => { setType(t); setPage(1); }} />
             ))}
-            <tr>
-              <td style={cmpCell} />
-              {schools.map((s) => (
-                <td key={s.id} style={cmpCell}><Link href={`/schools/${s.id}`} style={{ display: 'inline-block', background: SN.accent, color: '#fff', borderRadius: SN.pill, padding: '8px 16px', fontSize: 13, fontWeight: 700 }}>View school →</Link></td>
-              ))}
-            </tr>
-          </tbody>
-        </table>
+          </div>
+        </div>
+
+        {/* Gender */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' as const }}>
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: SN.ink3, fontFamily: SN.font, minWidth: 64 }}>Gender</span>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+            {GENDERS.map((g) => (
+              <Pill key={g} label={g} active={gender === g} onClick={() => { setGender(g); setPage(1); }} />
+            ))}
+          </div>
+        </div>
+
+        {/* Boarding */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' as const }}>
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: SN.ink3, fontFamily: SN.font, minWidth: 64 }}>Boarding</span>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' as const }}>
+            {BOARDING.map((b) => (
+              <Pill key={b} label={b} active={boarding === b} onClick={() => { setBoarding(b); setPage(1); }} />
+            ))}
+          </div>
+        </div>
+
+        {/* Sort + active chips row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' as const, paddingTop: 4, borderTop: `1px solid ${SN.line}` }}>
+          <span style={{ fontSize: 12.5, fontWeight: 700, color: SN.ink3, fontFamily: SN.font }}>Sort by</span>
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as SortKey)}
+            style={{
+              border: `1.5px solid ${SN.line}`,
+              borderRadius: SN.pill,
+              padding: '7px 14px',
+              fontFamily: SN.font,
+              fontSize: 13,
+              fontWeight: 700,
+              color: SN.ink,
+              background: SN.cardBg,
+              cursor: 'pointer',
+              outline: 'none',
+            }}
+          >
+            {SORTS.map((s) => (
+              <option key={s.value} value={s.value}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
+
+      {/* Active chips + results count */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          marginBottom: 20,
+          flexWrap: 'wrap' as const,
+        }}
+      >
+        <span style={{ fontSize: 13.5, fontWeight: 700, color: SN.ink2, fontFamily: SN.font }}>
+          {filtered.length} {filtered.length === 1 ? 'school' : 'schools'}
+        </span>
+        {activeChips.map((chip) => (
+          <FilterChip key={chip.label} label={chip.label} onRemove={chip.clear} />
+        ))}
+        {activeChips.length > 1 && (
+          <button
+            onClick={resetFilters}
+            style={{
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              fontSize: 12.5,
+              fontWeight: 700,
+              color: SN.ink3,
+              fontFamily: SN.font,
+              padding: '4px 8px',
+            }}
+          >
+            Clear all
+          </button>
+        )}
+      </div>
+
+      {/* Grid — 3 cols → 2 cols → 1 col via inline media via CSS class */}
+      {filtered.length === 0 ? (
+        <div
+          style={{
+            textAlign: 'center',
+            padding: '64px 24px',
+            color: SN.ink3,
+            fontFamily: SN.font,
+            fontSize: 15,
+            fontWeight: 600,
+          }}
+        >
+          No schools match your filters. Try adjusting or clearing them.
+        </div>
+      ) : (
+        <>
+          <div className="sn-dir-grid">
+            {shown.map((s) => (
+              <SNCard
+                key={s.id}
+                school={s}
+                isFav={false}
+                onToggleFav={() => undefined}
+                inCompare={false}
+                onToggleCompare={() => undefined}
+              />
+            ))}
+          </div>
+
+          {hasMore && (
+            <div style={{ textAlign: 'center', marginTop: 40 }}>
+              <button
+                onClick={() => setPage((p) => p + 1)}
+                style={{
+                  border: `1.5px solid ${SN.accent}`,
+                  background: SN.cardBg,
+                  color: SN.accent,
+                  borderRadius: SN.pill,
+                  padding: '13px 36px',
+                  fontFamily: SN.font,
+                  fontSize: 14,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                }}
+              >
+                Load more ({filtered.length - shown.length} remaining)
+              </button>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Responsive grid styles injected via style tag */}
+      <style>{`
+        .sn-dir-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+        }
+        @media (max-width: 900px) {
+          .sn-dir-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 580px) {
+          .sn-dir-grid { grid-template-columns: 1fr; }
+        }
+      `}</style>
     </div>
   );
 }
-
-const cmpCell: React.CSSProperties = { padding: '12px 16px', borderBottom: `1px solid ${SN.line}`, textAlign: 'left' };

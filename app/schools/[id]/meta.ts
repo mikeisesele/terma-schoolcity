@@ -1,12 +1,5 @@
-// Server component — provides metadata + static params for SEO/ISR.
-// All interaction is delegated to SchoolDetailClient (client component).
-
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
 import { getSchool, SCHOOLS, naira } from '@/lib/data';
-import { SchoolDetailClient } from './SchoolDetailClient';
-
-export const revalidate = 60;
 
 export function generateStaticParams() {
   return SCHOOLS.map((s) => ({ id: s.id }));
@@ -23,10 +16,4 @@ export function generateMetadata({ params }: { params: { id: string } }): Metada
       description: `${s.tagline} · ${s.city}`,
     },
   };
-}
-
-export default function SchoolDetailPage({ params }: { params: { id: string } }) {
-  const s = getSchool(params.id);
-  if (!s) notFound();
-  return <SchoolDetailClient school={s} />;
 }
