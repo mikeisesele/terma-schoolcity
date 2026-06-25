@@ -1,9 +1,20 @@
-const SN_THEME = 'riviera';
-
-export const SN_THEMES = {
-  riviera: { bg:'#FBF8F3', navBg:'rgba(251,248,243,.97)', navBorder:'rgba(42,26,18,.08)', navInk:'#22302A', accent:'#2A5C7A', accentText:'#fff', statsBg:'#2A5C7A', statsValCol:'white', statsLblCol:'rgba(255,255,255,.55)', heroRadius:24, heroPad:28, btnR:'100px', cardR:20, font:"'Plus Jakarta Sans','Segoe UI',sans-serif", headFont:"'Plus Jakarta Sans','Segoe UI',sans-serif", footerBg:'#0E2233' },
-  luxury:  { bg:'#FEFDF8', navBg:'rgba(254,253,248,.97)', navBorder:'rgba(26,21,16,.07)', navInk:'#1A1510', accent:'#1A1510', accentText:'#FEFDF8', statsBg:'#1A1510', statsValCol:'#B87D20', statsLblCol:'rgba(254,253,248,.4)', heroRadius:0,  heroPad:0,  btnR:'100px', cardR:18, font:"'DM Sans','Segoe UI',sans-serif",   headFont:"'Cormorant Garamond',Georgia,serif", footerBg:'#100D09' },
-  grove:   { bg:'#FAF7F0', navBg:'rgba(250,247,240,.97)', navBorder:'rgba(26,61,44,.1)',   navInk:'#1A3D2C', accent:'#1A3D2C', accentText:'#FAF7F0', statsBg:'#1A3D2C', statsValCol:'#B87D20', statsLblCol:'rgba(250,247,240,.45)', heroRadius:0,  heroPad:0,  btnR:'100px', cardR:18, font:"'DM Sans','Segoe UI',sans-serif",   headFont:"'Cormorant Garamond',Georgia,serif", footerBg:'#0F2518' },
+// School Net theme — exact from sn-masonry.jsx (schoolnet-v2.jsx) `T` object.
+// This is the live prototype rendered by Kidtrack School Net.html via sn-masonry.jsx.
+export const T = {
+  bg:'#FDFAF5', cardBg:'#FFFFFF', cardFooterBg:'#EBF0E8', sectionBg:'#FFFFFF',
+  navBg:'rgba(253,250,245,.97)', navBorder:'rgba(40,80,55,.09)', navInk:'#1A3828',
+  accent:'#3D7058', accentLight:'#D6EDE0', accentText:'#FDFAF5',
+  gold:'#D4A04A', goldLight:'#F5E5C0',
+  ink:'#1A3828', ink2:'#3A5848', ink3:'#7A9880',
+  line:'#D8E8D5', cardBorder:'rgba(40,80,55,.1)',
+  shadowColor:'rgba(40,80,55,.07)', shadowHover:'rgba(40,80,55,.16)',
+  filterActiveBg:'#3D7058', filterActiveText:'#FDFAF5', filterInactiveBg:'#D8E8D5', filterInactiveText:'#3A5848',
+  statsStrip:'#3D7058', statsVal:'#FDFAF5', statsLbl:'rgba(253,250,245,.5)',
+  footerBg:'#152A1E', footerText:'rgba(253,250,245,.5)',
+  btnR:'100px', cardR:20, avatarR:'12px', badgeR:'100px',
+  cardNameSpacing:'-.01em', cardNameCase:'none' as const,
+  font:"'DM Sans','Segoe UI',sans-serif", headFont:"'DM Sans','Segoe UI',sans-serif", taglineFont:"'DM Sans',sans-serif",
+  heroPad:0, heroRadius:0, heroMargin:'0',
+  sectionHeadSize:'18px', sectionHeadWeight:800, sectionHeadFont:"'DM Sans',sans-serif", sectionHeadSpacing:'-.01em',
+  statsBg:'#3D7058', statsValCol:'#FDFAF5', statsLblCol:'rgba(253,250,245,.5)',
 };
-
-export const T = SN_THEMES[SN_THEME as keyof typeof SN_THEMES] || SN_THEMES.riviera;

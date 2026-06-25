@@ -2,71 +2,67 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { T } from '@/lib/tokens';
 import { SNNav } from '@/components/ui';
 
 export default function SNListSchool() {
   const router = useRouter();
-  const [step, setStep] = useState(1);
-  const [form, setForm] = useState({ name:'', address:'', state:'FCT', email:'', phone:'', website:'', type:'Day', levels:'Nursery–SSS', orientation:'Non-denominational', students:'', established:'' });
+  const [form, setForm] = useState({ name:'', phone:'', email:'', city:'' });
+  const [sent, setSent] = useState(false);
   const set = (k: string, v: string) => setForm(p=>({...p,[k]:v}));
+  const inp: React.CSSProperties = { width:'100%', border:`1.5px solid ${T.line}`, borderRadius:9, padding:'11px 14px', fontFamily:'inherit', fontSize:14, outline:'none', background:T.bg, color:T.ink, boxSizing:'border-box' };
 
-  if (step===3) return (
-    <div style={{ minHeight:'100vh', background:'#F8FAFB', fontFamily:"'Source Sans 3','Segoe UI',sans-serif" }}>
-      <SNNav onBack={() => router.push('/')} backLabel="← Back to home" />
-      <div style={{ maxWidth:520, margin:'80px auto', textAlign:'center', padding:'48px', background:'#fff', borderRadius:20, boxShadow:'0 4px 24px rgba(0,0,0,.08)', border:'1.5px solid #E5E9EC' }}>
+  if (sent) return (
+    <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }}>
+      <SNNav onBack={() => router.push('/')} backLabel="← Back to School Net" />
+      <div style={{ maxWidth:520, margin:'80px auto', textAlign:'center', padding:'48px', background:T.cardBg, borderRadius:T.cardR*2, boxShadow:`0 4px 24px ${T.shadowColor}`, border:`1.5px solid ${T.cardBorder}` }}>
         <div style={{ fontSize:52, marginBottom:16 }}>🎉</div>
-        <div style={{ fontSize:20, fontWeight:900, color:'#111827', marginBottom:8 }}>Application submitted!</div>
-        <div style={{ fontSize:15, color:'#6B7280', fontWeight:500, marginBottom:24 }}>Our team will review your application and contact you within 2–3 business days to complete your School Net verification and profile setup.</div>
-        <button onClick={() => router.push('/')} style={{ border:'none', background:'#1A3D2C', color:'#fff', borderRadius:10, padding:'12px 28px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>Back to School Net</button>
+        <div style={{ fontSize:20, fontWeight:900, color:T.ink, marginBottom:8 }}>We&apos;ll be in touch.</div>
+        <div style={{ fontSize:15, color:T.ink3, fontWeight:500, lineHeight:1.6, marginBottom:28 }}>Our team will contact you within one business day to set up your school on KidTrack and get your School Net profile live.</div>
+        <button onClick={() => router.push('/')} style={{ border:'none', background:T.accent, color:T.accentText, borderRadius:T.btnR, padding:'12px 28px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>Back to School Net</button>
       </div>
     </div>
   );
 
   return (
-    <div style={{ minHeight:'100vh', background:'#F8FAFB', fontFamily:"'Source Sans 3','Segoe UI',sans-serif" }}>
-      <SNNav onBack={() => router.push('/')} backLabel="← Back to home" />
-      <div style={{ background:'linear-gradient(135deg,#1A3D2C,#0A4B48)', padding:'36px 40px' }}>
-        <h1 style={{ margin:'0 0 6px', fontSize:28, fontWeight:900, color:'#fff', textAlign:'center' }}>List your school on School Net</h1>
-        <p style={{ margin:'0 0 24px', fontSize:15, color:'rgba(255,255,255,.75)', textAlign:'center' }}>Join 1,247 verified schools and reach thousands of parents searching for the right school.</p>
-        <div style={{ maxWidth:480, margin:'0 auto', display:'flex', gap:0 }}>
-          {['School details','Contact & profile','Review & submit'].map((l,i)=>(
-            <div key={l} style={{ flex:1, textAlign:'center', padding:'10px 0', borderBottom:`3px solid ${i<step?'#B87D20':'rgba(255,255,255,.3)'}`, color:i<step?'#B87D20':'rgba(255,255,255,.5)', fontSize:12.5, fontWeight:i<step?800:600 }}>{i+1}. {l}</div>
-          ))}
+    <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }}>
+      <SNNav onBack={() => router.push('/')} backLabel="← Back to School Net" />
+
+      <div style={{ background:`linear-gradient(135deg,${T.accent},${T.accent}ee)`, padding:'40px 40px 36px' }}>
+        <div style={{ maxWidth:640, margin:'0 auto', textAlign:'center' }}>
+          <div style={{ fontSize:11, fontWeight:700, color:T.accentText+'60', letterSpacing:'.18em', textTransform:'uppercase', marginBottom:12 }}>School Net listing is a KidTrack benefit</div>
+          <h1 style={{ margin:'0 0 10px', fontSize:34, fontWeight:900, color:T.accentText, lineHeight:1.1 }}>Get your school on KidTrack — and on School Net.</h1>
+          <p style={{ margin:0, fontSize:15, color:T.accentText+'78', lineHeight:1.7 }}>School Net listings are available to schools on KidTrack Standard or Premium. Register below and our team will set up your full platform in 48 hours.</p>
         </div>
       </div>
-      <div style={{ maxWidth:720, margin:'40px auto', padding:'0 24px' }}>
-        <div style={{ background:'#fff', borderRadius:16, border:'1.5px solid #E5E9EC', padding:'32px' }}>
-          {step===1&&<>
-            <div style={{ fontSize:17, fontWeight:800, color:'#111827', marginBottom:20 }}>School details</div>
-            <div style={{ marginBottom:14 }}><label style={{ fontSize:13, fontWeight:700, color:'#111827', display:'block', marginBottom:5 }}>Official school name</label><input value={form.name} onChange={e=>set('name',e.target.value)} placeholder="e.g. Greenfield International School" style={{ width:'100%', border:'1.5px solid #E5E9EC', borderRadius:9, padding:'10px 13px', fontFamily:'inherit', fontSize:14, outline:'none', boxSizing:'border-box' }}/></div>
-            <div style={{ marginBottom:14 }}><label style={{ fontSize:13, fontWeight:700, color:'#111827', display:'block', marginBottom:5 }}>Full address</label><input value={form.address} onChange={e=>set('address',e.target.value)} placeholder="Plot 12, Gwarinpa Estate, Abuja" style={{ width:'100%', border:'1.5px solid #E5E9EC', borderRadius:9, padding:'10px 13px', fontFamily:'inherit', fontSize:14, outline:'none', boxSizing:'border-box' }}/></div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:14, marginBottom:14 }}>
-              {([['Type','type',['Day','Boarding','Day & Boarding']],['Levels','levels',['Nursery only','Nursery–Primary','Primary–SSS','Nursery–SSS','JSS–SSS']],['State','state',['FCT','Lagos','Rivers','Oyo','Kano','Plateau','Others']]] as [string,string,string[]][]).map(([l,k,opts])=>(
-                <div key={k}><label style={{ fontSize:13, fontWeight:700, color:'#111827', display:'block', marginBottom:5 }}>{l}</label><select value={(form as Record<string,string>)[k]} onChange={e=>set(k,e.target.value)} style={{ width:'100%', border:'1.5px solid #E5E9EC', borderRadius:9, padding:'10px 13px', fontFamily:'inherit', fontSize:14, outline:'none', background:'#fff', boxSizing:'border-box' }}>{opts.map(o=><option key={o}>{o}</option>)}</select></div>
-              ))}
+
+      <div style={{ maxWidth:900, margin:'0 auto', padding:'36px 40px 0', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
+        {([['📋','School Net profile','A verified public listing that parents find when searching — with photos, fees, facilities and ratings.'],
+          ['👨‍👩‍👧','Parent app','Every parent gets live bus tracking, instant results, fee payments and school communication on their phone.'],
+          ['🏆','KidTrack Verified badge','Schools on Standard+ display the KidTrack Verified badge — a trust signal parents recognise.']] as [string,string,string][]).map(([e,t,d])=>(
+          <div key={t} style={{ background:T.cardBg, borderRadius:T.cardR, border:`1.5px solid ${T.cardBorder}`, padding:'20px 18px' }}>
+            <div style={{ fontSize:28, marginBottom:10 }}>{e}</div>
+            <div style={{ fontSize:14, fontWeight:800, color:T.ink, marginBottom:6 }}>{t}</div>
+            <div style={{ fontSize:13, color:T.ink3, lineHeight:1.5 }}>{d}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ maxWidth:560, margin:'32px auto 48px', padding:'0 40px' }}>
+        <div style={{ background:T.cardBg, borderRadius:T.cardR*2, border:`1.5px solid ${T.cardBorder}`, padding:'32px', boxShadow:`0 4px 20px ${T.shadowColor}` }}>
+          <div style={{ fontSize:17, fontWeight:800, color:T.ink, marginBottom:4 }}>Register your school</div>
+          <div style={{ fontSize:13, color:T.ink3, marginBottom:20, lineHeight:1.5 }}>Our team will contact you within one business day to complete setup and get you live in 48 hours.</div>
+          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+            <div><label style={{ fontSize:13, fontWeight:700, color:T.ink, display:'block', marginBottom:5 }}>School name</label><input value={form.name} onChange={e=>set('name',e.target.value)} placeholder="e.g. Greenfield International School" style={inp}/></div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+              <div><label style={{ fontSize:13, fontWeight:700, color:T.ink, display:'block', marginBottom:5 }}>City / state</label><input value={form.city} onChange={e=>set('city',e.target.value)} placeholder="e.g. Maitama, Abuja" style={inp}/></div>
+              <div><label style={{ fontSize:13, fontWeight:700, color:T.ink, display:'block', marginBottom:5 }}>Phone number</label><input value={form.phone} onChange={e=>set('phone',e.target.value)} placeholder="+234 800 000 0000" style={inp}/></div>
             </div>
-            <div style={{ display:'flex', gap:14, marginBottom:14 }}>
-              {([['No. of students','students','e.g. 500'],['Year established','established','e.g. 2007']] as [string,string,string][]).map(([l,k,p])=>(
-                <div key={k} style={{ flex:1 }}><label style={{ fontSize:13, fontWeight:700, color:'#111827', display:'block', marginBottom:5 }}>{l}</label><input value={(form as Record<string,string>)[k]} onChange={e=>set(k,e.target.value)} placeholder={p} style={{ width:'100%', border:'1.5px solid #E5E9EC', borderRadius:9, padding:'10px 13px', fontFamily:'inherit', fontSize:14, outline:'none', boxSizing:'border-box' }}/></div>
-              ))}
-            </div>
-            <button onClick={()=>{if(form.name&&form.address)setStep(2);}} style={{ border:'none', background:'#1A3D2C', color:'#fff', borderRadius:10, padding:'13px 28px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>Continue →</button>
-          </>}
-          {step===2&&<>
-            <div style={{ fontSize:17, fontWeight:800, color:'#111827', marginBottom:20 }}>Contact &amp; profile</div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:14 }}>
-              {([['Official email','email','admin@school.edu.ng'],['Phone number','phone','+234 800 000 0000'],['Website','website','www.school.edu.ng (optional)']] as [string,string,string][]).map(([l,k,p])=>(
-                <div key={k}><label style={{ fontSize:13, fontWeight:700, color:'#111827', display:'block', marginBottom:5 }}>{l}</label><input value={(form as Record<string,string>)[k]} onChange={e=>set(k,e.target.value)} placeholder={p} style={{ width:'100%', border:'1.5px solid #E5E9EC', borderRadius:9, padding:'10px 13px', fontFamily:'inherit', fontSize:14, outline:'none', boxSizing:'border-box' }}/></div>
-              ))}
-            </div>
-            <div style={{ background:'#F0FDF4', border:'1.5px solid #BBF7D0', borderRadius:10, padding:'14px 16px', marginBottom:20, fontSize:13.5, color:'#166534', fontWeight:600 }}>
-              ✓ After submission, our team contacts you to verify ownership, add your school logo, photos, and fee structure before publishing your profile.
-            </div>
-            <div style={{ display:'flex', gap:12 }}>
-              <button onClick={()=>setStep(1)} style={{ border:'1.5px solid #E5E9EC', background:'#fff', color:'#374151', borderRadius:10, padding:'12px 20px', fontFamily:'inherit', fontSize:14, fontWeight:700, cursor:'pointer' }}>← Back</button>
-              <button onClick={()=>{if(form.email&&form.phone)setStep(3);}} style={{ flex:1, border:'none', background:'#1A3D2C', color:'#fff', borderRadius:10, padding:'13px', fontFamily:'inherit', fontSize:15, fontWeight:800, cursor:'pointer' }}>Submit application →</button>
-            </div>
-          </>}
+            <div><label style={{ fontSize:13, fontWeight:700, color:T.ink, display:'block', marginBottom:5 }}>School email</label><input value={form.email} onChange={e=>set('email',e.target.value)} placeholder="admin@yourschool.edu.ng" style={inp}/></div>
+            <button onClick={()=>{ if(!form.name.trim()||!form.phone.trim()){toast('Please fill in school name and phone');return;} setSent(true); toast('Enquiry sent — we will call you within 24 hours'); }} style={{ border:'none', background:T.accent, color:T.accentText, borderRadius:T.btnR, padding:'13px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer', marginTop:4 }}>Send enquiry →</button>
+          </div>
+          <div style={{ marginTop:14, fontSize:12, color:T.ink3, textAlign:'center', lineHeight:1.5 }}>By submitting you agree to be contacted by the KidTrack team. We will not spam you.</div>
         </div>
       </div>
     </div>

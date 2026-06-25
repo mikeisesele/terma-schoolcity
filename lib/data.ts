@@ -23,24 +23,24 @@ export const SN_SCHOOLS: School[] = [
 ];
 
 export const CAROUSEL     = SN_SCHOOLS.filter(s => !s.special);
-export const FEATURED     = SN_SCHOOLS.slice(0, 4);
-export const HIGHLY_RATED = [...SN_SCHOOLS].filter(s => !FEATURED.find(f => f.id === s.id) && !s.special).sort((a,b) => b.rating - a.rating).slice(0,4);
+export const HIGHLY_RATED = [...SN_SCHOOLS].filter(s => !s.special).sort((a,b) => b.rating - a.rating).slice(0,4);
 
 export const MOCK_REVIEWS = [
   { name:'Mrs A. O.', rating:5, date:'May 2026', text:'Excellent school! My children have thrived here. The teachers are dedicated and communication with parents is superb.', tag:'Academic quality' },
   { name:'Mr T. F.',  rating:4, date:'Apr 2026', text:'Very good school overall. The bus service is reliable and the staff are responsive. The science lab impressed me the most.', tag:'Transport & safety' },
-  { name:'Mrs Z. S.', rating:5, date:'Mar 2026', text:'My daughter has grown so much academically and in character. The teachers really care. Highly recommended for any parent in Abuja.', tag:'Character development' },
+  { name:'Mrs Z. S.', rating:5, date:'Mar 2026', text:'My daughter has grown so much academically and in character. The teachers really care. Highly recommended.', tag:'Character development' },
   { name:'Mr E. N.',  rating:4, date:'Feb 2026', text:'Fees are reasonable for the quality of education. I wish there were more extracurricular activities but the core academics are excellent.', tag:'Value for money' },
-  { name:'Mrs C. A.', rating:5, date:'Jan 2026', text:'Safe environment, great facilities, wonderful teachers. My son loves going to school every day. The PTA is also very active and inclusive.', tag:'School environment' },
-  { name:'Mr D. O.',  rating:3, date:'Dec 2025', text:'Good school but the dining food could be better. Teachers are hardworking and results are consistently strong. Overall satisfied.', tag:'Facilities' },
+  { name:'Mrs C. A.', rating:5, date:'Jan 2026', text:'Safe environment, great facilities, wonderful teachers. My son loves going to school every day. The PTA is also very active.', tag:'School environment' },
+  { name:'Mr D. O.',  rating:3, date:'Dec 2025', text:'Good school but the dining food could be better. Teachers are hardworking and results are consistently strong.', tag:'Facilities' },
 ];
 
 export const SN_PARENT_FEATURES = [
-  { emoji:'🚌', title:'Real-time bus tracking', text:"See exactly where your child's school bus is and get notified the moment they're picked up or dropped off." },
-  { emoji:'🔔', title:'Safety alerts', text:'Instant notifications for safety reports, late arrivals, or anything requiring your attention — straight to your phone.' },
-  { emoji:'📊', title:'Results & report cards', text:"View your child's assessment scores, CA results and termly report cards the moment they're published." },
-  { emoji:'💳', title:'Pay fees easily', text:'Pay school fees securely via card or bank transfer. Get instant receipts and track your balance per term.' },
-  { emoji:'📅', title:'Attendance & calendar', text:"See daily attendance records and the school calendar — never miss a PTA meeting, exam or school event." },
+  { emoji:'📊', title:'Results, instantly', text:'CA scores, exams, class standing, and term report cards — on your phone the moment they are published. No printing. No waiting.' },
+  { emoji:'💬', title:'School communication that works', text:"Targeted announcements for your child's class. Absence notes in two taps. No WhatsApp groups. No lost messages." },
+  { emoji:'📅', title:'Attendance and calendar', text:'See every day your child was present, absent, or excused. School events, PTA dates, and exam schedules in one calendar.' },
+  { emoji:'💳', title:'Fee payments and receipts', text:'Pay full or part from your phone. Siblings combined. Instant receipts. Complete payment history.' },
+  { emoji:'🔔', title:'Pickup confirmation', text:'Every pickup verified with a 4-digit code. Medical alerts visible to the driver at handover.' },
+  { emoji:'🚌', title:'Live bus tracking', text:'See the bus on a map. Get notified when your child boards and when they arrive — for families on the school bus.' },
 ];
 
 export type Vacancy = {

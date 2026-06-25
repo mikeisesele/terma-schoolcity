@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { SN_VACANCIES, V_DEPTS, V_TYPES, V_TYPE_CLR, V_SPEC_IDS } from '@/lib/data';
-import { SNNav, SNAuthModal } from '@/components/ui';
+import { ExtrasNav, SNAuthModal } from '@/components/ui';
 import type { Vacancy } from '@/lib/data';
 
 function SNApplyModal({ vacancy, user, onClose }: { vacancy: Vacancy; user: {name:string;email:string}|null; onClose: ()=>void }) {
@@ -81,7 +81,7 @@ export default function SNFindVacancy() {
 
   return (
     <div style={{ minHeight:'100vh', background:'#F8FAFB', fontFamily:"'Source Sans 3','Segoe UI',sans-serif", display:'flex', flexDirection:'column' }}>
-      <SNNav onBack={() => router.push('/')} backLabel="← Back to School Net" />
+      <ExtrasNav onBack={() => router.push('/')} backLabel="← Back to School Net" />
 
       <div style={{ background:'linear-gradient(135deg,#1A3D2C,#0A4B48)', padding:'40px 40px 28px', flexShrink:0 }}>
         <h1 style={{ margin:'0 0 6px', fontSize:28, fontWeight:900, color:'#fff', textAlign:'center' }}>Find a teaching or school job</h1>
