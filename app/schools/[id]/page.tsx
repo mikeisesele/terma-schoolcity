@@ -19,12 +19,25 @@ export default function SNDetail() {
   const [sent, setSent]         = useState(false);
   const [form, setForm]         = useState({ name:'', phone:'', email:'', message:'' });
   const [facilityModal, setFM]  = useState<Facility|null>(null);
+  const [lightbox, setLightbox] = useState<number|null>(null);
   const [reviewsOpen, setRO]    = useState(false);
   const [isFav, setIsFav]       = useState(false);
 
   useEffect(() => {
     try { const f = JSON.parse(localStorage.getItem('sn_favs')||'[]'); setIsFav(f.includes(params.id)); } catch {}
   }, [params.id]);
+
+  useEffect(() => {
+    if (lightbox === null || !facilityModal) return;
+    const n = facilityModal.photos;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightbox(null);
+      if (e.key === 'ArrowLeft') setLightbox(p => ((p ?? 0) - 1 + n) % n);
+      if (e.key === 'ArrowRight') setLightbox(p => ((p ?? 0) + 1) % n);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [lightbox, facilityModal]);
 
   if (!school) return <div style={{ padding:40, fontFamily:'sans-serif', color:'#374151' }}>School not found.</div>;
 
@@ -276,18 +289,47 @@ export default function SNDetail() {
             <div style={{ display:'flex', alignItems:'center', gap:12, padding:'18px 20px', borderBottom:'1px solid #E5E9EC', flexShrink:0 }}>
               <span style={{ fontSize:24 }}>{facilityModal.emoji}</span>
               <div style={{ flex:1 }}><div style={{ fontSize:16, fontWeight:800, color:'#111827' }}>{facilityModal.label}</div><div style={{ fontSize:13, color:'#6B7280' }}>{facilityModal.detail}</div></div>
-              <button onClick={()=>setFM(null)} style={{ border:'none', background:'#F3F4F6', borderRadius:8, width:32, height:32, cursor:'pointer', fontSize:16, color:'#6B7280', display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
+              <button onClick={()=>{setFM(null);setLightbox(null);}} style={{ border:'none', background:'#F3F4F6', borderRadius:8, width:32, height:32, cursor:'pointer', fontSize:16, color:'#6B7280', display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
             </div>
             <div style={{ flex:1, overflow:'auto', padding:16 }}>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
                 {Array.from({ length:facilityModal.photos }, (_,idx)=>(
-                  <div key={idx} style={{ aspectRatio:'4/3', borderRadius:12, background:`linear-gradient(135deg,${facilityModal.color} 0%,${facilityModal.color}99 100%)`, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:8, cursor:'pointer' }}>
+                  <div key={idx} onClick={()=>setLightbox(idx)} style={{ aspectRatio:'4/3', borderRadius:12, background:`linear-gradient(135deg,${facilityModal.color} 0%,${facilityModal.color}99 100%)`, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:8, cursor:'pointer', transition:'transform .15s' }}
+                    onMouseEnter={e=>(e.currentTarget as HTMLDivElement).style.transform='scale(1.03)'}
+                    onMouseLeave={e=>(e.currentTarget as HTMLDivElement).style.transform='none'}>
                     <span style={{ fontSize:40 }}>{facilityModal.emoji}</span>
                     <span style={{ fontSize:12, color:'rgba(255,255,255,.8)', fontWeight:700 }}>Photo {idx+1} of {facilityModal.photos}</span>
                   </div>
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full-screen photo lightbox */}
+      {facilityModal && lightbox!==null && (
+        <div onClick={()=>setLightbox(null)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.9)', zIndex:300, display:'flex', alignItems:'center', justifyContent:'center', padding:48, backdropFilter:'blur(4px)' }}>
+          {/* Close */}
+          <button onClick={(e)=>{e.stopPropagation();setLightbox(null);}} style={{ position:'absolute', top:24, right:28, border:'none', background:'rgba(255,255,255,.14)', borderRadius:'50%', width:48, height:48, cursor:'pointer', fontSize:22, color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(8px)' }}>✕</button>
+          {/* Prev */}
+          <button onClick={(e)=>{e.stopPropagation();setLightbox(p=>((p??0)-1+facilityModal.photos)%facilityModal.photos);}} style={{ position:'absolute', left:28, top:'50%', transform:'translateY(-50%)', border:'none', background:'rgba(255,255,255,.14)', borderRadius:'50%', width:54, height:54, cursor:'pointer', fontSize:26, color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(8px)' }}>‹</button>
+          {/* Photo */}
+          <div onClick={e=>e.stopPropagation()} style={{ width:'min(900px,90vw)', maxHeight:'82vh', aspectRatio:'4/3', borderRadius:28, overflow:'hidden', boxShadow:'0 40px 120px rgba(0,0,0,.6)', background:`linear-gradient(135deg,${facilityModal.color} 0%,${facilityModal.color}99 100%)`, position:'relative', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:18 }}>
+            <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0,rgba(255,255,255,.05) 1px,transparent 1px,transparent 40px)' }} />
+            <span style={{ fontSize:128, lineHeight:1, filter:'drop-shadow(0 8px 24px rgba(0,0,0,.3))' }}>{facilityModal.emoji}</span>
+            <div style={{ textAlign:'center', zIndex:1 }}>
+              <div style={{ fontSize:22, fontWeight:900, color:'#fff', textShadow:'0 2px 8px rgba(0,0,0,.35)' }}>{facilityModal.label}</div>
+              <div style={{ fontSize:14, color:'rgba(255,255,255,.85)', fontWeight:600, marginTop:4 }}>Photo {lightbox+1} of {facilityModal.photos}</div>
+            </div>
+          </div>
+          {/* Next */}
+          <button onClick={(e)=>{e.stopPropagation();setLightbox(p=>((p??0)+1)%facilityModal.photos);}} style={{ position:'absolute', right:28, top:'50%', transform:'translateY(-50%)', border:'none', background:'rgba(255,255,255,.14)', borderRadius:'50%', width:54, height:54, cursor:'pointer', fontSize:26, color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(8px)' }}>›</button>
+          {/* Dots */}
+          <div style={{ position:'absolute', bottom:30, left:'50%', transform:'translateX(-50%)', display:'flex', gap:8 }}>
+            {Array.from({ length:facilityModal.photos }, (_,i)=>(
+              <button key={i} onClick={(e)=>{e.stopPropagation();setLightbox(i);}} style={{ width:i===lightbox?24:8, height:8, borderRadius:4, border:'none', background:i===lightbox?'#fff':'rgba(255,255,255,.4)', cursor:'pointer', padding:0, transition:'all .25s' }} />
+            ))}
           </div>
         </div>
       )}
