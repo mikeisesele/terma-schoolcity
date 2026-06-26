@@ -73,8 +73,3 @@ export const V_TYPES   = ['All','Full-time','Part-time','Contract'];
 export const V_TYPE_CLR: Record<string,string> = { 'Full-time':'#1F8A5B','Part-time':'#2A6FDB','Contract':'#D97706' };
 export const V_SPEC_IDS = ['pac','sfd','sts'];
 
-export const MOCK_ACCOUNTS = [
-  { name:'Adaeze Obi',     email:'adaeze.obi@gmail.com',  avatar:'AO', color:'#1A3D2C' },
-  { name:'Tunde Fashola',  email:'t.fashola@gmail.com',   avatar:'TF', color:'#2A6FDB' },
-  { name:'Ngozi Williams', email:'ngozi.w@gmail.com',     avatar:'NW', color:'#7C3AED' },
-];
