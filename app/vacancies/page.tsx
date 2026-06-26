@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { SN_VACANCIES, V_DEPTS, V_TYPES, V_TYPE_CLR, V_SPEC_IDS } from '@/lib/data';
+import { V_DEPTS, V_TYPES, V_TYPE_CLR, V_SPEC_IDS } from '@/lib/data';
 import { ExtrasNav, SNAuthModal } from '@/components/ui';
 import type { Vacancy } from '@/lib/data';
+import { useVacancies } from '@/lib/useVacancies';
 
 function SNApplyModal({ vacancy, user, onClose }: { vacancy: Vacancy; user: {name:string;email:string}|null; onClose: ()=>void }) {
   const [form, setForm] = useState({ phone:'', cover:'', cvFile:null as File|null, cvName:'' });
@@ -61,6 +62,7 @@ function SNApplyModal({ vacancy, user, onClose }: { vacancy: Vacancy; user: {nam
 
 export default function SNFindVacancy() {
   const router = useRouter();
+  const { vacancies } = useVacancies();
   const [q, setQ]           = useState('');
   const [dept, setDept]     = useState('All departments');
   const [type, setType]     = useState('All');
@@ -70,7 +72,7 @@ export default function SNFindVacancy() {
   const [user, setUser]     = useState<{name:string;email:string;avatar:string;color:string}|null>(null);
   const [showAuth, setShowAuth] = useState(false);
 
-  const shown = SN_VACANCIES.filter(v => {
+  const shown = vacancies.filter(v => {
     const mq  = !q || v.title.toLowerCase().includes(q.toLowerCase()) || v.sName.toLowerCase().includes(q.toLowerCase()) || v.city.toLowerCase().includes(q.toLowerCase());
     const md  = dept === 'All departments' || v.dept === dept;
     const mt  = type === 'All' || v.type === type;
@@ -85,7 +87,7 @@ export default function SNFindVacancy() {
 
       <div style={{ background:'linear-gradient(135deg,#1A3D2C,#0A4B48)', padding:'40px 40px 28px', flexShrink:0 }}>
         <h1 style={{ margin:'0 0 6px', fontSize:28, fontWeight:900, color:'#fff', textAlign:'center' }}>Find a teaching or school job</h1>
-        <p style={{ margin:'0 0 22px', fontSize:15, color:'rgba(255,255,255,.7)', textAlign:'center' }}>Open positions across {SN_VACANCIES.length}+ verified schools in Nigeria</p>
+        <p style={{ margin:'0 0 22px', fontSize:15, color:'rgba(255,255,255,.7)', textAlign:'center' }}>Open positions across {vacancies.length}+ verified schools in Nigeria</p>
         <div style={{ maxWidth:680, margin:'0 auto', display:'flex', alignItems:'center', gap:10, background:'#fff', borderRadius:14, padding:'12px 18px', boxShadow:'0 8px 32px rgba(0,0,0,.15)' }}>
           <span style={{ fontSize:20, flexShrink:0 }}>🔍</span>
           <input value={q} onChange={e => setQ(e.target.value)} placeholder="Job title, school name or city…"

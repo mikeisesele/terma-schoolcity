@@ -4,15 +4,68 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { SN_SCHOOLS, MOCK_REVIEWS } from '@/lib/data';
+import type { School } from '@/lib/data';
 import { T } from '@/lib/tokens';
 import { SNNav, Stars } from '@/components/ui';
+import { supabase } from '@/lib/supabase';
 
 type Facility = { label: string; emoji: string; color: string; photos: number; detail: string };
 
 export default function SNDetail() {
   const router = useRouter();
   const params = useParams();
-  const school = SN_SCHOOLS.find(s => s.id === params.id);
+  const rawId = typeof params.id === 'string' ? params.id : (params.id?.[0] ?? '');
+
+  // First try the static list (short IDs like 'gf', 'hc')
+  const staticSchool = SN_SCHOOLS.find(s => s.id === rawId) ?? null;
+  const [school, setSchool] = useState<School | null>(staticSchool);
+  const [schoolLoading, setSchoolLoading] = useState(!staticSchool);
+
+  // If not found in static list, attempt a live DB lookup (UUID from /find)
+  useEffect(() => {
+    if (staticSchool) return;
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawId);
+    if (!isUuid) { setSchoolLoading(false); return; }
+    setSchoolLoading(true);
+    supabase
+      .from('schools')
+      .select('id, name, logo_url, address, phone, email, motto, plan, primary_colour, status')
+      .eq('id', rawId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setSchool({
+            id: data.id,
+            name: data.name,
+            ktPlan: data.plan === 'premium' ? 'Premium' : data.plan === 'standard' ? 'Standard' : undefined,
+            city: data.address ?? 'Nigeria',
+            state: 'NG',
+            type: 'Day',
+            gender: 'Mixed',
+            levels: 'Nursery–SSS',
+            orientation: 'Non-denominational',
+            transport: false,
+            boarding: false,
+            rating: 4.5,
+            reviews: 0,
+            verified: data.status === 'active',
+            feeFrom: 0,
+            feeTo: 0,
+            color: data.primary_colour ?? '#1A3D2C',
+            tagline: data.motto ?? '',
+            features: [],
+            scholarships: 0,
+            vacancies: 0,
+            students: '',
+            established: 2000,
+            address: data.address ?? '',
+            phone: data.phone ?? '',
+            email: data.email ?? '',
+          });
+        }
+        setSchoolLoading(false);
+      });
+  }, [rawId, staticSchool]);
 
   const [tab, setTab]           = useState('overview');
   const [enquireOpen, setEnqOpen] = useState(false);
@@ -24,8 +77,8 @@ export default function SNDetail() {
   const [isFav, setIsFav]       = useState(false);
 
   useEffect(() => {
-    try { const f = JSON.parse(localStorage.getItem('sn_favs')||'[]'); setIsFav(f.includes(params.id)); } catch {}
-  }, [params.id]);
+    try { const f = JSON.parse(localStorage.getItem('sn_favs')||'[]'); setIsFav(f.includes(rawId)); } catch {}
+  }, [rawId]);
 
   useEffect(() => {
     if (lightbox === null || !facilityModal) return;
@@ -39,6 +92,7 @@ export default function SNDetail() {
     return () => window.removeEventListener('keydown', handler);
   }, [lightbox, facilityModal]);
 
+  if (schoolLoading) return <div style={{ padding:40, fontFamily:'sans-serif', color:'#374151' }}>Loading…</div>;
   if (!school) return <div style={{ padding:40, fontFamily:'sans-serif', color:'#374151' }}>School not found.</div>;
 
   const setF = (k: string, v: string) => setForm(p=>({...p,[k]:v}));

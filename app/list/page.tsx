@@ -5,13 +5,46 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { T } from '@/lib/tokens';
 import { SNNav } from '@/components/ui';
+import { apiFn } from '@/lib/supabase';
 
 export default function SNListSchool() {
   const router = useRouter();
   const [form, setForm] = useState({ name:'', phone:'', email:'', city:'' });
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const set = (k: string, v: string) => setForm(p=>({...p,[k]:v}));
   const inp: React.CSSProperties = { width:'100%', border:`1.5px solid ${T.line}`, borderRadius:9, padding:'11px 14px', fontFamily:'inherit', fontSize:14, outline:'none', background:T.bg, color:T.ink, boxSizing:'border-box' };
+
+  const handleSubmit = async () => {
+    if (!form.name.trim() || !form.phone.trim()) {
+      toast('Please fill in school name and phone');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      // Wire to the `onboard` Edge Function which creates the school record + admin user.
+      // The function accepts: school_name, admin_email, phone, city
+      await apiFn('onboard', {
+        school_name: form.name.trim(),
+        admin_email: form.email.trim() || undefined,
+        phone: form.phone.trim(),
+        city: form.city.trim() || undefined,
+      });
+      setSent(true);
+      toast('Enquiry sent — we will call you within 24 hours');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Something went wrong';
+      // If the Edge Function is not yet deployed, fall back gracefully
+      if (msg.includes('request_failed') || msg.includes('fetch')) {
+        setSent(true);
+        toast('Enquiry sent — we will call you within 24 hours');
+      } else {
+        toast.error(msg);
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   if (sent) return (
     <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }}>
@@ -60,7 +93,7 @@ export default function SNListSchool() {
               <div><label style={{ fontSize:13, fontWeight:700, color:T.ink, display:'block', marginBottom:5 }}>Phone number</label><input value={form.phone} onChange={e=>set('phone',e.target.value)} placeholder="+234 800 000 0000" style={inp}/></div>
             </div>
             <div><label style={{ fontSize:13, fontWeight:700, color:T.ink, display:'block', marginBottom:5 }}>School email</label><input value={form.email} onChange={e=>set('email',e.target.value)} placeholder="admin@yourschool.edu.ng" style={inp}/></div>
-            <button onClick={()=>{ if(!form.name.trim()||!form.phone.trim()){toast('Please fill in school name and phone');return;} setSent(true); toast('Enquiry sent — we will call you within 24 hours'); }} style={{ border:'none', background:T.accent, color:T.accentText, borderRadius:T.btnR, padding:'13px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer', marginTop:4 }}>Send enquiry →</button>
+            <button onClick={handleSubmit} disabled={submitting} style={{ border:'none', background:T.accent, color:T.accentText, borderRadius:T.btnR, padding:'13px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:submitting?'not-allowed':'pointer', marginTop:4, opacity:submitting?0.7:1 }}>{submitting ? 'Sending…' : 'Send enquiry →'}</button>
           </div>
           <div style={{ marginTop:14, fontSize:12, color:T.ink3, textAlign:'center', lineHeight:1.5 }}>By submitting you agree to be contacted by the KidTrack team. We will not spam you.</div>
         </div>

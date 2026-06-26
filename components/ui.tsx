@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { School, SN_SCHOOLS } from '@/lib/data';
 import { T } from '@/lib/tokens';
 import toast from 'react-hot-toast';
+import { supabase } from '@/lib/supabase';
 
 export function Stars({ rating }: { rating: number }) {
   return <span style={{ fontSize:13, color:'#F59E0B', fontWeight:700, letterSpacing:1 }}>{'★'.repeat(Math.floor(rating))}{'☆'.repeat(5-Math.floor(rating))} <span style={{ color:T.ink3, fontSize:12, letterSpacing:0 }}>{rating}</span></span>;
@@ -282,26 +283,32 @@ export function SNCompareModal({ compareIds, onClose, onRemove, onSelect }: {
   );
 }
 
-export function SNAuthModal({ onClose, onSuccess, reason }: {
+export function SNAuthModal({ onClose, onSuccess: _onSuccess, reason }: {
   onClose: () => void;
   onSuccess: (account: {name:string;email:string;avatar:string;color:string}) => void;
   reason?: string;
 }) {
-  const MOCK_ACCOUNTS = [
-    { name:'Adaeze Obi',     email:'adaeze.obi@gmail.com',  avatar:'AO', color:'#1A3D2C' },
-    { name:'Tunde Fashola',  email:'t.fashola@gmail.com',   avatar:'TF', color:'#2A6FDB' },
-    { name:'Ngozi Williams', email:'ngozi.w@gmail.com',     avatar:'NW', color:'#7C3AED' },
-  ];
   const [loading, setLoading] = useState(false);
   const [done, setDone]       = useState(false);
 
-  const signIn = (account: typeof MOCK_ACCOUNTS[0]) => {
+  const signInWithGoogle = async () => {
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: { prompt: 'select_account' },
+        },
+      });
+      if (error) throw error;
+      // Browser will redirect — no further action needed here
+    } catch (err: unknown) {
       setLoading(false);
-      setDone(true);
-      setTimeout(() => { onSuccess(account); }, 900);
-    }, 1400);
+      const msg = err instanceof Error ? err.message : 'Google sign-in failed';
+      toast.error(msg);
+      console.error('[google-oauth]', err);
+    }
   };
 
   return (
@@ -336,8 +343,7 @@ export function SNAuthModal({ onClose, onSuccess, reason }: {
                 <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
               </div>
             ) : (
-              <>
-                <button onClick={() => signIn(MOCK_ACCOUNTS[0])}
+              <button onClick={signInWithGoogle}
                   style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'center', gap:12, border:'1.5px solid #E5E9EC', background:'#fff', borderRadius:12, padding:'13px 20px', fontFamily:'inherit', fontSize:15, fontWeight:700, color:'#111827', cursor:'pointer', marginBottom:14, boxShadow:'0 1px 6px rgba(0,0,0,.06)', transition:'all .15s' }}
                   onMouseEnter={e=>{ e.currentTarget.style.background='#F8FAFB'; e.currentTarget.style.boxShadow='0 2px 10px rgba(0,0,0,.1)'; }}
                   onMouseLeave={e=>{ e.currentTarget.style.background='#fff'; e.currentTarget.style.boxShadow='0 1px 6px rgba(0,0,0,.06)'; }}>
@@ -349,24 +355,6 @@ export function SNAuthModal({ onClose, onSuccess, reason }: {
                   </svg>
                   Continue with Google
                 </button>
-                <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
-                  <div style={{ flex:1, height:1, background:'#E5E9EC' }} />
-                  <span style={{ fontSize:12.5, color:'#9CA3AF', fontWeight:600 }}>or choose an account</span>
-                  <div style={{ flex:1, height:1, background:'#E5E9EC' }} />
-                </div>
-                {MOCK_ACCOUNTS.slice(1).map(acc => (
-                  <button key={acc.email} onClick={() => signIn(acc)}
-                    style={{ width:'100%', display:'flex', alignItems:'center', gap:12, border:'1.5px solid #F3F4F6', background:'#FAFAFA', borderRadius:10, padding:'10px 14px', fontFamily:'inherit', fontSize:14, fontWeight:600, color:'#374151', cursor:'pointer', marginBottom:8, textAlign:'left', transition:'all .15s' }}
-                    onMouseEnter={e=>e.currentTarget.style.background='#F3F4F6'}
-                    onMouseLeave={e=>e.currentTarget.style.background='#FAFAFA'}>
-                    <div style={{ width:34, height:34, borderRadius:'50%', background:acc.color, display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:12, fontWeight:800, flexShrink:0 }}>{acc.avatar}</div>
-                    <div style={{ textAlign:'left' }}>
-                      <div style={{ fontSize:14, fontWeight:700, color:'#111827' }}>{acc.name}</div>
-                      <div style={{ fontSize:12, color:'#9CA3AF', fontWeight:500 }}>{acc.email}</div>
-                    </div>
-                  </button>
-                ))}
-              </>
             )}
             <button onClick={onClose} style={{ marginTop:10, border:'none', background:'none', color:'#9CA3AF', fontFamily:'inherit', fontSize:13, fontWeight:600, cursor:'pointer' }}>
               Maybe later

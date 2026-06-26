@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { SN_SCHOOLS } from '@/lib/data';
 import { T } from '@/lib/tokens';
 import { SNNav, SNCard } from '@/components/ui';
+import { useSchools } from '@/lib/useSchools';
 import type { School } from '@/lib/data';
 
 function Chip({ id, label, val, setVal, opts, openF, setOpenF }: {
@@ -33,6 +33,7 @@ function Chip({ id, label, val, setVal, opts, openF, setOpenF }: {
 
 export default function SNFindSchool() {
   const router = useRouter();
+  const { schools } = useSchools();
   const [q, setQ] = useState('');
   const [level, setLevel] = useState('All');
   const [type, setType] = useState('All');
@@ -42,7 +43,7 @@ export default function SNFindSchool() {
   const [maxFee, setMaxFee] = useState(2000);
   const [openF, setOpenF] = useState<string|null>(null);
 
-  const results = SN_SCHOOLS.filter(s => {
+  const results = schools.filter(s => {
     const mq = !q || s.name.toLowerCase().includes(q.toLowerCase()) || s.city.toLowerCase().includes(q.toLowerCase());
     const ml = level==='All'||(level==='Nursery'&&s.levels.includes('Nursery'))||(level==='Primary'&&s.levels.includes('Primary'))||(level==='Secondary'&&(s.levels.includes('JSS')||s.levels.includes('SSS')))||(level==='Special Needs'&&!!s.special);
     const mt = type==='All'||(type==='Day'&&!s.boarding)||(type==='Boarding'&&s.boarding&&!s.type.includes('Day'))||(type==='Hybrid'&&s.boarding&&s.type.includes('Day'));

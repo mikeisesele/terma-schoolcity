@@ -3,13 +3,17 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { SN_SCHOOLS, CAROUSEL, SN_PARENT_FEATURES } from '@/lib/data';
+import { CAROUSEL, SN_PARENT_FEATURES } from '@/lib/data';
 import { T } from '@/lib/tokens';
 import { SNNav, SNCard, SNCompareBar, SNCompareModal, SNAuthModal } from '@/components/ui';
+import { useSchools } from '@/lib/useSchools';
 import type { School } from '@/lib/data';
 
 export default function SNHome() {
   const router = useRouter();
+  const { schools } = useSchools();
+  // Carousel uses static CAROUSEL for ordering until live data has ordering support
+  const carousel = schools.filter(s => !s.special).slice(0, CAROUSEL.length);
   const [q, setQ]         = useState('');
   const [catF, setCatF]   = useState('All');
   const [showAll, setShowAll] = useState(false);
@@ -29,13 +33,13 @@ export default function SNHome() {
   }, []);
 
   useEffect(() => {
-    const t = setInterval(() => setSlide(s => (s+1) % CAROUSEL.length), 4500);
+    const t = setInterval(() => setSlide(s => (s+1) % (carousel.length || 1)), 4500);
     return () => clearInterval(t);
   }, []);
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft')  setSlide(s => (s - 1 + CAROUSEL.length) % CAROUSEL.length);
-      if (e.key === 'ArrowRight') setSlide(s => (s + 1) % CAROUSEL.length);
+      if (e.key === 'ArrowLeft')  setSlide(s => (s - 1 + carousel.length) % (carousel.length || 1));
+      if (e.key === 'ArrowRight') setSlide(s => (s + 1) % (carousel.length || 1));
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
@@ -83,7 +87,7 @@ export default function SNHome() {
     else if (v === 'list-school') router.push('/list');
   };
 
-  const shown = SN_SCHOOLS.filter(s => {
+  const shown = schools.filter(s => {
     const ms = !q || s.name.toLowerCase().includes(q.toLowerCase()) || s.city.toLowerCase().includes(q.toLowerCase());
     const mc = catF==='All'||(catF==='Nursery'&&s.levels.includes('Nursery'))||(catF==='Primary'&&s.levels.includes('Primary'))||(catF==='Secondary'&&(s.levels.includes('JSS')||s.levels.includes('SSS')))||(catF==='Boarding'&&s.boarding)||(catF==='Scholarships'&&s.scholarships>0)||(catF==='Special Needs'&&!!s.special);
     return ms && mc;
@@ -109,7 +113,7 @@ export default function SNHome() {
       {/* Featured school carousel — padded, rounded */}
       <div style={{ padding:'28px 40px 0' }}>
         <div style={{ position:'relative', borderRadius:28, overflow:'hidden', height:420 }}>
-          {CAROUSEL.map((s, i) => (
+          {carousel.map((s, i) => (
             <div key={s.id} style={{ position:'absolute', inset:0, transition:'opacity 1.2s cubic-bezier(.4,0,.2,1)', opacity:i===slide?1:0, pointerEvents:i===slide?'auto':'none', background:'linear-gradient(135deg,'+s.color+' 0%,'+s.color+'dd 45%,'+s.color+'99 100%)' }}>
               <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0,rgba(255,255,255,.03) 1px,transparent 1px,transparent 50px)' }}/>
               <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, rgba(0,0,0,.62) 0%, rgba(0,0,0,.38) 40%, rgba(0,0,0,.05) 70%, rgba(0,0,0,0) 100%)' }}/>
@@ -135,11 +139,11 @@ export default function SNHome() {
             </div>
           ))}
           <div style={{ position:'absolute', bottom:18, left:'50%', transform:'translateX(-50%)', display:'flex', gap:7 }}>
-            {CAROUSEL.map((_,i)=><button key={i} onClick={()=>setSlide(i)} style={{ width:i===slide?22:7, height:7, borderRadius:4, border:'none', background:i===slide?'rgba(255,255,255,.95)':'rgba(255,255,255,.38)', cursor:'pointer', padding:0, transition:'all .3s' }}/>)}
+            {carousel.map((_,i)=><button key={i} onClick={()=>setSlide(i)} style={{ width:i===slide?22:7, height:7, borderRadius:4, border:'none', background:i===slide?'rgba(255,255,255,.95)':'rgba(255,255,255,.38)', cursor:'pointer', padding:0, transition:'all .3s' }}/>)}
           </div>
           <div style={{ position:'absolute', bottom:18, right:20, display:'flex', gap:0 }}>
-            <button onClick={e=>{e.stopPropagation();setSlide(s=>(s-1+CAROUSEL.length)%CAROUSEL.length);}} style={{ border:'none', background:'rgba(0,0,0,.28)', backdropFilter:'blur(8px)', color:'#fff', width:40, height:36, fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'6px 0 0 6px', borderRight:'1px solid rgba(255,255,255,.15)' }}>‹</button>
-            <button onClick={e=>{e.stopPropagation();setSlide(s=>(s+1)%CAROUSEL.length);}} style={{ border:'none', background:'rgba(0,0,0,.28)', backdropFilter:'blur(8px)', color:'#fff', width:40, height:36, fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'0 6px 6px 0' }}>›</button>
+            <button onClick={e=>{e.stopPropagation();setSlide(s=>(s-1+carousel.length)%carousel.length);}} style={{ border:'none', background:'rgba(0,0,0,.28)', backdropFilter:'blur(8px)', color:'#fff', width:40, height:36, fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'6px 0 0 6px', borderRight:'1px solid rgba(255,255,255,.15)' }}>‹</button>
+            <button onClick={e=>{e.stopPropagation();setSlide(s=>(s+1)%(carousel.length||1));}} style={{ border:'none', background:'rgba(0,0,0,.28)', backdropFilter:'blur(8px)', color:'#fff', width:40, height:36, fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'0 6px 6px 0' }}>›</button>
           </div>
         </div>
       </div>
@@ -162,7 +166,7 @@ export default function SNHome() {
       <div style={{ maxWidth:1280, margin:'0 auto', padding:'20px 48px 48px' }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20 }}>
           {(q || catF!=='All') ? <span style={{ fontSize:13.5, color:T.ink3, fontWeight:600 }}>{shown.length} school{shown.length!==1?'s':''} found</span> : <span/>}
-          <button onClick={()=>onNav('find')} style={{ border:'1.5px solid '+T.cardBorder, background:T.cardBg, color:T.accent, borderRadius:T.btnR, padding:'8px 20px', fontFamily:'inherit', fontSize:13, fontWeight:800, cursor:'pointer' }}>See all {SN_SCHOOLS.length.toLocaleString()} schools →</button>
+          <button onClick={()=>onNav('find')} style={{ border:'1.5px solid '+T.cardBorder, background:T.cardBg, color:T.accent, borderRadius:T.btnR, padding:'8px 20px', fontFamily:'inherit', fontSize:13, fontWeight:800, cursor:'pointer' }}>See all {schools.length.toLocaleString()} schools →</button>
         </div>
         <div style={{ columnCount:3, columnGap:16 }}>{shown9.map(s=>C(s))}{shown.length===0&&<div style={{ columnSpan:'all', padding:'64px', textAlign:'center', color:T.ink3, fontSize:15 }}>No schools match your search.</div>}</div>
         {shown.length > 9 && !showAll && <div style={{ textAlign:'center', marginTop:8 }}><button onClick={()=>setShowAll(true)} style={{ border:'1.5px solid '+T.cardBorder, background:T.cardBg, color:T.accent, borderRadius:T.btnR, padding:'10px 28px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>Show all</button></div>}
