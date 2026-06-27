@@ -275,23 +275,15 @@ export const SN_SCHOOLS: School[] = [
     },
   },
   {
-    id:'hic', name:'Heritage International College',
-    city:'Ibadan', state:'Oyo', type:'Day & Boarding', gender:'Mixed', levels:'Nursery–SSS',
-    orientation:'Non-denominational', transport:true, boarding:true, rating:4.5, reviews:0, verified:false,
-    feeFrom:350000, feeTo:680000, color:'#374151', tagline:'Cultivating Excellence in Every Child',
-    features:['Science Lab','Computer Lab','Library','Sports Ground','Boarding House','Transport'],
-    scholarships:0, vacancies:0, students:'400+', established:2010,
-    address:'Ring Road, Ibadan, Oyo State', phone:'+234 805 901 2345', email:'info@heritagecollege-ibadan.edu.ng',
-    bannerUrl:'/schools/banner13.jpg',
-    imageUrl:'/schools/banner13.jpg',
-    facilityImages:{
-      'Science Lab': FI.scienceLab,
-      'Computer Lab': FI.computerLab,
-      'Library': FI.library,
-      'Sports Ground': FI.sports,
-      'Boarding House': FI.hostel,
-      'Transport': FI.transport,
-    },
+    id:'dov', name:'Dovenest Secondary School', ktPlan:'Standard',
+    city:'Wuse, Abuja', state:'FCT', type:'Day', gender:'Mixed', levels:'JSS–SSS',
+    orientation:'Christian', transport:true, boarding:false, rating:4.6, reviews:134, verified:true,
+    feeFrom:400000, feeTo:720000, color:'#1A4D6E', tagline:'Nurturing Excellence, Building Character',
+    features:['Science Lab','Computer Lab','Library','Sports Ground','Transport','Music Room'],
+    scholarships:2, vacancies:2, students:'520+', established:2004,
+    address:'Plot 1181, Cadastral Zone, Wuse 2, Abuja', phone:'+234 805 901 2345', email:'info@dovenest.edu.ng',
+    bannerUrl:'/schools/banner13.jpg', imageUrl:'/schools/banner13.jpg',
+    facilityImages:{ 'Science Lab':FI.scienceLab, 'Computer Lab':FI.computerLab, 'Library':FI.library, 'Sports Ground':FI.sports, 'Transport':FI.transport, 'Music Room':FI.music },
   },
   {
     id:'pac', name:'Pacelli School for the Blind',
@@ -365,15 +357,15 @@ export const SN_SCHOOLS: School[] = [
     facilityImages:{ 'Science Lab':FI.scienceLab, 'Computer Lab':FI.computerLab, 'Library':FI.library, 'Sports Ground':FI.sports, 'Transport':FI.transport, 'Swimming Pool':FI.swimming },
   },
   {
-    id:'ano', name:'Anointed Stars Academy',
-    city:'Asaba', state:'Delta', type:'Day', gender:'Mixed', levels:'Nursery–SSS',
-    orientation:'Christian', transport:true, boarding:false, rating:4.3, reviews:67, verified:true,
-    feeFrom:310000, feeTo:580000, color:'#92400E', tagline:'Stars Raised for Greatness',
-    features:['Science Lab','Computer Lab','Library','Sports Ground','Transport'],
-    scholarships:1, vacancies:2, students:'400+', established:2008,
-    address:'Cable Point Road, Asaba, Delta State', phone:'+234 807 789 0123', email:'info@anointedstars.edu.ng',
+    id:'eko', name:'Eko International School', ktPlan:'Premium',
+    city:'Lekki, Lagos', state:'Lagos', type:'Day', gender:'Mixed', levels:'Nursery–SSS',
+    orientation:'Non-denominational', transport:true, boarding:false, rating:4.7, reviews:198, verified:true,
+    feeFrom:580000, feeTo:1100000, color:'#B45309', tagline:'Where Global Meets Local',
+    features:['Science Lab','Computer Lab','Library','Sports Ground','Transport','Swimming Pool','Music Room'],
+    scholarships:3, vacancies:3, students:'680+', established:2003,
+    address:'Plot 14 Admiralty Way, Lekki Phase 1, Lagos', phone:'+234 807 789 0123', email:'info@ekointl.edu.ng',
     bannerUrl:'/schools/banner-19.jpg', imageUrl:'/schools/banner-19.jpg',
-    facilityImages:{ 'Science Lab':FI.scienceLab, 'Computer Lab':FI.computerLab, 'Library':FI.library, 'Sports Ground':FI.sports, 'Transport':FI.transport },
+    facilityImages:{ 'Science Lab':FI.scienceLab, 'Computer Lab':FI.computerLab, 'Library':FI.library, 'Sports Ground':FI.sports, 'Transport':FI.transport, 'Swimming Pool':FI.swimming, 'Music Room':FI.music },
   },
   {
     id:'nav', name:'Naval Secondary School Lagos',
@@ -432,7 +424,7 @@ export const SN_SCHOOLS: School[] = [
   },
 ];
 
-export const FEATURED_IDS = ['gf','li','hc','ka','hil','bca','cre','gra','sa','qc','nav','fe','ath','vic','bri','ano'];
+export const FEATURED_IDS = ['gf','li','hc','ka','hil','bca','cre','gra','sa','qc','nav','fe','ath','vic','dov','eko'];
 export const CAROUSEL     = SN_SCHOOLS.filter(s => FEATURED_IDS.includes(s.id));
 export const HIGHLY_RATED = [...SN_SCHOOLS].filter(s => !s.special).sort((a,b) => b.rating - a.rating).slice(0,6);
 
