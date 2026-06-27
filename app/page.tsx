@@ -115,6 +115,7 @@ export default function SNHome() {
         <div style={{ position:'relative', borderRadius:28, overflow:'hidden', height:420 }}>
           {carousel.map((s, i) => (
             <div key={s.id} style={{ position:'absolute', inset:0, transition:'opacity 1.2s cubic-bezier(.4,0,.2,1)', opacity:i===slide?1:0, pointerEvents:i===slide?'auto':'none', background:'linear-gradient(135deg,'+s.color+' 0%,'+s.color+'dd 45%,'+s.color+'99 100%)' }}>
+              {s.bannerUrl && <div style={{ position:'absolute', inset:0, backgroundImage:`url(${s.bannerUrl})`, backgroundSize:'cover', backgroundPosition:'center' }}/>}
               <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0,rgba(255,255,255,.03) 1px,transparent 1px,transparent 50px)' }}/>
               <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, rgba(0,0,0,.62) 0%, rgba(0,0,0,.38) 40%, rgba(0,0,0,.05) 70%, rgba(0,0,0,0) 100%)' }}/>
               <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,.3) 0%, rgba(0,0,0,0) 50%)' }}/>

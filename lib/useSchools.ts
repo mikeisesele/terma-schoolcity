@@ -92,11 +92,13 @@ export function useSchools(): UseSchoolsResult {
       if (err) {
         setError(err.message);
         // keep static fallback
-      } else if (data && data.length > 0) {
+      } else if (data && data.length >= 5) {
+        // Only switch to live data when we have a meaningful seeded dataset;
+        // a small count means the DB is partially seeded and the static list is richer.
         setSchools((data as DBSchool[]).map(mapDbToSchool));
         setIsLive(true);
       }
-      // If data is empty, keep the static SN_SCHOOLS fallback (dev without seed)
+      // Otherwise keep the static SN_SCHOOLS fallback (dev / partially seeded DB)
 
       setLoading(false);
     })();

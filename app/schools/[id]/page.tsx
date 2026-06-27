@@ -9,7 +9,7 @@ import { T } from '@/lib/tokens';
 import { SNNav, Stars } from '@/components/ui';
 import { supabase } from '@/lib/supabase';
 
-type Facility = { label: string; emoji: string; color: string; photos: number; detail: string };
+type Facility = { label: string; emoji: string; color: string; photos: number; detail: string; images?: string[] };
 
 export default function SNDetail() {
   const router = useRouter();
@@ -111,19 +111,21 @@ export default function SNDetail() {
 
   const hasNurseryPrimary = /nursery|primary/i.test(school.levels ?? '');
 
+  const fi = school.facilityImages ?? {};
   const facilityList: Facility[] = [
-    { label:'Science Lab', emoji:'🔬', color:'#1A3D2C', photos:5, detail:'Fully equipped for WAEC/NECO Biology, Chemistry & Physics practicals' },
-    { label:'Computer Lab', emoji:'💻', color:'#15294B', photos:4, detail:'40 workstations, broadband internet, coding curriculum' },
-    { label:'Library', emoji:'📚', color:'#B87D20', photos:3, detail:'3,000+ books, quiet reading room, digital catalogue' },
-    { label:'Sports Ground', emoji:'⚽', color:'#1F8A5B', photos:6, detail:'Football pitch, basketball court, athletics track' },
-    { label:'Transport', emoji:'🚌', color:'#E2922B', photos:3, detail:'GPS-tracked buses covering major routes' },
-    { label:'Dining Hall', emoji:'🍽️', color:'#D4591A', photos:2, detail:'Hot meals, dietary options available' },
-    { label:'Security', emoji:'🔐', color:'#2A6FDB', photos:2, detail:'CCTV surveillance, gated compound, security personnel' },
-    { label:'Assembly Hall', emoji:'🏛️', color:'#7C3AED', photos:3, detail:'Capacity 500+, air-conditioned, AV system' },
-    { label:'Medical Unit', emoji:'🏥', color:'#C41E3A', photos:2, detail:'Registered nurse on-site, first aid' },
-    { label:'Nursery Block', emoji:'🧸', color:'#D97757', photos:4, detail:'Dedicated Pre-Nursery & Nursery wing with play area' },
-    { label:'Sick Bay', emoji:'🩺', color:'#C41E3A', photos:2, detail:'First aid, rest beds, nurse on duty' },
-    ...(hasNurseryPrimary ? [{ label:'Nursery & Primary Facilities', emoji:'🧒', color:'#C2692A', photos:20, detail:'Classrooms, play areas, sensory rooms and outdoor learning spaces for Nursery and Primary pupils' } as Facility] : []),
+    { label:'Science Lab',    emoji:'🔬', color:'#1A3D2C', photos: fi['Science Lab']?.length    ?? 5,  detail:'Fully equipped for WAEC/NECO Biology, Chemistry & Physics practicals', images: fi['Science Lab'] },
+    { label:'Computer Lab',   emoji:'💻', color:'#15294B', photos: fi['Computer Lab']?.length   ?? 4,  detail:'40 workstations, broadband internet, coding curriculum',              images: fi['Computer Lab'] },
+    { label:'Library',        emoji:'📚', color:'#B87D20', photos: fi['Library']?.length        ?? 3,  detail:'3,000+ books, quiet reading room, digital catalogue',                images: fi['Library'] },
+    { label:'Sports Ground',  emoji:'⚽', color:'#1F8A5B', photos: fi['Sports Ground']?.length  ?? 6,  detail:'Football pitch, basketball court, athletics track',                  images: fi['Sports Ground'] },
+    { label:'Transport',      emoji:'🚌', color:'#E2922B', photos: fi['Transport']?.length      ?? 3,  detail:'GPS-tracked buses covering major routes',                            images: fi['Transport'] },
+    { label:'Swimming Pool',  emoji:'🏊', color:'#0284C7', photos: fi['Swimming Pool']?.length  ?? 2,  detail:'Olympic-standard pool, trained lifeguards on duty',                  images: fi['Swimming Pool'] },
+    { label:'Boarding House', emoji:'🏠', color:'#4B5563', photos: fi['Boarding House']?.length ?? 3,  detail:'Safe, supervised residential quarters with house parents',            images: fi['Boarding House'] },
+    { label:'Music Room',     emoji:'🎵', color:'#7C3AED', photos: fi['Music Room']?.length     ?? 2,  detail:'Instruments, recording space, choir and band practice area',         images: fi['Music Room'] },
+    { label:'Dining Hall',    emoji:'🍽️', color:'#D4591A', photos: fi['Cafeteria']?.length      ?? 2,  detail:'Hot meals, dietary options available',                               images: fi['Cafeteria'] },
+    { label:'Security',       emoji:'🔐', color:'#2A6FDB', photos: 2,  detail:'CCTV surveillance, gated compound, security personnel' },
+    { label:'Assembly Hall',  emoji:'🏛️', color:'#7C3AED', photos: 3,  detail:'Capacity 500+, air-conditioned, AV system' },
+    { label:'Sick Bay',       emoji:'🩺', color:'#C41E3A', photos: fi['Sick Bay']?.length       ?? 2,  detail:'First aid, rest beds, nurse on duty',                               images: fi['Sick Bay'] },
+    ...(hasNurseryPrimary ? [{ label:'Nursery & Primary Facilities', emoji:'🧒', color:'#C2692A', photos: fi['Nursery & Primary Facilities']?.length ?? 4, detail:'Classrooms, play areas, sensory rooms and outdoor learning spaces for Nursery and Primary pupils', images: fi['Nursery & Primary Facilities'] ?? fi['Playground'] } as Facility] : []),
   ].filter(f => f.label === 'Nursery & Primary Facilities'
     ? true
     : school.features.some(sf => sf.toLowerCase().includes(f.label.toLowerCase().split(' ')[0].toLowerCase())));
@@ -162,8 +164,9 @@ export default function SNDetail() {
 
       {/* Banner */}
       <div style={{ background:'linear-gradient(135deg,'+school.color+' 0%,'+school.color+'cc 60%,'+school.color+'77 100%)', position:'relative', overflow:'hidden', minHeight:300 }}>
+        {school.bannerUrl && <div style={{ position:'absolute', inset:0, backgroundImage:`url(${school.bannerUrl})`, backgroundSize:'cover', backgroundPosition:'center' }}/>}
         <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0,rgba(255,255,255,.03) 1px,transparent 1px,transparent 50px)' }}/>
-        <div style={{ position:'absolute', inset:0, background:'linear-gradient(to bottom, rgba(0,0,0,.05) 0%, rgba(0,0,0,.55) 100%)' }}/>
+        <div style={{ position:'absolute', inset:0, background: school.bannerUrl ? 'linear-gradient(to bottom, rgba(0,0,0,.25) 0%, rgba(0,0,0,.72) 100%)' : 'linear-gradient(to bottom, rgba(0,0,0,.05) 0%, rgba(0,0,0,.55) 100%)' }}/>
         <div style={{ position:'relative', padding:'32px 40px', display:'flex', alignItems:'flex-end', minHeight:260 }}>
           <div style={{ paddingBottom:4 }}>
             <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
@@ -404,14 +407,20 @@ export default function SNDetail() {
             </div>
             <div style={{ flex:1, overflow:'auto', padding:16 }}>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:10 }}>
-                {Array.from({ length:facilityModal.photos }, (_,idx)=>(
-                  <div key={idx} onClick={()=>setLightbox(idx)} style={{ aspectRatio:'4/3', borderRadius:12, background:`linear-gradient(135deg,${facilityModal.color} 0%,${facilityModal.color}99 100%)`, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:8, cursor:'pointer', transition:'transform .15s' }}
-                    onMouseEnter={e=>(e.currentTarget as HTMLDivElement).style.transform='scale(1.03)'}
-                    onMouseLeave={e=>(e.currentTarget as HTMLDivElement).style.transform='none'}>
-                    <span style={{ fontSize:40 }}>{facilityModal.emoji}</span>
-                    <span style={{ fontSize:12, color:'rgba(255,255,255,.8)', fontWeight:700 }}>Photo {idx+1} of {facilityModal.photos}</span>
-                  </div>
-                ))}
+                {Array.from({ length:facilityModal.photos }, (_,idx)=>{
+                  const imgSrc = facilityModal.images?.[idx % facilityModal.images.length];
+                  return (
+                    <div key={idx} onClick={()=>setLightbox(idx)}
+                      style={{ aspectRatio:'4/3', borderRadius:12, background:`linear-gradient(135deg,${facilityModal.color} 0%,${facilityModal.color}99 100%)`, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:8, cursor:'pointer', transition:'transform .15s', overflow:'hidden', position:'relative' }}
+                      onMouseEnter={e=>(e.currentTarget as HTMLDivElement).style.transform='scale(1.03)'}
+                      onMouseLeave={e=>(e.currentTarget as HTMLDivElement).style.transform='none'}>
+                      {imgSrc
+                        ? <img src={imgSrc} alt={facilityModal.label} style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' }} />
+                        : <><span style={{ fontSize:40 }}>{facilityModal.emoji}</span><span style={{ fontSize:12, color:'rgba(255,255,255,.8)', fontWeight:700 }}>Photo {idx+1}</span></>
+                      }
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -426,14 +435,24 @@ export default function SNDetail() {
           {/* Prev */}
           <button onClick={(e)=>{e.stopPropagation();setLightbox(p=>((p??0)-1+facilityModal.photos)%facilityModal.photos);}} style={{ position:'absolute', left:28, top:'50%', transform:'translateY(-50%)', border:'none', background:'rgba(255,255,255,.14)', borderRadius:'50%', width:54, height:54, cursor:'pointer', fontSize:26, color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(8px)' }}>‹</button>
           {/* Photo */}
-          <div onClick={e=>e.stopPropagation()} style={{ width:'min(900px,90vw)', maxHeight:'82vh', aspectRatio:'4/3', borderRadius:28, overflow:'hidden', boxShadow:'0 40px 120px rgba(0,0,0,.6)', background:`linear-gradient(135deg,${facilityModal.color} 0%,${facilityModal.color}99 100%)`, position:'relative', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:18 }}>
-            <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0,rgba(255,255,255,.05) 1px,transparent 1px,transparent 40px)' }} />
-            <span style={{ fontSize:128, lineHeight:1, filter:'drop-shadow(0 8px 24px rgba(0,0,0,.3))' }}>{facilityModal.emoji}</span>
-            <div style={{ textAlign:'center', zIndex:1 }}>
-              <div style={{ fontSize:22, fontWeight:900, color:'#fff', textShadow:'0 2px 8px rgba(0,0,0,.35)' }}>{facilityModal.label}</div>
-              <div style={{ fontSize:14, color:'rgba(255,255,255,.85)', fontWeight:600, marginTop:4 }}>Photo {lightbox+1} of {facilityModal.photos}</div>
-            </div>
-          </div>
+          {(() => {
+            const imgSrc = facilityModal.images?.[lightbox % (facilityModal.images?.length ?? 1)];
+            return (
+              <div onClick={e=>e.stopPropagation()} style={{ width:'min(900px,90vw)', maxHeight:'82vh', aspectRatio:'4/3', borderRadius:28, overflow:'hidden', boxShadow:'0 40px 120px rgba(0,0,0,.6)', background:`linear-gradient(135deg,${facilityModal.color} 0%,${facilityModal.color}99 100%)`, position:'relative', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:18 }}>
+                {imgSrc
+                  ? <img src={imgSrc} alt={facilityModal.label} style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' }} />
+                  : <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(45deg,rgba(255,255,255,.05) 0,rgba(255,255,255,.05) 1px,transparent 1px,transparent 40px)' }} />
+                }
+                <div style={{ textAlign:'center', zIndex:1, position:'relative' }}>
+                  {!imgSrc && <span style={{ fontSize:128, lineHeight:1, filter:'drop-shadow(0 8px 24px rgba(0,0,0,.3))' }}>{facilityModal.emoji}</span>}
+                  <div style={{ marginTop: imgSrc ? 0 : 0, background: imgSrc ? 'rgba(0,0,0,.45)' : 'transparent', borderRadius:12, padding: imgSrc ? '8px 16px' : 0 }}>
+                    <div style={{ fontSize:22, fontWeight:900, color:'#fff', textShadow:'0 2px 8px rgba(0,0,0,.35)' }}>{facilityModal.label}</div>
+                    <div style={{ fontSize:14, color:'rgba(255,255,255,.85)', fontWeight:600, marginTop:4 }}>Photo {lightbox+1} of {facilityModal.photos}</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
           {/* Next */}
           <button onClick={(e)=>{e.stopPropagation();setLightbox(p=>((p??0)+1)%facilityModal.photos);}} style={{ position:'absolute', right:28, top:'50%', transform:'translateY(-50%)', border:'none', background:'rgba(255,255,255,.14)', borderRadius:'50%', width:54, height:54, cursor:'pointer', fontSize:26, color:'#fff', display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(8px)' }}>›</button>
           {/* Dots */}
