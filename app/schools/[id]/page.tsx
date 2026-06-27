@@ -75,6 +75,7 @@ export default function SNDetail() {
   const [lightbox, setLightbox] = useState<number|null>(null);
   const [reviewsOpen, setRO]    = useState(false);
   const [isFav, setIsFav]       = useState(false);
+  const [expandedCampus, setExpandedCampus] = useState<string|null>(null);
 
   useEffect(() => {
     try { const f = JSON.parse(localStorage.getItem('sn_favs')||'[]'); setIsFav(f.includes(rawId)); } catch {}
@@ -108,6 +109,8 @@ export default function SNDetail() {
 
   const tabs: [string,string][] = [['overview','Overview'],['jobs','Vacancies ('+school.vacancies+')'],['scholarships','Scholarships ('+school.scholarships+')'],['map','Map']];
 
+  const hasNurseryPrimary = /nursery|primary/i.test(school.levels ?? '');
+
   const facilityList: Facility[] = [
     { label:'Science Lab', emoji:'🔬', color:'#1A3D2C', photos:5, detail:'Fully equipped for WAEC/NECO Biology, Chemistry & Physics practicals' },
     { label:'Computer Lab', emoji:'💻', color:'#15294B', photos:4, detail:'40 workstations, broadband internet, coding curriculum' },
@@ -120,7 +123,10 @@ export default function SNDetail() {
     { label:'Medical Unit', emoji:'🏥', color:'#C41E3A', photos:2, detail:'Registered nurse on-site, first aid' },
     { label:'Nursery Block', emoji:'🧸', color:'#D97757', photos:4, detail:'Dedicated Pre-Nursery & Nursery wing with play area' },
     { label:'Sick Bay', emoji:'🩺', color:'#C41E3A', photos:2, detail:'First aid, rest beds, nurse on duty' },
-  ].filter(f => school.features.some(sf => sf.toLowerCase().includes(f.label.toLowerCase().split(' ')[0].toLowerCase())));
+    ...(hasNurseryPrimary ? [{ label:'Nursery & Primary Facilities', emoji:'🧒', color:'#C2692A', photos:20, detail:'Classrooms, play areas, sensory rooms and outdoor learning spaces for Nursery and Primary pupils' } as Facility] : []),
+  ].filter(f => f.label === 'Nursery & Primary Facilities'
+    ? true
+    : school.features.some(sf => sf.toLowerCase().includes(f.label.toLowerCase().split(' ')[0].toLowerCase())));
 
   const mockScholarships = [
     { title:'Academic Excellence Bursary', provider:'School Alumni Foundation', category:'Bursary', value:'₦250,000/term', slots:3, remaining:2, deadline:'31 Jul 2026', covers:['Tuition (partial)','Books & materials'], eligibility:['Top 5% of class in previous term','Financial need demonstrated','Parent income declaration required'], steps:['Download application form','Attach last term result','Submit to school admin'], applyEmail:'bursary@school.edu.ng' },
@@ -225,23 +231,74 @@ export default function SNDetail() {
               </div>
             </div>
 
-            <div style={{ marginBottom:4 }}>
-              <h3 style={{ margin:'0 0 4px', fontSize:17, fontWeight:800, color:T.ink }}>Campus &amp; Facilities</h3>
-              <p style={{ margin:'0 0 16px', fontSize:14, color:T.ink3 }}>Click any facility to view photos</p>
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
-                {(facilityList.length>0?facilityList:school.features.map(f=>({ label:f, emoji:'🏫', color:school.color, photos:3, detail:'' }))).map(f=>(
-                  <div key={f.label} onClick={()=>setFM(f)}
-                    style={{ background:f.color+'10', borderRadius:T.cardR, padding:'24px 20px', textAlign:'center', cursor:'pointer', border:'1.5px solid '+f.color+'22', transition:'all .2s', boxShadow:'0 2px 8px rgba(0,0,0,.05)' }}
-                    onMouseEnter={e=>{ (e.currentTarget as HTMLDivElement).style.transform='translateY(-3px)'; (e.currentTarget as HTMLDivElement).style.background=f.color+'1E'; (e.currentTarget as HTMLDivElement).style.boxShadow='0 8px 24px '+f.color+'30'; }}
-                    onMouseLeave={e=>{ (e.currentTarget as HTMLDivElement).style.transform='none'; (e.currentTarget as HTMLDivElement).style.background=f.color+'10'; (e.currentTarget as HTMLDivElement).style.boxShadow='0 2px 8px rgba(0,0,0,.05)'; }}>
-                    <div style={{ fontSize:40, marginBottom:12 }}>{f.emoji}</div>
-                    <div style={{ fontSize:15, fontWeight:800, color:T.ink, marginBottom:6 }}>{f.label}</div>
-                    <div style={{ fontSize:12.5, color:T.ink3, fontWeight:400, lineHeight:1.4, marginBottom:10 }}>{f.detail}</div>
-                    <div style={{ fontSize:12.5, fontWeight:800, color:f.color, background:f.color+'15', borderRadius:T.btnR, padding:'4px 12px', display:'inline-block' }}>📷 {f.photos} photos</div>
-                  </div>
-                ))}
+            {school.campuses && school.campuses.length > 1 ? (
+              <div style={{ marginBottom:28 }}>
+                <h3 style={{ margin:'0 0 4px', fontSize:17, fontWeight:800, color:T.ink }}>Our campuses</h3>
+                <p style={{ margin:'0 0 16px', fontSize:14, color:T.ink3 }}>Select a campus to view its facilities</p>
+                <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                  {school.campuses.map((c, i) => {
+                    const isOpen = expandedCampus === c.name;
+                    return (
+                      <div key={i} style={{ background:T.cardBg, borderRadius:T.cardR, border:'1.5px solid '+(isOpen ? school.color : T.cardBorder), boxShadow: isOpen ? '0 4px 20px '+school.color+'20' : '0 2px 8px '+T.shadowColor, overflow:'hidden', transition:'border-color .2s, box-shadow .2s' }}>
+                        {/* Campus header — always visible, click to toggle */}
+                        <button
+                          onClick={() => setExpandedCampus(isOpen ? null : c.name)}
+                          style={{ width:'100%', background:'none', border:'none', padding:'18px 20px', display:'flex', gap:14, alignItems:'center', cursor:'pointer', textAlign:'left' }}
+                        >
+                          <div style={{ width:40, height:40, borderRadius:10, background:school.color+'15', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:18 }}>📍</div>
+                          <div style={{ flex:1, minWidth:0 }}>
+                            <div style={{ fontSize:14, fontWeight:800, color:T.ink, marginBottom:3 }}>{c.name}</div>
+                            <div style={{ fontSize:12.5, color:T.ink2, fontWeight:500 }}>{c.address}</div>
+                            {c.phone && <div style={{ fontSize:12, color:T.ink3, fontWeight:600, marginTop:4 }}>{c.phone}</div>}
+                          </div>
+                          <div style={{ fontSize:13, fontWeight:700, color: isOpen ? school.color : T.ink3, flexShrink:0, display:'flex', alignItems:'center', gap:4 }}>
+                            {isOpen ? 'Hide' : 'Facilities'} <span style={{ fontSize:16, lineHeight:1, display:'inline-block', transform: isOpen ? 'rotate(180deg)' : 'none', transition:'transform .2s' }}>›</span>
+                          </div>
+                        </button>
+
+                        {/* Facilities grid — shown when expanded */}
+                        {isOpen && (
+                          <div style={{ padding:'0 20px 20px', borderTop:'1px solid '+T.line }}>
+                            <p style={{ margin:'14px 0 12px', fontSize:13, color:T.ink3 }}>Click any facility to view photos</p>
+                            <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12 }}>
+                              {(facilityList.length>0 ? facilityList : school.features.map(f=>({ label:f, emoji:'🏫', color:school.color, photos:3, detail:'' }))).map(f=>(
+                                <div key={f.label} onClick={()=>setFM(f)}
+                                  style={{ background:f.color+'10', borderRadius:T.cardR, padding:'20px 16px', textAlign:'center', cursor:'pointer', border:'1.5px solid '+f.color+'22', transition:'all .2s', boxShadow:'0 2px 8px rgba(0,0,0,.05)' }}
+                                  onMouseEnter={e=>{ (e.currentTarget as HTMLDivElement).style.transform='translateY(-3px)'; (e.currentTarget as HTMLDivElement).style.background=f.color+'1E'; (e.currentTarget as HTMLDivElement).style.boxShadow='0 8px 24px '+f.color+'30'; }}
+                                  onMouseLeave={e=>{ (e.currentTarget as HTMLDivElement).style.transform='none'; (e.currentTarget as HTMLDivElement).style.background=f.color+'10'; (e.currentTarget as HTMLDivElement).style.boxShadow='0 2px 8px rgba(0,0,0,.05)'; }}>
+                                  <div style={{ fontSize:34, marginBottom:10 }}>{f.emoji}</div>
+                                  <div style={{ fontSize:14, fontWeight:800, color:T.ink, marginBottom:5 }}>{f.label}</div>
+                                  <div style={{ fontSize:12, color:T.ink3, fontWeight:400, lineHeight:1.4, marginBottom:8 }}>{f.detail}</div>
+                                  <div style={{ fontSize:12, fontWeight:800, color:f.color, background:f.color+'15', borderRadius:T.btnR, padding:'3px 10px', display:'inline-block' }}>📷 {f.photos} photos</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div style={{ marginBottom:4 }}>
+                <h3 style={{ margin:'0 0 4px', fontSize:17, fontWeight:800, color:T.ink }}>Campus &amp; Facilities</h3>
+                <p style={{ margin:'0 0 16px', fontSize:14, color:T.ink3 }}>Click any facility to view photos</p>
+                <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
+                  {(facilityList.length>0?facilityList:school.features.map(f=>({ label:f, emoji:'🏫', color:school.color, photos:3, detail:'' }))).map(f=>(
+                    <div key={f.label} onClick={()=>setFM(f)}
+                      style={{ background:f.color+'10', borderRadius:T.cardR, padding:'24px 20px', textAlign:'center', cursor:'pointer', border:'1.5px solid '+f.color+'22', transition:'all .2s', boxShadow:'0 2px 8px rgba(0,0,0,.05)' }}
+                      onMouseEnter={e=>{ (e.currentTarget as HTMLDivElement).style.transform='translateY(-3px)'; (e.currentTarget as HTMLDivElement).style.background=f.color+'1E'; (e.currentTarget as HTMLDivElement).style.boxShadow='0 8px 24px '+f.color+'30'; }}
+                      onMouseLeave={e=>{ (e.currentTarget as HTMLDivElement).style.transform='none'; (e.currentTarget as HTMLDivElement).style.background=f.color+'10'; (e.currentTarget as HTMLDivElement).style.boxShadow='0 2px 8px rgba(0,0,0,.05)'; }}>
+                      <div style={{ fontSize:40, marginBottom:12 }}>{f.emoji}</div>
+                      <div style={{ fontSize:15, fontWeight:800, color:T.ink, marginBottom:6 }}>{f.label}</div>
+                      <div style={{ fontSize:12.5, color:T.ink3, fontWeight:400, lineHeight:1.4, marginBottom:10 }}>{f.detail}</div>
+                      <div style={{ fontSize:12.5, fontWeight:800, color:f.color, background:f.color+'15', borderRadius:T.btnR, padding:'4px 12px', display:'inline-block' }}>📷 {f.photos} photos</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {autoAwards.length > 0 && (
               <div style={{ marginTop:28 }}>
