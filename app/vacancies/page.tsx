@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { V_DEPTS, V_TYPES, V_TYPE_CLR, V_SPEC_IDS } from '@/lib/data';
-import { ExtrasNav, SNAuthModal } from '@/components/ui';
+import { ExtrasNav, SCAuthModal } from '@/components/ui';
 import type { Vacancy } from '@/lib/data';
 import { useVacancies } from '@/lib/useVacancies';
 
@@ -157,7 +157,7 @@ export default function SNFindVacancy() {
         </div>
       </div>
       {applyVac && <SNApplyModal vacancy={applyVac} user={user} onClose={()=>setApplyVac(null)} />}
-      {showAuth && <SNAuthModal onClose={()=>setShowAuth(false)} onSuccess={acc=>{ setUser(acc); setShowAuth(false); toast('Welcome, '+acc.name.split(' ')[0]+'!'); }} reason="apply" />}
+      {showAuth && <SCAuthModal onClose={()=>setShowAuth(false)} onSuccess={acc=>{ setUser(acc); setShowAuth(false); toast('Welcome, '+acc.name.split(' ')[0]+'!'); }} reason="apply" />}
     </div>
   );
 }

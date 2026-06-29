@@ -23,7 +23,7 @@ export function SHead({ title, sub, link, onLink }: { title: React.ReactNode; su
   );
 }
 
-export function SNNav({ onBack, rightSlot, onNav }: {
+export function SCNav({ onBack, rightSlot, onNav }: {
   onBack?: () => void;
   backLabel?: string;
   rightSlot?: React.ReactNode;
@@ -92,7 +92,7 @@ export function ExtrasNav({ onBack, backLabel, rightSlot }: { onBack?: () => voi
   );
 }
 
-export function SNCard({ school, onSelect, isFav, onToggleFav, inCompare, onToggleCompare }: {
+export function SCCard({ school, onSelect, isFav, onToggleFav, inCompare, onToggleCompare }: {
   school: School;
   onSelect: (s: School) => void;
   isFav?: boolean;
@@ -134,7 +134,7 @@ export function SNCard({ school, onSelect, isFav, onToggleFav, inCompare, onTogg
   );
 }
 
-export function SNCompareBar({ compareIds, onOpen, onRemove, onClear }: {
+export function SCCompareBar({ compareIds, onOpen, onRemove, onClear }: {
   compareIds: string[];
   onOpen: () => void;
   onRemove: (id: string) => void;
@@ -169,7 +169,7 @@ export function SNCompareBar({ compareIds, onOpen, onRemove, onClear }: {
   );
 }
 
-export function SNCompareModal({ compareIds, onClose, onRemove, onSelect }: {
+export function SCCompareModal({ compareIds, onClose, onRemove, onSelect }: {
   compareIds: string[];
   onClose: () => void;
   onRemove: (id: string) => void;
@@ -284,7 +284,7 @@ export function SNCompareModal({ compareIds, onClose, onRemove, onSelect }: {
   );
 }
 
-export function SNAuthModal({ onClose, onSuccess: _onSuccess, reason }: {
+export function SCAuthModal({ onClose, onSuccess: _onSuccess, reason }: {
   onClose: () => void;
   onSuccess: (account: {name:string;email:string;avatar:string;color:string}) => void;
   reason?: string;

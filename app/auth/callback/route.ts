@@ -3,7 +3,7 @@
  * Supabase exchanges the OAuth code for a session, then redirects to home.
  *
  * Flow:
- *   1. User clicks "Continue with Google" in SNAuthModal
+ *   1. User clicks "Continue with Google" in SCAuthModal
  *   2. supabase.auth.signInWithOAuth redirects to Google
  *   3. Google redirects back to /auth/callback?code=…
  *   4. This route exchanges the code for a Supabase session

@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import { SN_SCHOOLS, MOCK_REVIEWS } from '@/lib/data';
 import type { School } from '@/lib/data';
 import { T } from '@/lib/tokens';
-import { SNNav, Stars } from '@/components/ui';
+import { SCNav, Stars } from '@/components/ui';
 import { supabase } from '@/lib/supabase';
 
 type Facility = { label: string; emoji: string; color: string; photos: number; detail: string; images?: string[] };
@@ -78,7 +78,7 @@ export default function SNDetail() {
   const [expandedCampus, setExpandedCampus] = useState<string|null>(null);
 
   useEffect(() => {
-    try { const f = JSON.parse(localStorage.getItem('sn_favs')||'[]'); setIsFav(f.includes(rawId)); } catch {}
+    try { const f = JSON.parse(localStorage.getItem('sc_favs')||'[]'); setIsFav(f.includes(rawId)); } catch {}
   }, [rawId]);
 
   useEffect(() => {
@@ -99,9 +99,9 @@ export default function SNDetail() {
   const setF = (k: string, v: string) => setForm(p=>({...p,[k]:v}));
   const toggleFav = () => {
     try {
-      const f: string[] = JSON.parse(localStorage.getItem('sn_favs')||'[]');
+      const f: string[] = JSON.parse(localStorage.getItem('sc_favs')||'[]');
       const next = f.includes(school.id) ? f.filter(x=>x!==school.id) : [...f, school.id];
-      localStorage.setItem('sn_favs', JSON.stringify(next));
+      localStorage.setItem('sc_favs', JSON.stringify(next));
       setIsFav(next.includes(school.id));
       toast(next.includes(school.id) ? 'School saved ♥' : 'Removed from saved');
     } catch {}
@@ -151,7 +151,7 @@ export default function SNDetail() {
 
   return (
     <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }}>
-      <SNNav onBack={() => router.push('/')} backLabel="← Back to directory"
+      <SCNav onBack={() => router.push('/')} backLabel="← Back to directory"
         rightSlot={
           <div style={{ display:'flex', gap:8, alignItems:'center' }}>
             <button onClick={()=>{ const url = window.location.href; if(navigator.share){navigator.share({title:school.name,text:school.tagline+' · '+school.city,url});}else{navigator.clipboard&&navigator.clipboard.writeText(url).then(()=>toast('Link copied!'));} }} style={{ border:`1.5px solid ${T.navInk}25`, background:'transparent', color:T.navInk, borderRadius:T.btnR, padding:'7px 14px', fontFamily:'inherit', fontSize:13, fontWeight:700, cursor:'pointer' }}>↗ Share</button>

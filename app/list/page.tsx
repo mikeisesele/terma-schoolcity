@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { T } from '@/lib/tokens';
-import { SNNav } from '@/components/ui';
+import { SCNav } from '@/components/ui';
 import { apiFn } from '@/lib/supabase';
 
 export default function SNListSchool() {
@@ -48,7 +48,7 @@ export default function SNListSchool() {
 
   if (sent) return (
     <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }}>
-      <SNNav onBack={() => router.push('/')} backLabel="← Back to SchoolCity" />
+      <SCNav onBack={() => router.push('/')} backLabel="← Back to SchoolCity" />
       <div style={{ maxWidth:520, margin:'80px auto', textAlign:'center', padding:'48px', background:T.cardBg, borderRadius:T.cardR*2, boxShadow:`0 4px 24px ${T.shadowColor}`, border:`1.5px solid ${T.cardBorder}` }}>
         <div style={{ fontSize:52, marginBottom:16 }}>🎉</div>
         <div style={{ fontSize:20, fontWeight:900, color:T.ink, marginBottom:8 }}>We&apos;ll be in touch.</div>
@@ -60,7 +60,7 @@ export default function SNListSchool() {
 
   return (
     <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }}>
-      <SNNav onBack={() => router.push('/')} backLabel="← Back to SchoolCity" />
+      <SCNav onBack={() => router.push('/')} backLabel="← Back to SchoolCity" />
 
       <div style={{ background:`linear-gradient(135deg,${T.accent},${T.accent}ee)`, padding:'40px 40px 36px' }}>
         <div style={{ maxWidth:640, margin:'0 auto', textAlign:'center' }}>

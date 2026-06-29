@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { T } from '@/lib/tokens';
-import { SNNav, SNCard } from '@/components/ui';
+import { SCNav, SCCard } from '@/components/ui';
 import { useSchools } from '@/lib/useSchools';
 import type { School } from '@/lib/data';
 
@@ -59,7 +59,7 @@ export default function SNFindSchool() {
 
   return (
     <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }} onClick={()=>setOpenF(null)}>
-      <SNNav onBack={() => router.push('/')} backLabel="← Back to home" />
+      <SCNav onBack={() => router.push('/')} backLabel="← Back to home" />
 
       <div style={{ background:'linear-gradient(135deg,'+T.accent+' 0%,'+T.accent+'ee 100%)', padding:'40px 48px 32px' }}>
         <h1 style={{ margin:'0 0 6px', fontSize:30, fontWeight:900, color:T.accentText, textAlign:'center', fontFamily:T.headFont }}>Find the right school for your child</h1>
@@ -89,7 +89,7 @@ export default function SNFindSchool() {
 
       <div style={{ maxWidth:1400, margin:'0 auto', padding:'28px 48px 48px' }}>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16 }}>
-          {results.map(s=><SNCard key={s.id} school={s} onSelect={onSelect} />)}
+          {results.map(s=><SCCard key={s.id} school={s} onSelect={onSelect} />)}
           {results.length===0&&<div style={{ gridColumn:'1/-1', textAlign:'center', padding:'64px', color:T.ink3, fontSize:15, fontWeight:600 }}>No schools match your filters.</div>}
         </div>
       </div>

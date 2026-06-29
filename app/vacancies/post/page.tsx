@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { T } from '@/lib/tokens';
-import { SNNav } from '@/components/ui';
+import { SCNav } from '@/components/ui';
 import { supabase } from '@/lib/supabase';
 
 export default function SNPostVacancy() {
@@ -49,7 +49,7 @@ export default function SNPostVacancy() {
 
   if (sent) return (
     <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }}>
-      <SNNav onBack={() => router.push('/')} backLabel="← Back to home" />
+      <SCNav onBack={() => router.push('/')} backLabel="← Back to home" />
       <div style={{ maxWidth:520, margin:'80px auto', textAlign:'center', padding:'48px', background:T.cardBg, borderRadius:T.cardR, boxShadow:`0 4px 24px ${T.shadowColor}`, border:`1.5px solid ${T.cardBorder}` }}>
         <div style={{ fontSize:52, marginBottom:16 }}>🎉</div>
         <div style={{ fontSize:20, fontWeight:900, color:T.ink, marginBottom:8, fontFamily:T.headFont }}>Vacancy posted!</div>
@@ -61,7 +61,7 @@ export default function SNPostVacancy() {
 
   return (
     <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }}>
-      <SNNav onBack={() => router.push('/')} backLabel="← Back to home" />
+      <SCNav onBack={() => router.push('/')} backLabel="← Back to home" />
       <div style={{ background:`linear-gradient(135deg,${T.accent},${T.accent}ee)`, padding:'36px 40px' }}>
         <h1 style={{ margin:'0 0 6px', fontSize:28, fontWeight:900, color:T.accentText, textAlign:'center', fontFamily:T.headFont }}>Post a vacancy on SchoolCity</h1>
         <p style={{ margin:0, fontSize:15, color:`${T.accentText}75`, textAlign:'center', fontFamily:T.font }}>Reach thousands of qualified educators searching for opportunities.</p>

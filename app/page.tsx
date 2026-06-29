@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { CAROUSEL, SN_PARENT_FEATURES, FEATURED_IDS } from '@/lib/data';
 import { T } from '@/lib/tokens';
-import { SNNav, SNCard, SNCompareBar, SNCompareModal, SNAuthModal } from '@/components/ui';
+import { SCNav, SCCard, SCCompareBar, SCCompareModal, SCAuthModal } from '@/components/ui';
 import { useSchools } from '@/lib/useSchools';
 import type { School } from '@/lib/data';
 
@@ -29,9 +29,9 @@ export default function SNHome() {
   const [pendingFavId, setPendingFavId] = useState<string|null>(null);
 
   useEffect(() => {
-    try { const u = localStorage.getItem('sn_user'); if (u) setUser(JSON.parse(u)); } catch {}
-    try { const f = localStorage.getItem('sn_favs'); if (f) setFavs(JSON.parse(f)); } catch {}
-    try { const c = localStorage.getItem('sn_compare'); if (c) setCompare(JSON.parse(c)); } catch {}
+    try { const u = localStorage.getItem('sc_user'); if (u) setUser(JSON.parse(u)); } catch {}
+    try { const f = localStorage.getItem('sc_favs'); if (f) setFavs(JSON.parse(f)); } catch {}
+    try { const c = localStorage.getItem('sc_compare'); if (c) setCompare(JSON.parse(c)); } catch {}
   }, []);
 
   useEffect(() => {
@@ -49,14 +49,14 @@ export default function SNHome() {
 
   const signIn = (account: {name:string;email:string;avatar:string;color:string}) => {
     setUser(account);
-    try { localStorage.setItem('sn_user', JSON.stringify(account)); } catch {}
+    try { localStorage.setItem('sc_user', JSON.stringify(account)); } catch {}
     setShowAuth(false);
     if (pendingFavId) { doToggleFav(pendingFavId, account); setPendingFavId(null); }
     toast('Welcome, ' + account.name.split(' ')[0] + '!');
   };
   const signOut = () => {
     setUser(null);
-    try { localStorage.removeItem('sn_user'); } catch {}
+    try { localStorage.removeItem('sc_user'); } catch {}
     toast('Signed out');
   };
   const doToggleFav = (id: string, u?: typeof user) => {
@@ -64,7 +64,7 @@ export default function SNHome() {
     if (!who) return;
     setFavs(prev => {
       const next = prev.includes(id) ? prev.filter(x=>x!==id) : [...prev, id];
-      try { localStorage.setItem('sn_favs', JSON.stringify(next)); } catch {}
+      try { localStorage.setItem('sc_favs', JSON.stringify(next)); } catch {}
       toast(next.includes(id) ? 'School saved ♥' : 'Removed from saved');
       return next;
     });
@@ -74,10 +74,10 @@ export default function SNHome() {
     doToggleFav(id);
   };
   const toggleCompare = (id: string) => setCompare(prev => {
-    if (prev.includes(id)) { const n = prev.filter(x=>x!==id); try { localStorage.setItem('sn_compare', JSON.stringify(n)); } catch {} return n; }
+    if (prev.includes(id)) { const n = prev.filter(x=>x!==id); try { localStorage.setItem('sc_compare', JSON.stringify(n)); } catch {} return n; }
     if (prev.length >= 3) { toast('You can compare up to 3 schools'); return prev; }
     const next = [...prev, id];
-    try { localStorage.setItem('sn_compare', JSON.stringify(next)); } catch {}
+    try { localStorage.setItem('sc_compare', JSON.stringify(next)); } catch {}
     return next;
   });
 
@@ -96,7 +96,7 @@ export default function SNHome() {
     return ms && mc;
   });
   const shown9 = showAll ? shown : shown.slice(0, 9);
-  const C = (s: School) => <SNCard key={s.id} school={s} onSelect={onSelect} isFav={favs.includes(s.id)} onToggleFav={toggleFav} inCompare={compare.includes(s.id)} onToggleCompare={toggleCompare}/>;
+  const C = (s: School) => <SCCard key={s.id} school={s} onSelect={onSelect} isFav={favs.includes(s.id)} onToggleFav={toggleFav} inCompare={compare.includes(s.id)} onToggleCompare={toggleCompare}/>;
 
   const userSlot = user
     ? <div style={{ display:'flex', alignItems:'center', gap:8 }}>
@@ -111,7 +111,7 @@ export default function SNHome() {
 
   return (
     <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }}>
-      <SNNav onNav={onNav} rightSlot={userSlot}/>
+      <SCNav onNav={onNav} rightSlot={userSlot}/>
 
       {/* Featured school carousel — padded, rounded */}
       <div style={{ padding:'28px 40px 0' }}>
@@ -195,9 +195,9 @@ export default function SNHome() {
         <span style={{ fontSize:11, color:T.footerText, opacity:.5 }}>© 2026 SchoolOS Technologies Ltd.</span>
       </div>
 
-      {compare.length > 0 && <SNCompareBar compareIds={compare} onOpen={()=>setCompareOpen(true)} onRemove={id=>{const n=compare.filter(x=>x!==id);setCompare(n);try{localStorage.setItem('sn_compare',JSON.stringify(n));}catch{}}} onClear={()=>{setCompare([]);try{localStorage.removeItem('sn_compare');}catch{}}} />}
-      {compareOpen && <SNCompareModal compareIds={compare} onClose={()=>setCompareOpen(false)} onRemove={id=>{const n=compare.filter(x=>x!==id);setCompare(n);try{localStorage.setItem('sn_compare',JSON.stringify(n));}catch{}}} onSelect={s=>{setCompareOpen(false);onSelect(s);}} />}
-      {showAuth && <SNAuthModal onClose={()=>setShowAuth(false)} onSuccess={signIn} reason={authReason} />}
+      {compare.length > 0 && <SCCompareBar compareIds={compare} onOpen={()=>setCompareOpen(true)} onRemove={id=>{const n=compare.filter(x=>x!==id);setCompare(n);try{localStorage.setItem('sc_compare',JSON.stringify(n));}catch{}}} onClear={()=>{setCompare([]);try{localStorage.removeItem('sc_compare');}catch{}}} />}
+      {compareOpen && <SCCompareModal compareIds={compare} onClose={()=>setCompareOpen(false)} onRemove={id=>{const n=compare.filter(x=>x!==id);setCompare(n);try{localStorage.setItem('sc_compare',JSON.stringify(n));}catch{}}} onSelect={s=>{setCompareOpen(false);onSelect(s);}} />}
+      {showAuth && <SCAuthModal onClose={()=>setShowAuth(false)} onSuccess={signIn} reason={authReason} />}
     </div>
   );
 }

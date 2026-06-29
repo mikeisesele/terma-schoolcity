@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { SN_SCHOOLS } from '@/lib/data';
-import { ExtrasNav, SNCard, SNAuthModal } from '@/components/ui';
+import { ExtrasNav, SCCard, SCAuthModal } from '@/components/ui';
 import type { School } from '@/lib/data';
 
 export default function SNFavorites() {
@@ -14,8 +14,8 @@ export default function SNFavorites() {
   const [showAuth, setShowAuth] = useState(false);
 
   useEffect(() => {
-    try { const u = localStorage.getItem('sn_user'); if (u) setUser(JSON.parse(u)); } catch {}
-    try { const f = localStorage.getItem('sn_favs'); if (f) setFavIds(JSON.parse(f)); } catch {}
+    try { const u = localStorage.getItem('sc_user'); if (u) setUser(JSON.parse(u)); } catch {}
+    try { const f = localStorage.getItem('sc_favs'); if (f) setFavIds(JSON.parse(f)); } catch {}
   }, []);
 
   const schools = SN_SCHOOLS.filter(s => favIds.includes(s.id));
@@ -23,13 +23,13 @@ export default function SNFavorites() {
   const toggleFav = (id: string) => {
     const next = favIds.includes(id) ? favIds.filter(x=>x!==id) : [...favIds, id];
     setFavIds(next);
-    try { localStorage.setItem('sn_favs', JSON.stringify(next)); } catch {}
+    try { localStorage.setItem('sc_favs', JSON.stringify(next)); } catch {}
     toast(next.includes(id) ? 'School saved ♥' : 'Removed from saved');
   };
 
   const clearAll = () => {
     setFavIds([]);
-    try { localStorage.removeItem('sn_favs'); } catch {}
+    try { localStorage.removeItem('sc_favs'); } catch {}
   };
 
   const onSelect = (s: School) => router.push('/schools/' + s.id);
@@ -54,7 +54,7 @@ export default function SNFavorites() {
             Continue with Google
           </button>
         </div>
-        {showAuth && <SNAuthModal onClose={()=>setShowAuth(false)} onSuccess={acc=>{ setUser(acc); setShowAuth(false); try{localStorage.setItem('sn_user',JSON.stringify(acc));}catch{} toast('Welcome, '+acc.name.split(' ')[0]+'!'); }} reason="save" />}
+        {showAuth && <SCAuthModal onClose={()=>setShowAuth(false)} onSuccess={acc=>{ setUser(acc); setShowAuth(false); try{localStorage.setItem('sc_user',JSON.stringify(acc));}catch{} toast('Welcome, '+acc.name.split(' ')[0]+'!'); }} reason="save" />}
       </div>
     );
   }
@@ -81,7 +81,7 @@ export default function SNFavorites() {
         ) : (
           <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16 }}>
             {schools.map(s => (
-              <SNCard key={s.id} school={s} onSelect={onSelect} isFav={true} onToggleFav={toggleFav} inCompare={false} onToggleCompare={()=>{}} />
+              <SCCard key={s.id} school={s} onSelect={onSelect} isFav={true} onToggleFav={toggleFav} inCompare={false} onToggleCompare={()=>{}} />
             ))}
           </div>
         )}
