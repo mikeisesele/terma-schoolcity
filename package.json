@@ -1,8 +1,8 @@
 {
-  "name": "schoolnet-web",
+  "name": "schoolcity-web",
   "private": true,
   "version": "0.1.0",
-  "description": "KidTrack School Net — public school directory (Next.js 14 App Router, SSR/ISR).",
+  "description": "SchoolOS SchoolCity — public school directory (Next.js 14 App Router, SSR/ISR).",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

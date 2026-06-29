@@ -141,8 +141,8 @@ export default function SNDetail() {
   const totalReviews = ratingBreakdown.reduce((s,[,n])=>s+n,0);
 
   const autoAwards = [
-    school.verified && { icon:'✅', label:'KidTrack Verified', sub:'Identity & facilities verified by KidTrack', color:'#1A3D2C', bg:'#E3EDE6' },
-    school.ktPlan==='Premium' && { icon:'⭐', label:'KidTrack Premium School', sub:'Full platform — GPS, fees, CBT, analytics', color:'#B87D20', bg:'#F5EDD0' },
+    school.verified && { icon:'✅', label:'SchoolOS Verified', sub:'Identity & facilities verified by SchoolOS', color:'#1A3D2C', bg:'#E3EDE6' },
+    school.ktPlan==='Premium' && { icon:'⭐', label:'SchoolOS Premium School', sub:'Full platform — GPS, fees, CBT, analytics', color:'#B87D20', bg:'#F5EDD0' },
     school.rating >= 4.7 && { icon:'🏆', label:'Top Rated School', sub:'Rated '+school.rating+'/5 by '+school.reviews+' parents', color:'#7A4A00', bg:'#FEF3C7' },
     school.scholarships > 2 && { icon:'🎓', label:'Scholarship Excellence', sub:school.scholarships+' scholarship programmes available', color:'#5B21B6', bg:'#EDE9FE' },
     school.established <= 2005 && { icon:'🏛️', label:'Established Institution', sub:'Over '+(2026-school.established)+' years of academic excellence', color:'#1E3A5F', bg:'#DBEAFE' },
@@ -179,7 +179,7 @@ export default function SNDetail() {
                 </div>
                 <div style={{ display:'flex', gap:6 }}>
                   {school.verified&&<span style={{ background:'rgba(255,255,255,.2)', border:'1px solid rgba(255,255,255,.4)', borderRadius:T.btnR, fontSize:11, fontWeight:800, color:'#fff', padding:'2px 8px' }}>✓ Verified</span>}
-                  {school.ktPlan==='Premium'&&<span style={{ background:'rgba(184,125,32,.85)', border:'1px solid rgba(255,255,255,.3)', borderRadius:T.btnR, fontSize:11, fontWeight:800, color:'#fff', padding:'2px 8px' }}>⭐ KidTrack Premium</span>}
+                  {school.ktPlan==='Premium'&&<span style={{ background:'rgba(184,125,32,.85)', border:'1px solid rgba(255,255,255,.3)', borderRadius:T.btnR, fontSize:11, fontWeight:800, color:'#fff', padding:'2px 8px' }}>⭐ SchoolOS Premium</span>}
                 </div>
               </div>
             </div>
@@ -469,7 +469,7 @@ export default function SNDetail() {
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.62)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:32 }}>
           <div style={{ background:'#fff', borderRadius:18, width:'100%', maxWidth:600, maxHeight:'85vh', display:'flex', flexDirection:'column', overflow:'hidden', boxShadow:'0 24px 64px rgba(0,0,0,.35)' }}>
             <div style={{ padding:'20px 24px', borderBottom:'1px solid #E5E9EC', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
-              <div><div style={{ fontSize:17, fontWeight:800, color:'#111827' }}>Parent reviews — {school.name}</div><div style={{ fontSize:13, color:'#6B7280' }}>Submitted via the Kidtrack Parent App</div></div>
+              <div><div style={{ fontSize:17, fontWeight:800, color:'#111827' }}>Parent reviews — {school.name}</div><div style={{ fontSize:13, color:'#6B7280' }}>Submitted via the SchoolOS Parent App</div></div>
               <button onClick={()=>setRO(false)} style={{ border:'none', background:'#F3F4F6', borderRadius:8, width:32, height:32, cursor:'pointer', fontSize:16, color:'#6B7280', display:'flex', alignItems:'center', justifyContent:'center' }}>✕</button>
             </div>
             <div style={{ padding:'16px 24px', borderBottom:'1px solid #E5E9EC', display:'flex', gap:24, alignItems:'center', flexShrink:0 }}>

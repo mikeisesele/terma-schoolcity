@@ -8,10 +8,10 @@ const cormorant = Cormorant_Garamond({ subsets: ['latin'], variable: '--font-cor
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-plus-jakarta', weight: ['400', '500', '600', '700', '800'], display: 'swap' });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://schoolnet.kidtrack.ng'),
-  title: { default: 'School Net · Find the perfect school for your child', template: '%s · KidTrack School Net' },
-  description: 'Discover, compare and enquire with verified Nigerian private schools on KidTrack School Net.',
-  openGraph: { type: 'website', siteName: 'KidTrack School Net', title: 'Find the perfect school for your child' },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://schoolcity.schoolos.ng'),
+  title: { default: 'SchoolCity · Find the perfect school for your child', template: '%s · SchoolOS SchoolCity' },
+  description: 'Discover, compare and enquire with verified Nigerian private schools on SchoolOS SchoolCity.',
+  openGraph: { type: 'website', siteName: 'SchoolOS SchoolCity', title: 'Find the perfect school for your child' },
   themeColor: '#FDFAF5',
 };
 

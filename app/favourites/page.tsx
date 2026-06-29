@@ -37,7 +37,7 @@ export default function SNFavorites() {
   if (!user) {
     return (
       <div style={{ minHeight:'100vh', background:'#F8FAFB', fontFamily:"'Source Sans 3','Segoe UI',sans-serif", display:'flex', flexDirection:'column' }}>
-        <ExtrasNav onBack={() => router.push("/")} backLabel="← Back to School Net" />
+        <ExtrasNav onBack={() => router.push("/")} backLabel="← Back to SchoolCity" />
         <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:40, textAlign:'center' }}>
           <div style={{ fontSize:56, marginBottom:16 }}>🔐</div>
           <div style={{ fontSize:22, fontWeight:800, color:'#111827', marginBottom:8 }}>Sign in to see saved schools</div>
@@ -61,7 +61,7 @@ export default function SNFavorites() {
 
   return (
     <div style={{ minHeight:'100vh', background:'#F8FAFB', fontFamily:"'Source Sans 3','Segoe UI',sans-serif", display:'flex', flexDirection:'column' }}>
-      <ExtrasNav onBack={() => router.push("/")} backLabel="← Back to School Net" />
+      <ExtrasNav onBack={() => router.push("/")} backLabel="← Back to SchoolCity" />
       <div style={{ maxWidth:1100, width:'100%', margin:'0 auto', padding:'32px 40px' }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:24 }}>
           <h2 style={{ margin:0, fontSize:22, fontWeight:900, color:'#111827' }}>

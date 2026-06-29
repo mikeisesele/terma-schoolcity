@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { CAROUSEL, SN_PARENT_FEATURES } from '@/lib/data';
+import { CAROUSEL, SN_PARENT_FEATURES, FEATURED_IDS } from '@/lib/data';
 import { T } from '@/lib/tokens';
 import { SNNav, SNCard, SNCompareBar, SNCompareModal, SNAuthModal } from '@/components/ui';
 import { useSchools } from '@/lib/useSchools';
@@ -12,8 +12,10 @@ import type { School } from '@/lib/data';
 export default function SNHome() {
   const router = useRouter();
   const { schools } = useSchools();
-  // Carousel uses static CAROUSEL for ordering until live data has ordering support
-  const carousel = schools.filter(s => !s.special).slice(0, CAROUSEL.length);
+  // Use CAROUSEL (filtered by FEATURED_IDS) directly — don't re-slice from schools
+  const carousel = schools.length > 0
+    ? schools.filter(s => FEATURED_IDS.includes(s.id) && !s.special)
+    : CAROUSEL;
   const [q, setQ]         = useState('');
   const [catF, setCatF]   = useState('All');
   const [showAll, setShowAll] = useState(false);
@@ -79,6 +81,7 @@ export default function SNHome() {
     return next;
   });
 
+  const safeSlide = carousel.length > 0 ? slide % carousel.length : 0;
   const onSelect = (s: School) => router.push('/schools/' + s.id);
   const onNav = (v: string) => {
     if (v === 'find') router.push('/find');
@@ -112,13 +115,13 @@ export default function SNHome() {
 
       {/* Featured school carousel — padded, rounded */}
       <div style={{ padding:'28px 40px 0' }}>
-        <div style={{ position:'relative', borderRadius:28, overflow:'hidden', height:420 }}>
+        <div style={{ position:'relative', borderRadius:28, overflow:'hidden', height:520 }}>
           {carousel.map((s, i) => (
-            <div key={s.id} style={{ position:'absolute', inset:0, transition:'opacity 1.2s cubic-bezier(.4,0,.2,1)', opacity:i===slide?1:0, pointerEvents:i===slide?'auto':'none', background:'linear-gradient(135deg,'+s.color+' 0%,'+s.color+'dd 45%,'+s.color+'99 100%)' }}>
+            <div key={s.id} style={{ position:'absolute', inset:0, transition:'opacity 1.2s cubic-bezier(.4,0,.2,1)', opacity:i===safeSlide?1:0, pointerEvents:i===safeSlide?'auto':'none', background:'linear-gradient(135deg,'+s.color+' 0%,'+s.color+'dd 45%,'+s.color+'99 100%)' }}>
               {s.bannerUrl && <div style={{ position:'absolute', inset:0, backgroundImage:`url(${s.bannerUrl})`, backgroundSize:'cover', backgroundPosition:'center' }}/>}
               <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0,rgba(255,255,255,.03) 1px,transparent 1px,transparent 50px)' }}/>
               <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, rgba(0,0,0,.62) 0%, rgba(0,0,0,.38) 40%, rgba(0,0,0,.05) 70%, rgba(0,0,0,0) 100%)' }}/>
-              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,.3) 0%, rgba(0,0,0,0) 50%)' }}/>
+              <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 55%)' }}/>
               <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', padding:'0 60px' }}>
                 <div style={{ flex:1, maxWidth:540 }}>
                   <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,.62)', letterSpacing:1.8, textTransform:'uppercase', marginBottom:12 }}>Featured school · {s.city}</div>
@@ -140,7 +143,7 @@ export default function SNHome() {
             </div>
           ))}
           <div style={{ position:'absolute', bottom:18, left:'50%', transform:'translateX(-50%)', display:'flex', gap:7 }}>
-            {carousel.map((_,i)=><button key={i} onClick={()=>setSlide(i)} style={{ width:i===slide?22:7, height:7, borderRadius:4, border:'none', background:i===slide?'rgba(255,255,255,.95)':'rgba(255,255,255,.38)', cursor:'pointer', padding:0, transition:'all .3s' }}/>)}
+            {carousel.map((_,i)=><button key={i} onClick={()=>setSlide(i)} style={{ width:i===safeSlide?22:7, height:7, borderRadius:4, border:'none', background:i===safeSlide?'rgba(255,255,255,.95)':'rgba(255,255,255,.38)', cursor:'pointer', padding:0, transition:'all .3s' }}/>)}
           </div>
           <div style={{ position:'absolute', bottom:18, right:20, display:'flex', gap:0 }}>
             <button onClick={e=>{e.stopPropagation();setSlide(s=>(s-1+carousel.length)%carousel.length);}} style={{ border:'none', background:'rgba(0,0,0,.28)', backdropFilter:'blur(8px)', color:'#fff', width:40, height:36, fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'6px 0 0 6px', borderRight:'1px solid rgba(255,255,255,.15)' }}>‹</button>
@@ -165,12 +168,9 @@ export default function SNHome() {
 
       {/* Masonry results */}
       <div style={{ maxWidth:1280, margin:'0 auto', padding:'20px 48px 48px' }}>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20 }}>
-          {(q || catF!=='All') ? <span style={{ fontSize:13.5, color:T.ink3, fontWeight:600 }}>{shown.length} school{shown.length!==1?'s':''} found</span> : <span/>}
-          <button onClick={()=>onNav('find')} style={{ border:'1.5px solid '+T.cardBorder, background:T.cardBg, color:T.accent, borderRadius:T.btnR, padding:'8px 20px', fontFamily:'inherit', fontSize:13, fontWeight:800, cursor:'pointer' }}>See all {schools.length.toLocaleString()} schools →</button>
-        </div>
+        {(q || catF!=='All') && <div style={{ marginBottom:16 }}><span style={{ fontSize:13.5, color:T.ink3, fontWeight:600 }}>{shown.length} school{shown.length!==1?'s':''} found</span></div>}
         <div style={{ columnCount:3, columnGap:16 }}>{shown9.map(s=>C(s))}{shown.length===0&&<div style={{ columnSpan:'all', padding:'64px', textAlign:'center', color:T.ink3, fontSize:15 }}>No schools match your search.</div>}</div>
-        {shown.length > 9 && !showAll && <div style={{ textAlign:'center', marginTop:8 }}><button onClick={()=>setShowAll(true)} style={{ border:'1.5px solid '+T.cardBorder, background:T.cardBg, color:T.accent, borderRadius:T.btnR, padding:'10px 28px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>Show all</button></div>}
+        <div style={{ textAlign:'center', marginTop:32 }}><button onClick={()=>onNav('find')} style={{ border:'1.5px solid '+T.cardBorder, background:T.cardBg, color:T.accent, borderRadius:T.btnR, padding:'12px 32px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>See all {schools.length.toLocaleString()} schools →</button></div>
       </div>
 
       {/* For parents */}
@@ -179,9 +179,9 @@ export default function SNHome() {
           <div>
             <div style={{ fontSize:11, fontWeight:700, color:T.accentText+'70', letterSpacing:'.15em', textTransform:'uppercase', marginBottom:14 }}>For parents</div>
             <h2 style={{ fontSize:34, fontWeight:800, color:T.accentText, lineHeight:1.1, margin:'0 0 12px', letterSpacing:'-.01em' }}>Be part of your child&apos;s school day.<br/>From anywhere.</h2>
-            <p style={{ fontSize:14, color:T.accentText+'78', lineHeight:1.65, margin:'0 0 22px' }}>KidTrack keeps you connected to everything that matters — attendance, fees, safety, and more — live on your phone.</p>
-            <a href="https://kidtrack.ng" style={{ display:'inline-flex', flexDirection:'column', alignItems:'flex-start', border:'1.5px solid '+T.accentText+'55', background:'transparent', color:T.accentText, borderRadius:'10px', padding:'13px 24px', fontFamily:T.font, cursor:'pointer', textDecoration:'none' }}>
-              <span style={{ fontSize:14, fontWeight:800, lineHeight:1.2 }}>Visit KidTrack to learn more →</span>
+            <p style={{ fontSize:14, color:T.accentText+'78', lineHeight:1.65, margin:'0 0 22px' }}>SchoolOS keeps you connected to everything that matters — attendance, fees, safety, and more — live on your phone.</p>
+            <a href="https://schoolos.ng" style={{ display:'inline-flex', flexDirection:'column', alignItems:'flex-start', border:'1.5px solid '+T.accentText+'55', background:'transparent', color:T.accentText, borderRadius:'10px', padding:'13px 24px', fontFamily:T.font, cursor:'pointer', textDecoration:'none' }}>
+              <span style={{ fontSize:14, fontWeight:800, lineHeight:1.2 }}>Visit SchoolOS to learn more →</span>
               <span style={{ fontSize:11.5, color:T.accentText+'70', marginTop:4, fontWeight:500 }}>then share it with your child&apos;s school.</span>
             </a>
           </div>
@@ -191,8 +191,8 @@ export default function SNHome() {
 
       {/* Footer */}
       <div style={{ background:T.footerBg, padding:'20px 48px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-        <span style={{ fontSize:16, fontWeight:700, color:T.footerText }}>School Net <span style={{ fontStyle:'italic', opacity:.6 }}>by KidTrack</span></span>
-        <span style={{ fontSize:11, color:T.footerText, opacity:.5 }}>© 2026 KidTrack Technologies Ltd.</span>
+        <span style={{ fontSize:16, fontWeight:700, color:T.footerText }}>SchoolCity <span style={{ fontStyle:'italic', opacity:.6 }}>by SchoolOS</span></span>
+        <span style={{ fontSize:11, color:T.footerText, opacity:.5 }}>© 2026 SchoolOS Technologies Ltd.</span>
       </div>
 
       {compare.length > 0 && <SNCompareBar compareIds={compare} onOpen={()=>setCompareOpen(true)} onRemove={id=>{const n=compare.filter(x=>x!==id);setCompare(n);try{localStorage.setItem('sn_compare',JSON.stringify(n));}catch{}}} onClear={()=>{setCompare([]);try{localStorage.removeItem('sn_compare');}catch{}}} />}

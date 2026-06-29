@@ -218,13 +218,13 @@ export const SN_SCHOOLS: School[] = [
     },
   },
   {
-    id:'qc', name:'Queens College Lagos',
-    city:'Yaba, Lagos', state:'Lagos', type:'Boarding', gender:'Girls', levels:'JSS–SSS',
+    id:'qc', name:'Federal Government College Enugu',
+    city:'Enugu, Enugu', state:'Enugu', type:'Boarding', gender:'Mixed', levels:'JSS–SSS',
     orientation:'Non-denominational', transport:false, boarding:true, rating:4.6, reviews:267, verified:true,
-    feeFrom:320000, feeTo:580000, color:'#9D174D', tagline:'Raising Queens, Building the Nation',
+    feeFrom:320000, feeTo:580000, color:'#166534', tagline:'Excellence Through Federal Standards',
     features:['Science Lab','Computer Lab','Library','Sports Ground','Boarding House','Music Room'],
-    scholarships:2, vacancies:3, students:'1,000+', established:1927,
-    address:'Sabo, Yaba, Lagos State', phone:'+234 802 567 8912', email:'info@queenscollegelagos.edu.ng',
+    scholarships:2, vacancies:3, students:'1,000+', established:1960,
+    address:'Independence Layout, Enugu, Enugu State', phone:'+234 802 567 8912', email:'info@fgcenugu.edu.ng',
     bannerUrl:'/schools/banner10.jpg',
     imageUrl:'/schools/banner10.jpg',
     facilityImages:{
@@ -244,8 +244,8 @@ export const SN_SCHOOLS: School[] = [
     features:['Science Lab','Computer Lab','Library','Sports Ground','Boarding House','Chapel','Swimming Pool'],
     scholarships:2, vacancies:4, students:'650+', established:1978,
     address:'Karu-Mararaba Road, Karu, Abuja', phone:'+234 806 789 0123', email:'info@binghamacademy.edu.ng',
-    bannerUrl:'/schools/banner11.jpg',
-    imageUrl:'/schools/banner11.jpg',
+    bannerUrl:'/schools/banner12.jpg',
+    imageUrl:'/schools/banner12.jpg',
     facilityImages:{
       'Science Lab': FI.scienceLab,
       'Computer Lab': FI.computerLab,
@@ -263,8 +263,8 @@ export const SN_SCHOOLS: School[] = [
     features:['Science Lab','Computer Lab','Library','Sports Ground','Transport','Music Room'],
     scholarships:1, vacancies:2, students:'550+', established:2006,
     address:'14 Adeniran Ogunsanya Street, Surulere, Lagos', phone:'+234 807 890 1234', email:'info@ladelaschools.edu.ng',
-    bannerUrl:'/schools/banner12.jpg',
-    imageUrl:'/schools/banner12.jpg',
+    bannerUrl:'/schools/banner11.jpg',
+    imageUrl:'/schools/banner11.jpg',
     facilityImages:{
       'Science Lab': FI.scienceLab,
       'Computer Lab': FI.computerLab,
@@ -282,7 +282,6 @@ export const SN_SCHOOLS: School[] = [
     features:['Science Lab','Computer Lab','Library','Sports Ground','Transport','Music Room'],
     scholarships:2, vacancies:2, students:'520+', established:2004,
     address:'Plot 1181, Cadastral Zone, Wuse 2, Abuja', phone:'+234 805 901 2345', email:'info@dovenest.edu.ng',
-    bannerUrl:'/schools/banner13.jpg', imageUrl:'/schools/banner13.jpg',
     facilityImages:{ 'Science Lab':FI.scienceLab, 'Computer Lab':FI.computerLab, 'Library':FI.library, 'Sports Ground':FI.sports, 'Transport':FI.transport, 'Music Room':FI.music },
   },
   {
@@ -424,7 +423,7 @@ export const SN_SCHOOLS: School[] = [
   },
 ];
 
-export const FEATURED_IDS = ['gf','li','hc','ka','hil','bca','cre','gra','sa','qc','nav','fe','ath','vic','dov','eko'];
+export const FEATURED_IDS = ['gf','li','hc','ka','hil','bca','cre','gra','sa','qc','nav','fe','ath','vic','eko'];
 export const CAROUSEL     = SN_SCHOOLS.filter(s => FEATURED_IDS.includes(s.id));
 export const HIGHLY_RATED = [...SN_SCHOOLS].filter(s => !s.special).sort((a,b) => b.rating - a.rating).slice(0,6);
 

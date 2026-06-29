@@ -2,11 +2,11 @@
 
 Scaffold, design system, data client, environment, and SEO/ISR baseline. Everything else depends on this. Build first.
 
-Spec: `SYSTEM.md §9` · Phase 5 · `VERDANT.md` · repo `CLAUDE.md`. Design ref: `Kidtrack School Net.html`, `sn-masonry.jsx`.
+Spec: `SYSTEM.md §9` · Phase 5 · `VERDANT.md` · repo `CLAUDE.md`. Design ref: `SchoolOS SchoolCity.html`, `sn-masonry.jsx`.
 
 ---
 
-- [~] 🔴 **Next.js 14 App Router scaffold** — As a developer, I can run the app locally so that I have a foundation to build School Net on.
+- [~] 🔴 **Next.js 14 App Router scaffold** — As a developer, I can run the app locally so that I have a foundation to build SchoolCity on.
   - Screens: n/a (project setup)
   - Spec: BUILD.md §0 (Public web = Next.js App Router) · `CLAUDE.md`
   - Backend: none (scaffold)
@@ -27,10 +27,10 @@ Spec: `SYSTEM.md §9` · Phase 5 · `VERDANT.md` · repo `CLAUDE.md`. Design ref
   - Gating/Auth: public
   - Accept: TS components for top nav (logo, Find a school / Find a vacancy links, user/sign-in slot), section header (`SHead`), school card (`SNCard` with photo, badge, rating stars, fee, heart/share/compare actions), star renderer. Responsive masonry layout. Verdant-styled.
 
-- [~] 🔴 **supabase-js public read client** — As a developer, I can fetch public School Net data so that pages render real backend data.
+- [~] 🔴 **supabase-js public read client** — As a developer, I can fetch public SchoolCity data so that pages render real backend data.
   - Screens: n/a
   - Spec: `DATA_SOURCES.md §7` · `SYSTEM.md §3.12`
-  - Backend: `GET /api/schoolnet/schools`, `GET /api/schoolnet/schools/:id` (owned by kidtrack-backend; public read = verified+published only)
+  - Backend: `GET /api/schoolcity/schools`, `GET /api/schoolcity/schools/:id` (owned by schoolos-backend; public read = verified+published only)
   - Gating/Auth: public
   - Accept: server-side data layer wraps backend public endpoints; anon key only; typed response models for school list + detail; central fetch helper with error handling. No direct table writes from client.
 
@@ -42,7 +42,7 @@ Spec: `SYSTEM.md §9` · Phase 5 · `VERDANT.md` · repo `CLAUDE.md`. Design ref
   - Accept: `.env.example` documents `NEXT_PUBLIC_SUPABASE_URL`, anon key, backend API base URL, OSM embed base, site canonical URL, Google OAuth client id. No secrets committed; CV upload uses backend-issued pre-signed URLs (no storage secret in client).
 
 - [~] 🔴 **SEO / metadata baseline** — As a public visitor, I get correct titles/descriptions so that pages are shareable and indexable.
-  - Screens: `Kidtrack School Net.html` (`<title>School Net · Find the perfect school for your child`)
+  - Screens: `SchoolOS SchoolCity.html` (`<title>SchoolCity · Find the perfect school for your child`)
   - Spec: Phase 5 · `CLAUDE.md` (indexable)
   - Backend: none (per-page metadata wired in `seo-ssr.md`)
   - Gating/Auth: public
@@ -51,7 +51,7 @@ Spec: `SYSTEM.md §9` · Phase 5 · `VERDANT.md` · repo `CLAUDE.md`. Design ref
 - [~] 🔴 **ISR / rendering config** — As a public visitor, I see fresh-but-fast pages so that SEO and performance are both met.
   - Screens: directory + `/schools/[id]`
   - Spec: BUILD.md §0 (SSR/ISR) · `CLAUDE.md` (revalidate ≈ 60s)
-  - Backend: `GET /api/schoolnet/schools[/:id]`
+  - Backend: `GET /api/schoolcity/schools[/:id]`
   - Gating/Auth: public
   - Accept: school profile routes SSR + `revalidate ≈ 60`; directory listing ISR; static chrome cached; documented rendering strategy per route. Authed actions (save/apply) isolated to client components so they don't break static/ISR.
 

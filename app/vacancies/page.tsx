@@ -83,7 +83,7 @@ export default function SNFindVacancy() {
 
   return (
     <div style={{ minHeight:'100vh', background:'#F8FAFB', fontFamily:"'Source Sans 3','Segoe UI',sans-serif", display:'flex', flexDirection:'column' }}>
-      <ExtrasNav onBack={() => router.push('/')} backLabel="← Back to School Net" />
+      <ExtrasNav onBack={() => router.push('/')} backLabel="← Back to SchoolCity" />
 
       <div style={{ background:'linear-gradient(135deg,#1A3D2C,#0A4B48)', padding:'40px 40px 28px', flexShrink:0 }}>
         <h1 style={{ margin:'0 0 6px', fontSize:28, fontWeight:900, color:'#fff', textAlign:'center' }}>Find a teaching or school job</h1>

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { SN_SCHOOLS } from '@/lib/data';
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://schoolnet.kidtrack.ng';
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://schoolcity.schoolos.ng';
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: SITE, changeFrequency: 'daily', priority: 1 },

@@ -1,5 +1,5 @@
-// School Net theme — exact from sn-masonry.jsx (schoolnet-v2.jsx) `T` object.
-// This is the live prototype rendered by Kidtrack School Net.html via sn-masonry.jsx.
+// SchoolCity theme — exact from sn-masonry.jsx (schoolcity-v2.jsx) `T` object.
+// This is the live prototype rendered by SchoolOS SchoolCity.html via sn-masonry.jsx.
 export const T = {
   bg:'#FDFAF5', cardBg:'#FFFFFF', cardFooterBg:'#EBF0E8', sectionBg:'#FFFFFF',
   navBg:'rgba(253,250,245,.97)', navBorder:'rgba(40,80,55,.09)', navInk:'#1A3828',

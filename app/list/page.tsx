@@ -48,32 +48,32 @@ export default function SNListSchool() {
 
   if (sent) return (
     <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }}>
-      <SNNav onBack={() => router.push('/')} backLabel="← Back to School Net" />
+      <SNNav onBack={() => router.push('/')} backLabel="← Back to SchoolCity" />
       <div style={{ maxWidth:520, margin:'80px auto', textAlign:'center', padding:'48px', background:T.cardBg, borderRadius:T.cardR*2, boxShadow:`0 4px 24px ${T.shadowColor}`, border:`1.5px solid ${T.cardBorder}` }}>
         <div style={{ fontSize:52, marginBottom:16 }}>🎉</div>
         <div style={{ fontSize:20, fontWeight:900, color:T.ink, marginBottom:8 }}>We&apos;ll be in touch.</div>
-        <div style={{ fontSize:15, color:T.ink3, fontWeight:500, lineHeight:1.6, marginBottom:28 }}>Our team will contact you within one business day to set up your school on KidTrack and get your School Net profile live.</div>
-        <button onClick={() => router.push('/')} style={{ border:'none', background:T.accent, color:T.accentText, borderRadius:T.btnR, padding:'12px 28px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>Back to School Net</button>
+        <div style={{ fontSize:15, color:T.ink3, fontWeight:500, lineHeight:1.6, marginBottom:28 }}>Our team will contact you within one business day to set up your school on SchoolOS and get your SchoolCity profile live.</div>
+        <button onClick={() => router.push('/')} style={{ border:'none', background:T.accent, color:T.accentText, borderRadius:T.btnR, padding:'12px 28px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>Back to SchoolCity</button>
       </div>
     </div>
   );
 
   return (
     <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }}>
-      <SNNav onBack={() => router.push('/')} backLabel="← Back to School Net" />
+      <SNNav onBack={() => router.push('/')} backLabel="← Back to SchoolCity" />
 
       <div style={{ background:`linear-gradient(135deg,${T.accent},${T.accent}ee)`, padding:'40px 40px 36px' }}>
         <div style={{ maxWidth:640, margin:'0 auto', textAlign:'center' }}>
-          <div style={{ fontSize:11, fontWeight:700, color:T.accentText+'60', letterSpacing:'.18em', textTransform:'uppercase', marginBottom:12 }}>School Net listing is a KidTrack benefit</div>
-          <h1 style={{ margin:'0 0 10px', fontSize:34, fontWeight:900, color:T.accentText, lineHeight:1.1 }}>Get your school on KidTrack — and on School Net.</h1>
-          <p style={{ margin:0, fontSize:15, color:T.accentText+'78', lineHeight:1.7 }}>School Net listings are available to schools on KidTrack Standard or Premium. Register below and our team will set up your full platform in 48 hours.</p>
+          <div style={{ fontSize:11, fontWeight:700, color:T.accentText+'60', letterSpacing:'.18em', textTransform:'uppercase', marginBottom:12 }}>SchoolCity listing is a SchoolOS benefit</div>
+          <h1 style={{ margin:'0 0 10px', fontSize:34, fontWeight:900, color:T.accentText, lineHeight:1.1 }}>Get your school on SchoolOS — and on SchoolCity.</h1>
+          <p style={{ margin:0, fontSize:15, color:T.accentText+'78', lineHeight:1.7 }}>SchoolCity listings are available to schools on SchoolOS Standard or Premium. Register below and our team will set up your full platform in 48 hours.</p>
         </div>
       </div>
 
       <div style={{ maxWidth:900, margin:'0 auto', padding:'36px 40px 0', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
-        {([['📋','School Net profile','A verified public listing that parents find when searching — with photos, fees, facilities and ratings.'],
+        {([['📋','SchoolCity profile','A verified public listing that parents find when searching — with photos, fees, facilities and ratings.'],
           ['👨‍👩‍👧','Parent app','Every parent gets live bus tracking, instant results, fee payments and school communication on their phone.'],
-          ['🏆','KidTrack Verified badge','Schools on Standard+ display the KidTrack Verified badge — a trust signal parents recognise.']] as [string,string,string][]).map(([e,t,d])=>(
+          ['🏆','SchoolOS Verified badge','Schools on Standard+ display the SchoolOS Verified badge — a trust signal parents recognise.']] as [string,string,string][]).map(([e,t,d])=>(
           <div key={t} style={{ background:T.cardBg, borderRadius:T.cardR, border:`1.5px solid ${T.cardBorder}`, padding:'20px 18px' }}>
             <div style={{ fontSize:28, marginBottom:10 }}>{e}</div>
             <div style={{ fontSize:14, fontWeight:800, color:T.ink, marginBottom:6 }}>{t}</div>
@@ -95,7 +95,7 @@ export default function SNListSchool() {
             <div><label style={{ fontSize:13, fontWeight:700, color:T.ink, display:'block', marginBottom:5 }}>School email</label><input value={form.email} onChange={e=>set('email',e.target.value)} placeholder="admin@yourschool.edu.ng" style={inp}/></div>
             <button onClick={handleSubmit} disabled={submitting} style={{ border:'none', background:T.accent, color:T.accentText, borderRadius:T.btnR, padding:'13px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:submitting?'not-allowed':'pointer', marginTop:4, opacity:submitting?0.7:1 }}>{submitting ? 'Sending…' : 'Send enquiry →'}</button>
           </div>
-          <div style={{ marginTop:14, fontSize:12, color:T.ink3, textAlign:'center', lineHeight:1.5 }}>By submitting you agree to be contacted by the KidTrack team. We will not spam you.</div>
+          <div style={{ marginTop:14, fontSize:12, color:T.ink3, textAlign:'center', lineHeight:1.5 }}>By submitting you agree to be contacted by the SchoolOS team. We will not spam you.</div>
         </div>
       </div>
     </div>

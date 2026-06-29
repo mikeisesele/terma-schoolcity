@@ -7,13 +7,13 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('[supabase] Missing env vars — set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY');
 }
 
-// Shared browser client for SchoolNet (school discovery + onboarding portal).
+// Shared browser client for SchoolCity (school discovery + onboarding portal).
 // Auth: Google OAuth for school heads → supabase.auth.signInWithOAuth({ provider: 'google' })
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
 });
 
-/** Call a KidTrack Edge Function from the SchoolNet context, injecting the current session JWT. */
+/** Call a SchoolOS Edge Function from the SchoolCity context, injecting the current session JWT. */
 export async function apiFn<T = unknown>(name: string, body?: unknown): Promise<T> {
   const { data: { session } } = await supabase.auth.getSession();
   const res = await fetch(`${supabaseUrl}/functions/v1/${name}`, {

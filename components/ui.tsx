@@ -45,7 +45,7 @@ export function SNNav({ onBack, rightSlot, onNav }: {
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L14 4v4c0 3.5-2.5 6-6 7C3.5 14 2 11.5 2 8V4Z" fill="white" opacity=".9"/><polyline points="5,8 7.2,10.2 11,6.5" stroke="#D4A04A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
         </div>
         <div>
-          <div style={{ fontSize:16, fontWeight:800, color:T.navInk, letterSpacing:'-.01em', lineHeight:1 }}>School Net</div>
+          <div style={{ fontSize:16, fontWeight:800, color:T.navInk, letterSpacing:'-.01em', lineHeight:1 }}>SchoolCity</div>
           <div style={{ fontSize:11, fontWeight:500, color:T.ink3, marginTop:3, lineHeight:1 }}>Find the perfect school for your child</div>
         </div>
       </div>
@@ -68,7 +68,7 @@ export function SNNav({ onBack, rightSlot, onNav }: {
   );
 }
 
-// Dark forest nav used by Find-a-vacancy & Favorites (from schoolnet-extras.jsx `_ExtrasNav`).
+// Dark forest nav used by Find-a-vacancy & Favorites (from schoolcity-extras.jsx `_ExtrasNav`).
 export function ExtrasNav({ onBack, backLabel, rightSlot }: { onBack?: () => void; backLabel?: string; rightSlot?: React.ReactNode }) {
   return (
     <div style={{ background:'#1A3D2C', padding:'0 40px', display:'flex', alignItems:'center', gap:16, height:60, position:'sticky', top:0, zIndex:100, fontFamily:"'Source Sans 3','Segoe UI',sans-serif", flexShrink:0 }}>
@@ -77,8 +77,8 @@ export function ExtrasNav({ onBack, backLabel, rightSlot }: { onBack?: () => voi
           <span style={{ color:'#fff', fontSize:16, fontWeight:900 }}>K</span>
         </div>
         <div>
-          <div style={{ fontSize:15, fontWeight:900, color:'#fff', lineHeight:1 }}>School Net</div>
-          <div style={{ fontSize:10, fontWeight:600, color:'rgba(255,255,255,.5)', lineHeight:1 }}>by Kidtrack</div>
+          <div style={{ fontSize:15, fontWeight:900, color:'#fff', lineHeight:1 }}>SchoolCity</div>
+          <div style={{ fontSize:10, fontWeight:600, color:'rgba(255,255,255,.5)', lineHeight:1 }}>by SchoolOS</div>
         </div>
       </div>
       {onBack && (
@@ -193,7 +193,7 @@ export function SNCompareModal({ compareIds, onClose, onRemove, onSelect }: {
     { label:'Scholarships',   key:'scholarships', render: s => s.scholarships > 0 ? <span style={{ color:'#7C3AED', fontWeight:700 }}>{s.scholarships} available</span> : <span style={{ color:ink3 }}>None</span>, compare: s => s.scholarships },
     { label:'Vacancies',      key:'vacancies',    render: s => s.vacancies > 0 ? <span style={{ color:accent, fontWeight:700 }}>{s.vacancies} open</span> : <span style={{ color:ink3 }}>None</span> },
     { label:'Special needs',  key:'special',      render: s => s.special ? <span style={{ color:'#0369A1', fontWeight:700 }}>✓ Yes</span> : <span style={{ color:ink3 }}>—</span> },
-    { label:'KidTrack plan',  key:'plan',         render: s => <span style={{ fontSize:12, fontWeight:800, color: s.ktPlan==='Premium'?'#B87D20':s.ktPlan==='Standard'?accent:ink3, background: s.ktPlan==='Premium'?'#FEF3C7':s.ktPlan==='Standard'?accentLight:'#F3F4F6', borderRadius:4, padding:'2px 8px' }}>{s.ktPlan||'—'}</span> },
+    { label:'SchoolOS plan',  key:'plan',         render: s => <span style={{ fontSize:12, fontWeight:800, color: s.ktPlan==='Premium'?'#B87D20':s.ktPlan==='Standard'?accent:ink3, background: s.ktPlan==='Premium'?'#FEF3C7':s.ktPlan==='Standard'?accentLight:'#F3F4F6', borderRadius:4, padding:'2px 8px' }}>{s.ktPlan||'—'}</span> },
   ];
 
   const isDiff = (row: typeof rows[0]) => {
@@ -327,7 +327,7 @@ export function SNAuthModal({ onClose, onSuccess: _onSuccess, reason }: {
               <div style={{ width:40, height:40, borderRadius:10, background:'#B87D20', display:'flex', alignItems:'center', justifyContent:'center' }}>
                 <span style={{ color:'#fff', fontSize:18, fontWeight:900 }}>K</span>
               </div>
-              <div style={{ fontSize:20, fontWeight:900, color:'#1A3D2C' }}>School Net</div>
+              <div style={{ fontSize:20, fontWeight:900, color:'#1A3D2C' }}>SchoolCity</div>
             </div>
             <div style={{ fontSize:21, fontWeight:800, color:'#111827', marginBottom:6 }}>
               {reason === 'save' ? 'Save this school' : 'Sign in to continue'}
