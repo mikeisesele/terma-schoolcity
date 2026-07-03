@@ -10,6 +10,17 @@ import type { School, Campus } from '@/lib/data';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** Convert "Nursery,Primary,JSS,SSS" to the compact display form "Nursery–SSS". */
+function formatLevels(raw: string): string {
+  if (!raw.includes(',')) return raw; // already in range/single format
+  const ALL = ['Nursery', 'Primary', 'JSS', 'SSS'];
+  const present = raw.split(',').map(s => s.trim()).filter(s => ALL.includes(s));
+  if (!present.length) return raw;
+  const first = ALL.find(l => present.includes(l))!;
+  const last = [...ALL].reverse().find(l => present.includes(l))!;
+  return first === last ? first : `${first}–${last}`;
+}
+
 export type UseSchoolResult = {
   school: School | null;
   loading: boolean;
@@ -78,7 +89,7 @@ export function useSchool(id: string): UseSchoolResult {
         state:        String(row.state ?? 'NG'),
         type:         String(row.type ?? 'Day'),
         gender:       String(row.gender ?? 'Mixed'),
-        levels:       String(row.levels ?? 'Nursery–SSS'),
+        levels:       formatLevels(String(row.levels ?? 'Nursery–SSS')),
         orientation:  String(row.orientation ?? 'Non-denominational'),
         transport:    Boolean(row.transport),
         boarding:     Boolean(row.boarding),
