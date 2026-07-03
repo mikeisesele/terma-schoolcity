@@ -408,7 +408,7 @@ export default function SCDetail() {
             <div style={{ position: 'sticky', top: 20, display: 'flex', flexDirection: 'column', gap: 16 }}>
 
               {/* Enquire CTA */}
-              <div style={{ background: school.color || '#1A3D2C', borderRadius: T.cardR, padding: '24px 22px', boxShadow: '0 4px 20px rgba(0,0,0,.2)' }}>
+              <div style={{ background: T.accent, borderRadius: T.cardR, padding: '24px 22px', boxShadow: '0 4px 20px rgba(0,0,0,.2)' }}>
                 <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 8 }}>Enquire about admission</div>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,.75)', lineHeight: 1.55, marginBottom: 18 }}>Get information about fees, availability and the admission process directly from the school.</div>
                 <button onClick={() => setEnqOpen(true)} style={{ width: '100%', border: 'none', background: 'rgba(255,255,255,.15)', color: '#fff', borderRadius: T.btnR, padding: '12px', fontFamily: 'inherit', fontSize: 14, fontWeight: 800, cursor: 'pointer', backdropFilter: 'blur(4px)', transition: 'background .2s' }}
