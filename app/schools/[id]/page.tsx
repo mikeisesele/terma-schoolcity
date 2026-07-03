@@ -59,6 +59,24 @@ function featureDescription(label: string): string {
   return '';
 }
 
+function activityEmoji(label: string): string {
+  const l = label.toLowerCase();
+  if (l.includes('sport') || l.includes('inter-house') || l.includes('athletic')) return '🏆';
+  if (l.includes('cultural') || l.includes('drama') || l.includes('theatre'))    return '🎭';
+  if (l.includes('christmas') || l.includes('xmas') || l.includes('carol'))      return '🎄';
+  if (l.includes('graduation') || l.includes('valedictory'))                      return '🎓';
+  if (l.includes('science') && l.includes('fair'))                               return '🔭';
+  if (l.includes('debate') || l.includes('quiz') || l.includes('spelling'))      return '🎤';
+  if (l.includes('music') || l.includes('concert') || l.includes('choir'))       return '🎵';
+  if (l.includes('art') || l.includes('exhibition'))                             return '🎨';
+  if (l.includes('parent') || l.includes('open day'))                            return '👨‍👩‍👧';
+  if (l.includes('prize') || l.includes('award'))                                return '🏅';
+  if (l.includes('excursion') || l.includes('trip') || l.includes('field'))      return '🚌';
+  if (l.includes('eid') || l.includes('sallah'))                                 return '🌙';
+  if (l.includes('inter') || l.includes('compet'))                               return '🥇';
+  return '📸';
+}
+
 function achievementStyle(type: AchievementType): { icon: string; color: string; bg: string } {
   switch (type) {
     case 'waec':        return { icon: '📜', color: '#1E3A5F', bg: '#DBEAFE' };
@@ -153,6 +171,12 @@ export default function SCDetail() {
     const urls = dbPhotos.length > 0 ? dbPhotos.map(p => p.url) : fallback;
     return { label, emoji, color, photoCount: urls.length, urls, description: featureDescription(label) };
   });
+
+  // Activities & Events — photo categories not in the school's features list
+  const featureSet = new Set(school.features.map(f => f.toLowerCase()));
+  const activityList = Object.keys(byCategory)
+    .filter(cat => !featureSet.has(cat.toLowerCase()))
+    .map(cat => ({ label: cat, emoji: activityEmoji(cat), photos: byCategory[cat] }));
 
   // Awards — platform auto-badges + DB achievements
   const platformBadges = [
@@ -383,6 +407,33 @@ export default function SCDetail() {
                   <FacilityGrid />
                 )}
               </div>
+
+              {/* Activities & Events */}
+              {activityList.length > 0 && (
+                <div style={{ background: T.cardBg, borderRadius: T.cardR, border: `1.5px solid ${T.cardBorder}`, padding: '24px 24px', boxShadow: `0 2px 12px ${T.shadowColor}` }}>
+                  <h3 style={{ margin: '0 0 4px', fontSize: 16, fontWeight: 800, color: T.ink }}>Activities &amp; Events</h3>
+                  <p style={{ margin: '0 0 16px', fontSize: 13.5, color: T.ink3 }}>School events and activities gallery</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14 }}>
+                    {activityList.map(a => (
+                      <div
+                        key={a.label}
+                        onClick={() => setFM({ label: a.label, emoji: a.emoji, color: T.accent, photoCount: a.photos.length, urls: a.photos.map(p => p.url), description: '' })}
+                        style={{ borderRadius: 14, border: `1.5px solid ${T.line}`, overflow: 'hidden', cursor: 'pointer', background: T.cardBg, transition: 'box-shadow .2s' }}
+                        onMouseEnter={e => (e.currentTarget.style.boxShadow = `0 4px 16px ${T.shadowHover}`)}
+                        onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
+                      >
+                        <div style={{ background: T.accentLight, height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                          <span style={{ fontSize: 34 }}>{a.emoji}</span>
+                          <span style={{ position: 'absolute', top: 8, right: 8, background: T.accent, color: T.accentText, fontSize: 10, fontWeight: 800, borderRadius: T.btnR, padding: '2px 8px' }}>{a.photos.length} photos</span>
+                        </div>
+                        <div style={{ padding: '10px 12px' }}>
+                          <div style={{ fontSize: 12.5, fontWeight: 800, color: T.ink, lineHeight: 1.3 }}>{a.label}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Awards & Recognition */}
               {allBadges.length > 0 && (
