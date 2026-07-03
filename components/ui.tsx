@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { School, SN_SCHOOLS } from '@/lib/data';
+import { School } from '@/lib/data';
 import { T } from '@/lib/tokens';
 import toast from 'react-hot-toast';
 import { supabase } from '@/lib/supabase';
@@ -134,13 +134,14 @@ export function SCCard({ school, onSelect, isFav, onToggleFav, inCompare, onTogg
   );
 }
 
-export function SCCompareBar({ compareIds, onOpen, onRemove, onClear }: {
+export function SCCompareBar({ compareIds, allSchools, onOpen, onRemove, onClear }: {
   compareIds: string[];
+  allSchools: School[];
   onOpen: () => void;
   onRemove: (id: string) => void;
   onClear: () => void;
 }) {
-  const schools = compareIds.map(id => SN_SCHOOLS.find(s => s.id === id)).filter((s): s is School => Boolean(s));
+  const schools = compareIds.map(id => allSchools.find(s => s.id === id)).filter((s): s is School => Boolean(s));
   if (schools.length === 0) return null;
   return (
     <div style={{ position:'fixed', bottom:0, left:0, right:0, background:'#1A3D2C', padding:'10px 32px', display:'flex', alignItems:'center', gap:14, zIndex:200, boxShadow:'0 -4px 24px rgba(0,0,0,.25)', fontFamily:"'Source Sans 3','Segoe UI',sans-serif" }}>
@@ -169,13 +170,14 @@ export function SCCompareBar({ compareIds, onOpen, onRemove, onClear }: {
   );
 }
 
-export function SCCompareModal({ compareIds, onClose, onRemove, onSelect }: {
+export function SCCompareModal({ compareIds, allSchools, onClose, onRemove, onSelect }: {
   compareIds: string[];
+  allSchools: School[];
   onClose: () => void;
   onRemove: (id: string) => void;
   onSelect: (s: School) => void;
 }) {
-  const schools = compareIds.map(id => SN_SCHOOLS.find(s => s.id === id)).filter((s): s is School => Boolean(s));
+  const schools = compareIds.map(id => allSchools.find(s => s.id === id)).filter((s): s is School => Boolean(s));
   const ink = '#1A3828'; const ink2 = '#3A5040'; const ink3 = '#7A9280';
   const line = '#D8E8D5'; const bg = '#FDFAF5'; const cardBg = '#FFFFFF';
   const accent = '#3D7058'; const accentLight = '#DDE8D8';
@@ -284,17 +286,36 @@ export function SCCompareModal({ compareIds, onClose, onRemove, onSelect }: {
   );
 }
 
-export function SCAuthModal({ onClose, onSuccess: _onSuccess, reason }: {
+export function SCAuthModal({ onClose, onSuccess: _onSuccess, reason, applyEmail }: {
   onClose: () => void;
   onSuccess: (account: {name:string;email:string;avatar:string;color:string}) => void;
   reason?: string;
+  applyEmail?: string;
 }) {
-  const [loading, setLoading] = useState(false);
-  const [done, setDone]       = useState(false);
+  const [loading, setLoading]     = useState(false);
+  const [done, setDone]           = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const signInWithGoogle = async () => {
     setLoading(true);
+    setAuthError(null);
     try {
+      // Pre-check: hit Supabase's public /auth/v1/settings endpoint to see if Google
+      // OAuth is enabled before redirecting. This avoids landing on a raw 400 JSON page
+      // when the provider is not yet configured in the Supabase dashboard.
+      const ctrl = new AbortController();
+      const settingsTimeout = setTimeout(() => ctrl.abort(), 5000);
+      const settingsRes = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/settings`,
+        { headers: { apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '' }, signal: ctrl.signal }
+      ).finally(() => clearTimeout(settingsTimeout));
+
+      const settings = await settingsRes.json() as { external?: Record<string, boolean> };
+      if (!settings.external?.google) {
+        throw new Error('Google sign-in is not available in this environment.');
+      }
+
+      // Provider is enabled — redirect to Google OAuth (standard flow).
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -303,11 +324,14 @@ export function SCAuthModal({ onClose, onSuccess: _onSuccess, reason }: {
         },
       });
       if (error) throw error;
-      // Browser will redirect — no further action needed here
+      // Browser redirects to Google — no further action needed here.
     } catch (err: unknown) {
       setLoading(false);
-      const msg = err instanceof Error ? err.message : 'Google sign-in failed';
-      toast.error(msg);
+      const raw = err instanceof Error ? err.message : 'Google sign-in failed';
+      const msg = (raw.toLowerCase().includes('not available') || raw.toLowerCase().includes('not enabled') || raw.toLowerCase().includes('provider') || raw.includes('abort'))
+        ? 'Google sign-in is not available in this environment.'
+        : raw;
+      setAuthError(msg);
       console.error('[google-oauth]', err);
     }
   };
@@ -321,6 +345,34 @@ export function SCAuthModal({ onClose, onSuccess: _onSuccess, reason }: {
             <div style={{ fontSize:20, fontWeight:900, color:'#111827' }}>Signed in!</div>
             <div style={{ fontSize:14, color:'#6B7280', fontWeight:500 }}>Loading your saved schools…</div>
           </div>
+        ) : authError ? (
+          /* Error state */
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:16 }}>
+            <div style={{ width:52, height:52, borderRadius:14, background:'#FEF2F2', display:'flex', alignItems:'center', justifyContent:'center', fontSize:26 }}>⚠️</div>
+            <div style={{ fontSize:18, fontWeight:800, color:'#111827' }}>Sign-in unavailable</div>
+            <div style={{ fontSize:14, color:'#6B7280', fontWeight:500, lineHeight:1.65 }}>{authError}</div>
+            {applyEmail && (
+              <div style={{ width:'100%', background:'#F0FDF4', border:'1.5px solid #BBF7D0', borderRadius:12, padding:'16px 18px', textAlign:'left' }}>
+                <div style={{ fontSize:13, fontWeight:700, color:'#166534', marginBottom:6 }}>Apply directly via email</div>
+                <div style={{ fontSize:13.5, color:'#374151', fontWeight:500, lineHeight:1.6 }}>
+                  Send your CV and a short cover note to:
+                </div>
+                <a href={`mailto:${applyEmail}`} style={{ fontSize:14.5, fontWeight:800, color:'#1A3D2C', display:'block', marginTop:6, textDecoration:'none' }}>
+                  {applyEmail}
+                </a>
+              </div>
+            )}
+            <div style={{ display:'flex', gap:10, width:'100%' }}>
+              <button onClick={() => setAuthError(null)}
+                style={{ flex:1, border:'1.5px solid #E5E9EC', background:'#fff', color:'#374151', borderRadius:10, padding:'11px', fontFamily:'inherit', fontSize:13.5, fontWeight:700, cursor:'pointer' }}>
+                Try again
+              </button>
+              <button onClick={onClose}
+                style={{ flex:1, border:'none', background:'#1A3D2C', color:'#fff', borderRadius:10, padding:'11px', fontFamily:'inherit', fontSize:13.5, fontWeight:700, cursor:'pointer' }}>
+                Close
+              </button>
+            </div>
+          </div>
         ) : (
           <>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:10, marginBottom:20 }}>
@@ -330,12 +382,12 @@ export function SCAuthModal({ onClose, onSuccess: _onSuccess, reason }: {
               <div style={{ fontSize:20, fontWeight:900, color:'#1A3D2C' }}>SchoolCity</div>
             </div>
             <div style={{ fontSize:21, fontWeight:800, color:'#111827', marginBottom:6 }}>
-              {reason === 'save' ? 'Save this school' : 'Sign in to continue'}
+              {reason === 'save' ? 'Save this school' : 'Sign in to apply'}
             </div>
             <div style={{ fontSize:14.5, color:'#6B7280', fontWeight:500, marginBottom:28, lineHeight:1.65 }}>
               {reason === 'save'
                 ? 'Create a free account to save schools, compare side-by-side, and access them from any device.'
-                : 'Sign in to access your saved schools and comparisons.'}
+                : 'Sign in with your Google account to submit your application. Your details are pre-filled from your profile.'}
             </div>
             {loading ? (
               <div style={{ padding:'24px 0', display:'flex', flexDirection:'column', alignItems:'center', gap:12 }}>

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { V_DEPTS, V_TYPES, V_TYPE_CLR, V_SPEC_IDS } from '@/lib/data';
+import { V_DEPTS, V_TYPES, V_TYPE_CLR } from '@/lib/data';
 import { ExtrasNav, SCAuthModal } from '@/components/ui';
 import type { Vacancy } from '@/lib/data';
 import { useVacancies } from '@/lib/useVacancies';
@@ -82,7 +82,7 @@ export default function SNFindVacancy() {
     const md  = dept === 'All departments' || v.dept === dept;
     const mt  = type === 'All' || v.type === type;
     const ms  = state === 'All States' || v.state === state;
-    const msp = !spOnly || V_SPEC_IDS.includes(v.sId);
+    const msp = !spOnly || !!v.isSpecial;
     return mq && md && mt && ms && msp;
   });
 

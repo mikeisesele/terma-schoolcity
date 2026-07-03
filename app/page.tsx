@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { CAROUSEL, SN_PARENT_FEATURES, FEATURED_IDS } from '@/lib/data';
+import { SN_PARENT_FEATURES } from '@/lib/data';
 import { T } from '@/lib/tokens';
 import { SCNav, SCCard, SCCompareBar, SCCompareModal, SCAuthModal } from '@/components/ui';
 import { useSchools } from '@/lib/useSchools';
@@ -12,10 +12,7 @@ import type { School } from '@/lib/data';
 export default function SNHome() {
   const router = useRouter();
   const { schools } = useSchools();
-  // Use CAROUSEL (filtered by FEATURED_IDS) directly — don't re-slice from schools
-  const carousel = schools.length > 0
-    ? schools.filter(s => FEATURED_IDS.includes(s.id) && !s.special)
-    : CAROUSEL;
+  const carousel = schools.filter(s => s.isFeatured && !s.special);
   const [q, setQ]         = useState('');
   const [catF, setCatF]   = useState('All');
   const [showAll, setShowAll] = useState(false);
@@ -195,8 +192,8 @@ export default function SNHome() {
         <span style={{ fontSize:11, color:T.footerText, opacity:.5 }}>© 2026 SchoolOS Technologies Ltd.</span>
       </div>
 
-      {compare.length > 0 && <SCCompareBar compareIds={compare} onOpen={()=>setCompareOpen(true)} onRemove={id=>{const n=compare.filter(x=>x!==id);setCompare(n);try{localStorage.setItem('sc_compare',JSON.stringify(n));}catch{}}} onClear={()=>{setCompare([]);try{localStorage.removeItem('sc_compare');}catch{}}} />}
-      {compareOpen && <SCCompareModal compareIds={compare} onClose={()=>setCompareOpen(false)} onRemove={id=>{const n=compare.filter(x=>x!==id);setCompare(n);try{localStorage.setItem('sc_compare',JSON.stringify(n));}catch{}}} onSelect={s=>{setCompareOpen(false);onSelect(s);}} />}
+      {compare.length > 0 && <SCCompareBar compareIds={compare} allSchools={schools} onOpen={()=>setCompareOpen(true)} onRemove={id=>{const n=compare.filter(x=>x!==id);setCompare(n);try{localStorage.setItem('sc_compare',JSON.stringify(n));}catch{}}} onClear={()=>{setCompare([]);try{localStorage.removeItem('sc_compare');}catch{}}} />}
+      {compareOpen && <SCCompareModal compareIds={compare} allSchools={schools} onClose={()=>setCompareOpen(false)} onRemove={id=>{const n=compare.filter(x=>x!==id);setCompare(n);try{localStorage.setItem('sc_compare',JSON.stringify(n));}catch{}}} onSelect={s=>{setCompareOpen(false);onSelect(s);}} />}
       {showAuth && <SCAuthModal onClose={()=>setShowAuth(false)} onSuccess={signIn} reason={authReason} />}
     </div>
   );

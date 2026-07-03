@@ -1,28 +1,18 @@
 /**
  * useSchools — fetches the public school directory from Supabase.
- * Falls back to SN_SCHOOLS static data if the query returns empty (dev without seed).
- *
- * The `schools` table in the DB uses:
- *   id (uuid), name, logo_url, address (city/state derived), plan (maps to ktPlan),
- *   primary_colour, status, phone, email, motto (tagline)
- *
- * TODO: The DB schools table does not yet have:
- *   slug, city, state, type, fees_from_kobo, rating, is_public, gender, levels,
- *   orientation, transport, boarding, verified, scholarships, vacancies, students,
- *   established, features, special, specialFocus
- * Until those columns exist the query will return partial data and the mapper
- * fills in defaults. Remove the TODO when the schema is extended.
+ * Pure DB mode: no static fallback. Returns empty array while loading.
  */
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { SN_SCHOOLS } from '@/lib/data';
+import { deriveFacilityImages } from '@/lib/data';
 import type { School } from '@/lib/data';
 
 type DBSchool = {
   id: string;
   name: string;
-  logo_url: string | null;
+  city: string | null;
+  state: string | null;
   address: string | null;
   phone: string | null;
   email: string | null;
@@ -30,37 +20,62 @@ type DBSchool = {
   plan: string | null;
   primary_colour: string | null;
   status: string | null;
+  banner_url: string | null;
+  image_url: string | null;
+  type: string | null;
+  gender: string | null;
+  levels: string | null;
+  orientation: string | null;
+  transport: boolean | null;
+  boarding: boolean | null;
+  fees_from_kobo: number | null;
+  fees_to_kobo: number | null;
+  features: string[] | null;
+  scholarships: number | null;
+  review_count: number | null;
+  students: string | null;
+  established: number | null;
+  is_featured: boolean | null;
+  is_special: boolean | null;
+  special_focus: string[] | null;
+  rating: number | null;
 };
 
-/** Map a DB row to the local School shape used by all UI components. */
 function mapDbToSchool(row: DBSchool): School {
+  const features = row.features ?? [];
   return {
-    id: row.id,
-    name: row.name,
-    ktPlan: row.plan === 'premium' ? 'Premium' : row.plan === 'standard' ? 'Standard' : undefined,
-    city: row.address ?? 'Nigeria',
-    state: 'NG',
-    type: 'Day',          // TODO: add `type` column to schools table
-    gender: 'Mixed',      // TODO: add `gender` column to schools table
-    levels: 'Nursery–SSS', // TODO: add `levels` column to schools table
-    orientation: 'Non-denominational', // TODO: add `orientation` column
-    transport: false,      // TODO: add `transport` column
-    boarding: false,       // TODO: add `boarding` column
-    rating: 4.5,           // TODO: add `rating` column / aggregate from reviews
-    reviews: 0,            // TODO: aggregate from reviews table
-    verified: row.status === 'active',
-    feeFrom: 0,            // TODO: add `fees_from_kobo` column
-    feeTo: 0,              // TODO: add `fees_to_kobo` column
-    color: row.primary_colour ?? '#1A3D2C',
-    tagline: row.motto ?? '',
-    features: [],          // TODO: add `features` column / join
-    scholarships: 0,       // TODO: add `scholarships` count
-    vacancies: 0,          // TODO: add `vacancies` count / join
-    students: '',          // TODO: add `students` column
-    established: 2000,     // TODO: add `established` column
-    address: row.address ?? '',
-    phone: row.phone ?? '',
-    email: row.email ?? '',
+    id:           row.id,
+    name:         row.name,
+    ktPlan:       row.plan === 'premium' ? 'Premium' : row.plan === 'standard' ? 'Standard' : undefined,
+    city:         row.city ?? row.address ?? 'Nigeria',
+    state:        row.state ?? 'NG',
+    type:         row.type ?? 'Day',
+    gender:       row.gender ?? 'Mixed',
+    levels:       row.levels ?? 'Nursery–SSS',
+    orientation:  row.orientation ?? 'Non-denominational',
+    transport:    row.transport ?? false,
+    boarding:     row.boarding ?? false,
+    rating:       typeof row.rating === 'number' ? row.rating : 4.5,
+    reviews:      row.review_count ?? 0,
+    verified:     row.status === 'active',
+    feeFrom:      Math.round((row.fees_from_kobo ?? 0) / 100),
+    feeTo:        Math.round((row.fees_to_kobo ?? 0) / 100),
+    color:        row.primary_colour ?? '#1A3D2C',
+    tagline:      row.motto ?? '',
+    features,
+    scholarships: row.scholarships ?? 0,
+    vacancies:    0,
+    students:     row.students ?? '',
+    established:  row.established ?? 2000,
+    address:      row.address ?? '',
+    phone:        row.phone ?? '',
+    email:        row.email ?? '',
+    special:      row.is_special ?? false,
+    specialFocus: row.special_focus ?? [],
+    isFeatured:   row.is_featured ?? false,
+    bannerUrl:    row.banner_url ?? undefined,
+    imageUrl:     row.image_url ?? undefined,
+    facilityImages: deriveFacilityImages(features),
   };
 }
 
@@ -68,14 +83,12 @@ export type UseSchoolsResult = {
   schools: School[];
   loading: boolean;
   error: string | null;
-  isLive: boolean; // true = from Supabase, false = static fallback
 };
 
 export function useSchools(): UseSchoolsResult {
-  const [schools, setSchools] = useState<School[]>(SN_SCHOOLS);
+  const [schools, setSchools] = useState<School[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isLive, setIsLive] = useState(false);
+  const [error, setError]     = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -83,75 +96,26 @@ export function useSchools(): UseSchoolsResult {
       setLoading(true);
       const { data, error: err } = await supabase
         .from('schools')
-        .select('id, name, logo_url, address, phone, email, motto, plan, primary_colour, status')
-        .eq('status', 'active') // TODO: replace with .eq('is_public', true) once column exists
+        .select(`id, name, city, state, address, phone, email, motto, plan,
+                 primary_colour, status, banner_url, image_url,
+                 type, gender, levels, orientation, transport, boarding,
+                 fees_from_kobo, fees_to_kobo, features,
+                 scholarships, review_count, students, established,
+                 is_featured, is_special, special_focus, rating`)
+        .eq('status', 'active')
         .order('name');
 
       if (cancelled) return;
 
       if (err) {
         setError(err.message);
-        // keep static fallback
-      } else if (data && data.length > 0) {
-        // Merge: start from the full static list (preserves bannerUrl, imageUrl, all rich data),
-        // enrich matching schools with live DB values (id→UUID, phone, email, address, plan, color),
-        // and append any DB schools whose names don't match any static entry.
-        const merged = [...SN_SCHOOLS];
-        const usedDbIds = new Set<string>();
-        const nameLower = (s: string) => s.toLowerCase().trim();
-
-        for (const row of data as DBSchool[]) {
-          const idx = merged.findIndex(s => nameLower(s.name) === nameLower(row.name));
-          if (idx !== -1) {
-            merged[idx] = {
-              ...merged[idx],
-              id: row.id,                               // use UUID so detail page fetches live data
-              phone: row.phone ?? merged[idx].phone,
-              email: row.email ?? merged[idx].email,
-              address: row.address ?? merged[idx].address,
-              tagline: row.motto ?? merged[idx].tagline,
-              color: row.primary_colour ?? merged[idx].color,
-              ktPlan: row.plan === 'premium' ? 'Premium' : row.plan === 'standard' ? 'Standard' : merged[idx].ktPlan,
-              verified: row.status === 'active',
-            };
-            usedDbIds.add(row.id);
-          }
-        }
-
-        // Append DB-only schools (not matched to any static entry)
-        const BANNER_POOL = SN_SCHOOLS.filter(s => s.bannerUrl).map(s => s.bannerUrl!);
-        let poolIdx = 0;
-        for (const row of data as DBSchool[]) {
-          if (!usedDbIds.has(row.id)) {
-            const banner = BANNER_POOL[poolIdx % BANNER_POOL.length];
-            poolIdx++;
-            merged.push({
-              id: row.id,
-              name: row.name,
-              ktPlan: row.plan === 'premium' ? 'Premium' : row.plan === 'standard' ? 'Standard' : undefined,
-              city: row.address ?? 'Nigeria',
-              state: 'NG', type: 'Day', gender: 'Mixed', levels: 'Nursery–SSS',
-              orientation: 'Non-denominational', transport: false, boarding: false,
-              rating: 4.5, reviews: 0, verified: row.status === 'active',
-              feeFrom: 0, feeTo: 0,
-              color: row.primary_colour ?? '#1A3D2C',
-              tagline: row.motto ?? '',
-              features: [], scholarships: 0, vacancies: 0, students: '', established: 2000,
-              address: row.address ?? '', phone: row.phone ?? '', email: row.email ?? '',
-              bannerUrl: banner, imageUrl: banner,
-            });
-          }
-        }
-
-        setSchools(merged);
-        setIsLive(true);
+      } else {
+        setSchools((data as DBSchool[] ?? []).map(mapDbToSchool));
       }
-      // Otherwise keep the static SN_SCHOOLS fallback (dev / partially seeded DB)
-
       setLoading(false);
     })();
     return () => { cancelled = true; };
   }, []);
 
-  return { schools, loading, error, isLive };
+  return { schools, loading, error };
 }

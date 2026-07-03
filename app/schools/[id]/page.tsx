@@ -3,11 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { SN_SCHOOLS, MOCK_REVIEWS } from '@/lib/data';
-import type { School } from '@/lib/data';
 import { T } from '@/lib/tokens';
 import { SCNav, Stars } from '@/components/ui';
-import { supabase } from '@/lib/supabase';
+import { useSchool } from '@/lib/useSchool';
+import { useReviews } from '@/lib/useReviews';
 
 type Facility = { label: string; emoji: string; color: string; photos: number; detail: string; images?: string[] };
 
@@ -16,60 +15,8 @@ export default function SNDetail() {
   const params = useParams();
   const rawId = typeof params.id === 'string' ? params.id : (params.id?.[0] ?? '');
 
-  // First try the static list (short IDs like 'gf', 'hc')
-  const staticSchool = SN_SCHOOLS.find(s => s.id === rawId) ?? null;
-  const [school, setSchool] = useState<School | null>(staticSchool);
-  const [schoolLoading, setSchoolLoading] = useState(!staticSchool);
-
-  // If not found in static list, attempt a live DB lookup (UUID from /find)
-  useEffect(() => {
-    if (staticSchool) return;
-    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(rawId);
-    if (!isUuid) { setSchoolLoading(false); return; }
-    setSchoolLoading(true);
-    supabase
-      .from('schools')
-      .select('id, name, logo_url, address, phone, email, motto, plan, primary_colour, status')
-      .eq('id', rawId)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) {
-          // Look up static school by name to inherit rich data (bannerUrl, imageUrl, facilities, etc.)
-          const nameLower = (s: string) => s.toLowerCase().trim();
-          const staticMatch = SN_SCHOOLS.find(s => nameLower(s.name) === nameLower(data.name));
-          setSchool({
-            ...(staticMatch ?? {}),
-            id: data.id,
-            name: data.name,
-            ktPlan: data.plan === 'premium' ? 'Premium' : data.plan === 'standard' ? 'Standard' : staticMatch?.ktPlan,
-            city: data.address ?? staticMatch?.city ?? 'Nigeria',
-            state: staticMatch?.state ?? 'NG',
-            type: staticMatch?.type ?? 'Day',
-            gender: staticMatch?.gender ?? 'Mixed',
-            levels: staticMatch?.levels ?? 'Nursery–SSS',
-            orientation: staticMatch?.orientation ?? 'Non-denominational',
-            transport: staticMatch?.transport ?? false,
-            boarding: staticMatch?.boarding ?? false,
-            rating: staticMatch?.rating ?? 4.5,
-            reviews: staticMatch?.reviews ?? 0,
-            verified: data.status === 'active',
-            feeFrom: staticMatch?.feeFrom ?? 0,
-            feeTo: staticMatch?.feeTo ?? 0,
-            color: data.primary_colour ?? staticMatch?.color ?? '#1A3D2C',
-            tagline: data.motto ?? staticMatch?.tagline ?? '',
-            features: staticMatch?.features ?? [],
-            scholarships: staticMatch?.scholarships ?? 0,
-            vacancies: staticMatch?.vacancies ?? 0,
-            students: staticMatch?.students ?? '',
-            established: staticMatch?.established ?? 2000,
-            address: data.address ?? staticMatch?.address ?? '',
-            phone: data.phone ?? staticMatch?.phone ?? '',
-            email: data.email ?? staticMatch?.email ?? '',
-          });
-        }
-        setSchoolLoading(false);
-      });
-  }, [rawId, staticSchool]);
+  const { school, loading: schoolLoading, notFound } = useSchool(rawId);
+  const { reviews } = useReviews(school?.id);
 
   const [tab, setTab]           = useState('overview');
   const [enquireOpen, setEnqOpen] = useState(false);
@@ -98,7 +45,7 @@ export default function SNDetail() {
   }, [lightbox, facilityModal]);
 
   if (schoolLoading) return <div style={{ padding:40, fontFamily:'sans-serif', color:'#374151' }}>Loading…</div>;
-  if (!school) return <div style={{ padding:40, fontFamily:'sans-serif', color:'#374151' }}>School not found.</div>;
+  if (notFound || !school) return <div style={{ padding:40, fontFamily:'sans-serif', color:'#374151' }}>School not found.</div>;
 
   const setF = (k: string, v: string) => setForm(p=>({...p,[k]:v}));
   const toggleFav = () => {
@@ -496,17 +443,19 @@ export default function SNDetail() {
               </div>
             </div>
             <div style={{ flex:1, overflow:'auto', padding:'12px 24px' }}>
-              {MOCK_REVIEWS.map((r,i)=>(
-                <div key={i} style={{ padding:'14px 0', borderBottom:i<MOCK_REVIEWS.length-1?'1px solid #F3F4F6':'none' }}>
+              {reviews.length === 0 ? (
+                <div style={{ textAlign:'center', padding:'32px 0', color:'#9CA3AF', fontSize:14, fontWeight:600 }}>No reviews yet for this school.</div>
+              ) : reviews.map((r,i)=>(
+                <div key={r.id} style={{ padding:'14px 0', borderBottom:i<reviews.length-1?'1px solid #F3F4F6':'none' }}>
                   <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
-                    <div style={{ width:36, height:36, borderRadius:9, background:school.color+'18', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, color:school.color, fontSize:13, flexShrink:0 }}>{r.name.replace(/[^A-Z]/g,'').slice(0,2)}</div>
+                    <div style={{ width:36, height:36, borderRadius:9, background:school.color+'18', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:800, color:school.color, fontSize:13, flexShrink:0 }}>{r.author.replace(/[^A-Z]/g,'').slice(0,2)}</div>
                     <div style={{ flex:1 }}>
-                      <div style={{ fontSize:14, fontWeight:700, color:'#111827' }}>{r.name}</div>
-                      <div style={{ fontSize:12, color:'#9CA3AF', fontWeight:600 }}>{r.date} · {r.tag}</div>
+                      <div style={{ fontSize:14, fontWeight:700, color:'#111827' }}>{r.author}</div>
+                      <div style={{ fontSize:12, color:'#9CA3AF', fontWeight:600 }}>{new Date(r.createdAt).toLocaleDateString('en-GB',{month:'short',year:'numeric'})} · {r.tag}</div>
                     </div>
                     <span style={{ fontSize:14, color:'#F59E0B', fontWeight:700 }}>{'★'.repeat(r.rating)}</span>
                   </div>
-                  <p style={{ margin:0, fontSize:14, color:'#374151', fontWeight:500, lineHeight:1.6 }}>{r.text}</p>
+                  <p style={{ margin:0, fontSize:14, color:'#374151', fontWeight:500, lineHeight:1.6 }}>{r.body}</p>
                 </div>
               ))}
             </div>

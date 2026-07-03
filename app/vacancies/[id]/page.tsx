@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { supabase } from '@/lib/supabase';
-import { SN_VACANCIES, V_TYPE_CLR } from '@/lib/data';
+import { V_TYPE_CLR } from '@/lib/data';
 import type { Vacancy } from '@/lib/data';
 import { ExtrasNav, SCAuthModal } from '@/components/ui';
 
@@ -97,9 +97,8 @@ export default function VacancyDetail() {
   const params  = useParams();
   const id      = typeof params.id === 'string' ? params.id : (params.id?.[0] ?? '');
 
-  const staticVac = SN_VACANCIES.find(v => v.id === id) ?? null;
-  const [vacancy,  setVacancy]  = useState<Vacancy | null>(staticVac);
-  const [loading,  setLoading]  = useState(!staticVac);
+  const [vacancy,  setVacancy]  = useState<Vacancy | null>(null);
+  const [loading,  setLoading]  = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   const [user,      setUser]      = useState<{name:string;email:string;avatar:string;color:string}|null>(null);
@@ -107,7 +106,6 @@ export default function VacancyDetail() {
   const [applyOpen, setApplyOpen] = useState(false);
 
   useEffect(() => {
-    if (staticVac) return;
     setLoading(true);
     supabase
       .from('public_vacancies')
@@ -143,7 +141,7 @@ export default function VacancyDetail() {
         });
         setLoading(false);
       });
-  }, [id, staticVac]);
+  }, [id]);
 
   const font = "'Source Sans 3','Segoe UI',sans-serif";
 

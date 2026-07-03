@@ -3,22 +3,23 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { SN_SCHOOLS } from '@/lib/data';
 import { ExtrasNav, SCCard, SCAuthModal } from '@/components/ui';
 import type { School } from '@/lib/data';
+import { useSchools } from '@/lib/useSchools';
 
 export default function SNFavorites() {
   const router = useRouter();
   const [favIds, setFavIds] = useState<string[]>([]);
   const [user, setUser]     = useState<{name:string;email:string;avatar:string;color:string}|null>(null);
   const [showAuth, setShowAuth] = useState(false);
+  const { schools: allSchools } = useSchools();
 
   useEffect(() => {
     try { const u = localStorage.getItem('sc_user'); if (u) setUser(JSON.parse(u)); } catch {}
     try { const f = localStorage.getItem('sc_favs'); if (f) setFavIds(JSON.parse(f)); } catch {}
   }, []);
 
-  const schools = SN_SCHOOLS.filter(s => favIds.includes(s.id));
+  const schools = allSchools.filter(s => favIds.includes(s.id));
 
   const toggleFav = (id: string) => {
     const next = favIds.includes(id) ? favIds.filter(x=>x!==id) : [...favIds, id];

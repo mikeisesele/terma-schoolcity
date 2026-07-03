@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { SCCompareModal } from '@/components/ui';
+import { useSchools } from '@/lib/useSchools';
 
 export default function ComparePage() {
   const router = useRouter();
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const { schools } = useSchools();
 
   useEffect(() => {
     try { const c = localStorage.getItem('sc_compare'); if (c) setCompareIds(JSON.parse(c)); } catch {}
@@ -22,6 +24,7 @@ export default function ComparePage() {
     <div style={{ minHeight:'100vh', background:'#F8FAFB' }}>
       <SCCompareModal
         compareIds={compareIds}
+        allSchools={schools}
         onClose={() => router.back()}
         onRemove={onRemove}
         onSelect={s => router.push('/schools/' + s.id)}
