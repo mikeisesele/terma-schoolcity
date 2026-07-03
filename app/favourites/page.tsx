@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import { ExtrasNav, SCCard, SCAuthModal } from '@/components/ui';
 import type { School } from '@/lib/data';
 import { useSchools } from '@/lib/useSchools';
+import { T } from '@/lib/tokens';
 
 export default function SNFavorites() {
   const router = useRouter();
@@ -37,15 +38,15 @@ export default function SNFavorites() {
 
   if (!user) {
     return (
-      <div style={{ minHeight:'100vh', background:'#F8FAFB', fontFamily:"'Source Sans 3','Segoe UI',sans-serif", display:'flex', flexDirection:'column' }}>
+      <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font, display:'flex', flexDirection:'column' }}>
         <ExtrasNav onBack={() => router.push("/")} backLabel="← Back to SchoolCity" />
         <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:40, textAlign:'center' }}>
           <div style={{ fontSize:56, marginBottom:16 }}>🔐</div>
-          <div style={{ fontSize:22, fontWeight:800, color:'#111827', marginBottom:8 }}>Sign in to see saved schools</div>
-          <div style={{ fontSize:14.5, color:'#6B7280', fontWeight:500, maxWidth:320, lineHeight:1.65, marginBottom:28 }}>
+          <div style={{ fontSize:22, fontWeight:800, color:T.ink, marginBottom:8 }}>Sign in to see saved schools</div>
+          <div style={{ fontSize:14.5, color:T.ink3, fontWeight:500, maxWidth:320, lineHeight:1.65, marginBottom:28 }}>
             Your saved schools are tied to your account. Sign in with Google to access them from any device.
           </div>
-          <button onClick={() => setShowAuth(true)} style={{ display:'flex', alignItems:'center', gap:12, border:'1.5px solid #E5E9EC', background:'#fff', borderRadius:12, padding:'13px 24px', fontFamily:'inherit', fontSize:15, fontWeight:700, color:'#111827', cursor:'pointer', boxShadow:'0 1px 6px rgba(0,0,0,.08)' }}>
+          <button onClick={() => setShowAuth(true)} style={{ display:'flex', alignItems:'center', gap:12, border:`1.5px solid ${T.line}`, background:T.cardBg, borderRadius:12, padding:'13px 24px', fontFamily:'inherit', fontSize:15, fontWeight:700, color:T.ink, cursor:'pointer', boxShadow:`0 1px 6px ${T.shadowColor}` }}>
             <svg width="20" height="20" viewBox="0 0 18 18" style={{ flexShrink:0 }}>
               <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
               <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
@@ -61,12 +62,12 @@ export default function SNFavorites() {
   }
 
   return (
-    <div style={{ minHeight:'100vh', background:'#F8FAFB', fontFamily:"'Source Sans 3','Segoe UI',sans-serif", display:'flex', flexDirection:'column' }}>
+    <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font, display:'flex', flexDirection:'column' }}>
       <ExtrasNav onBack={() => router.push("/")} backLabel="← Back to SchoolCity" />
       <div style={{ maxWidth:1100, width:'100%', margin:'0 auto', padding:'32px 40px' }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:24 }}>
-          <h2 style={{ margin:0, fontSize:22, fontWeight:900, color:'#111827' }}>
-            ❤️ Saved schools <span style={{ fontSize:16, color:'#9CA3AF', fontWeight:600 }}>({schools.length})</span>
+          <h2 style={{ margin:0, fontSize:22, fontWeight:900, color:T.ink }}>
+            ❤️ Saved schools <span style={{ fontSize:16, color:T.ink3, fontWeight:600 }}>({schools.length})</span>
           </h2>
           {schools.length > 0 && (
             <button onClick={clearAll} style={{ border:'none', background:'none', color:'#EF4444', fontFamily:'inherit', fontSize:13.5, fontWeight:700, cursor:'pointer', textDecoration:'underline' }}>Clear all</button>
@@ -75,9 +76,9 @@ export default function SNFavorites() {
         {schools.length === 0 ? (
           <div style={{ textAlign:'center', padding:'80px 0', display:'flex', flexDirection:'column', alignItems:'center', gap:16 }}>
             <div style={{ fontSize:56 }}>🏫</div>
-            <div style={{ fontSize:18, fontWeight:800, color:'#111827' }}>No saved schools yet</div>
-            <div style={{ fontSize:14.5, color:'#6B7280', fontWeight:500, maxWidth:300, textAlign:'center', lineHeight:1.6 }}>Tap ♥ on any school card to save it here for later.</div>
-            <button onClick={() => router.push('/')} style={{ border:'2px solid #1A3D2C', background:'#fff', color:'#1A3D2C', borderRadius:10, padding:'10px 24px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer', marginTop:8 }}>Browse schools</button>
+            <div style={{ fontSize:18, fontWeight:800, color:T.ink }}>No saved schools yet</div>
+            <div style={{ fontSize:14.5, color:T.ink3, fontWeight:500, maxWidth:300, textAlign:'center', lineHeight:1.6 }}>Tap ♥ on any school card to save it here for later.</div>
+            <button onClick={() => router.push('/')} style={{ border:`2px solid ${T.navInk}`, background:T.cardBg, color:T.navInk, borderRadius:10, padding:'10px 24px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer', marginTop:8 }}>Browse schools</button>
           </div>
         ) : (
           <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16 }}>

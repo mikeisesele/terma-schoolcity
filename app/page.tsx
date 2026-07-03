@@ -128,7 +128,7 @@ export default function SNHome() {
                     {[s.levels, s.type, s.transport?'Transport':null].filter(Boolean).map(t=><span key={t as string} style={{ fontSize:13, fontWeight:700, color:'#fff', background:'rgba(255,255,255,.18)', borderRadius:T.btnR, padding:'5px 14px', border:'1px solid rgba(255,255,255,.28)', backdropFilter:'blur(4px)' }}>{t}</span>)}
                   </div>
                   <div style={{ display:'flex', gap:14, alignItems:'center', marginBottom:24 }}>
-                    <span style={{ fontSize:14, color:'#F59E0B', fontWeight:700 }}>{'★'.repeat(Math.floor(s.rating))}{'☆'.repeat(5-Math.floor(s.rating))}</span>
+                    <span style={{ fontSize:14, color:T.starActive, fontWeight:700 }}>{'★'.repeat(Math.floor(s.rating))}{'☆'.repeat(5-Math.floor(s.rating))}</span>
                     <span style={{ color:'rgba(255,255,255,.65)', fontSize:13 }}>{s.rating} · {s.reviews} reviews · {s.students} students</span>
                   </div>
                   <div style={{ display:'flex', gap:12 }}>

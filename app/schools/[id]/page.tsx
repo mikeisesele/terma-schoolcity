@@ -107,8 +107,8 @@ export default function SCDetail() {
     return () => window.removeEventListener('keydown', h);
   }, [lightbox, facilityModal]);
 
-  if (schoolLoading) return <div style={{ padding: 40, fontFamily: 'sans-serif', color: '#374151' }}>Loading…</div>;
-  if (notFound || !school) return <div style={{ padding: 40, fontFamily: 'sans-serif', color: '#374151' }}>School not found.</div>;
+  if (schoolLoading) return <div style={{ padding: 40, fontFamily: T.font, color: T.ink2 }}>Loading…</div>;
+  if (notFound || !school) return <div style={{ padding: 40, fontFamily: T.font, color: T.ink2 }}>School not found.</div>;
 
   const setF = (k: string, v: string) => setForm(p => ({ ...p, [k]: v }));
 
@@ -204,9 +204,9 @@ export default function SCDetail() {
         <div
           key={f.label}
           onClick={() => setFM(f)}
-          style={{ background: '#fff', borderRadius: 14, padding: compact ? '14px 12px' : '20px 16px', textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${T.line}`, transition: 'all .2s', boxShadow: '0 1px 6px rgba(0,0,0,.04)' }}
+          style={{ background: T.cardBg, borderRadius: 14, padding: compact ? '14px 12px' : '20px 16px', textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${T.line}`, transition: 'all .2s', boxShadow: `0 1px 6px ${T.shadowColor}` }}
           onMouseEnter={e => { const d = e.currentTarget as HTMLDivElement; d.style.borderColor = f.color + '60'; d.style.boxShadow = `0 6px 20px ${f.color}20`; d.style.transform = 'translateY(-2px)'; }}
-          onMouseLeave={e => { const d = e.currentTarget as HTMLDivElement; d.style.borderColor = T.line; d.style.boxShadow = '0 1px 6px rgba(0,0,0,.04)'; d.style.transform = 'none'; }}
+          onMouseLeave={e => { const d = e.currentTarget as HTMLDivElement; d.style.borderColor = T.line; d.style.boxShadow = `0 1px 6px ${T.shadowColor}`; d.style.transform = 'none'; }}
         >
           <div style={{ fontSize: compact ? 28 : 34, marginBottom: 8 }}>{f.emoji}</div>
           <div style={{ fontSize: compact ? 12.5 : 13.5, fontWeight: 800, color: T.ink, marginBottom: f.description ? 5 : 8 }}>{f.label}</div>
@@ -504,19 +504,19 @@ export default function SCDetail() {
 
       {/* ── Facility modal ──────────────────────────────────────────────────── */}
       {facilityModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.72)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
-          <div style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 680, maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,.4)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '18px 20px', borderBottom: '1px solid #E5E9EC', flexShrink: 0 }}>
+        <div style={{ position: 'fixed', inset: 0, background: T.overlay, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+          <div style={{ background: T.cardBg, borderRadius: 18, width: '100%', maxWidth: 680, maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,.4)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '18px 20px', borderBottom: `1px solid ${T.line}`, flexShrink: 0 }}>
               <span style={{ fontSize: 24 }}>{facilityModal.emoji}</span>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 16, fontWeight: 800, color: '#111827' }}>{facilityModal.label}</div>
-                <div style={{ fontSize: 13, color: '#6B7280' }}>{facilityModal.description || (facilityModal.photoCount > 0 ? `${facilityModal.photoCount} photos` : 'No photos uploaded yet')}</div>
+                <div style={{ fontSize: 16, fontWeight: 800, color: T.ink }}>{facilityModal.label}</div>
+                <div style={{ fontSize: 13, color: T.ink3 }}>{facilityModal.description || (facilityModal.photoCount > 0 ? `${facilityModal.photoCount} photos` : 'No photos uploaded yet')}</div>
               </div>
-              <button onClick={() => { setFM(null); setLightbox(null); }} style={{ border: 'none', background: '#F3F4F6', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 16, color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+              <button onClick={() => { setFM(null); setLightbox(null); }} style={{ border: 'none', background: T.inputBg, borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 16, color: T.ink3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
             </div>
             <div style={{ flex: 1, overflow: 'auto', padding: 16 }}>
               {facilityModal.photoCount === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9CA3AF' }}>
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: T.ink3 }}>
                   <div style={{ fontSize: 48, marginBottom: 12 }}>{facilityModal.emoji}</div>
                   <div style={{ fontSize: 14, fontWeight: 600 }}>No photos uploaded for this facility yet.</div>
                 </div>
@@ -559,55 +559,55 @@ export default function SCDetail() {
 
       {/* ── Reviews modal ────────────────────────────────────────────────────── */}
       {reviewsOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.62)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
-          <div style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 600, maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,.35)' }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #E5E9EC', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div style={{ position: 'fixed', inset: 0, background: T.overlay, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+          <div style={{ background: T.cardBg, borderRadius: 18, width: '100%', maxWidth: 600, maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,.35)' }}>
+            <div style={{ padding: '20px 24px', borderBottom: `1px solid ${T.line}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: '#111827' }}>Parent reviews</div>
-                <div style={{ fontSize: 13, color: '#6B7280' }}>Submitted via the SchoolOS Parent App</div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: T.ink }}>Parent reviews</div>
+                <div style={{ fontSize: 13, color: T.ink3 }}>Submitted via the SchoolOS Parent App</div>
               </div>
-              <button onClick={() => setRO(false)} style={{ border: 'none', background: '#F3F4F6', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 16, color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+              <button onClick={() => setRO(false)} style={{ border: 'none', background: T.inputBg, borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 16, color: T.ink3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
             </div>
-            <div style={{ padding: '16px 24px', borderBottom: '1px solid #E5E9EC', display: 'flex', gap: 24, alignItems: 'center', flexShrink: 0 }}>
+            <div style={{ padding: '16px 24px', borderBottom: `1px solid ${T.line}`, display: 'flex', gap: 24, alignItems: 'center', flexShrink: 0 }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 48, fontWeight: 900, color: '#111827', lineHeight: 1 }}>{school.rating.toFixed(1)}</div>
+                <div style={{ fontSize: 48, fontWeight: 900, color: T.ink, lineHeight: 1 }}>{school.rating.toFixed(1)}</div>
                 <Stars rating={school.rating} />
-                <div style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 600, marginTop: 3 }}>{school.reviews} reviews</div>
+                <div style={{ fontSize: 12, color: T.ink3, fontWeight: 600, marginTop: 3 }}>{school.reviews} reviews</div>
               </div>
               <div style={{ flex: 1 }}>
                 {ratingDist.map(({ star, count }) => (
                   <div key={star} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
-                    <span style={{ fontSize: 12, color: '#6B7280', fontWeight: 700, width: 8 }}>{star}</span>
-                    <span style={{ fontSize: 12, color: '#F59E0B' }}>★</span>
-                    <div style={{ flex: 1, height: 6, background: '#F3F4F6', borderRadius: 3, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: ratingTotal > 0 ? `${(count / ratingTotal) * 100}%` : '0%', background: '#F59E0B', borderRadius: 3 }} />
+                    <span style={{ fontSize: 12, color: T.ink3, fontWeight: 700, width: 8 }}>{star}</span>
+                    <span style={{ fontSize: 12, color: T.starActive }}>★</span>
+                    <div style={{ flex: 1, height: 6, background: T.inputBg, borderRadius: 3, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: ratingTotal > 0 ? `${(count / ratingTotal) * 100}%` : '0%', background: T.starActive, borderRadius: 3 }} />
                     </div>
-                    <span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 600, width: 18, textAlign: 'right' }}>{count}</span>
+                    <span style={{ fontSize: 12, color: T.ink3, fontWeight: 600, width: 18, textAlign: 'right' }}>{count}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div style={{ flex: 1, overflow: 'auto', padding: '12px 24px' }}>
               {reviews.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '32px 0', color: '#9CA3AF', fontSize: 14, fontWeight: 600 }}>No reviews yet for this school.</div>
+                <div style={{ textAlign: 'center', padding: '32px 0', color: T.ink3, fontSize: 14, fontWeight: 600 }}>No reviews yet for this school.</div>
               ) : reviews.map((r, i) => (
-                <div key={r.id} style={{ padding: '16px 0', borderBottom: i < reviews.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+                <div key={r.id} style={{ padding: '16px 0', borderBottom: i < reviews.length - 1 ? `1px solid ${T.inputBg}` : 'none' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <div style={{ width: 38, height: 38, borderRadius: 10, background: school.color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: school.color, fontSize: 13, flexShrink: 0 }}>
                       {r.author.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase()}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>{r.author}</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: T.ink }}>{r.author}</div>
                       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 2 }}>
-                        <span style={{ fontSize: 12, color: '#9CA3AF', fontWeight: 600 }}>{new Date(r.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                        <span style={{ fontSize: 12, color: T.ink3, fontWeight: 600 }}>{new Date(r.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                         {r.tag && <span style={{ fontSize: 11, fontWeight: 700, color: school.color, background: school.color + '15', borderRadius: T.btnR, padding: '2px 8px' }}>{r.tag}</span>}
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: 1 }}>
-                      {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: 14, color: s <= r.rating ? '#F59E0B' : '#E5E7EB' }}>★</span>)}
+                      {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: 14, color: s <= r.rating ? T.starActive : T.starEmpty }}>★</span>)}
                     </div>
                   </div>
-                  <p style={{ margin: 0, fontSize: 14, color: '#374151', lineHeight: 1.65, paddingLeft: 48 }}>{r.body}</p>
+                  <p style={{ margin: 0, fontSize: 14, color: T.ink2, lineHeight: 1.65, paddingLeft: 48 }}>{r.body}</p>
                 </div>
               ))}
             </div>
@@ -617,58 +617,58 @@ export default function SCDetail() {
 
       {/* ── Enquiry modal ────────────────────────────────────────────────────── */}
       {enquireOpen && !sent && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
-          <div style={{ background: '#fff', borderRadius: 18, width: '100%', maxWidth: 520, boxShadow: '0 24px 64px rgba(0,0,0,.3)', overflow: 'hidden' }}>
-            <div style={{ padding: '20px 24px', borderBottom: '1px solid #E5E9EC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ position: 'fixed', inset: 0, background: T.overlay, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+          <div style={{ background: T.cardBg, borderRadius: 18, width: '100%', maxWidth: 520, boxShadow: '0 24px 64px rgba(0,0,0,.3)', overflow: 'hidden' }}>
+            <div style={{ padding: '20px 24px', borderBottom: `1px solid ${T.line}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: '#111827' }}>Enquire about {school.name}</div>
-                <div style={{ fontSize: 13, color: '#9CA3AF' }}>We reply via phone and email within 24h</div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: T.ink }}>Enquire about {school.name}</div>
+                <div style={{ fontSize: 13, color: T.ink3 }}>We reply via phone and email within 24h</div>
               </div>
-              <button onClick={() => setEnqOpen(false)} style={{ border: 'none', background: '#F3F4F6', borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 16, color: '#6B7280', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
+              <button onClick={() => setEnqOpen(false)} style={{ border: 'none', background: T.inputBg, borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 16, color: T.ink3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
             </div>
             <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div style={{ display: 'flex', gap: 12 }}>
                 <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: 12.5, fontWeight: 700, color: '#111827', display: 'block', marginBottom: 5 }}>Full name *</label>
-                  <input value={form.name} onChange={e => setF('name', e.target.value)} placeholder="e.g. Mrs Adaeze Obi" style={{ width: '100%', border: '1.5px solid #E5E9EC', borderRadius: 8, padding: '9px 12px', fontFamily: 'inherit', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+                  <label style={{ fontSize: 12.5, fontWeight: 700, color: T.ink, display: 'block', marginBottom: 5 }}>Full name *</label>
+                  <input value={form.name} onChange={e => setF('name', e.target.value)} placeholder="e.g. Mrs Adaeze Obi" style={{ width: '100%', border: `1.5px solid ${T.line}`, borderRadius: 8, padding: '9px 12px', fontFamily: 'inherit', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={{ fontSize: 12.5, fontWeight: 700, color: '#111827', display: 'block', marginBottom: 5 }}>Phone *</label>
-                  <input value={form.phone} onChange={e => setF('phone', e.target.value)} placeholder="+234 800 000 0000" style={{ width: '100%', border: '1.5px solid #E5E9EC', borderRadius: 8, padding: '9px 12px', fontFamily: 'inherit', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+                  <label style={{ fontSize: 12.5, fontWeight: 700, color: T.ink, display: 'block', marginBottom: 5 }}>Phone *</label>
+                  <input value={form.phone} onChange={e => setF('phone', e.target.value)} placeholder="+234 800 000 0000" style={{ width: '100%', border: `1.5px solid ${T.line}`, borderRadius: 8, padding: '9px 12px', fontFamily: 'inherit', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 12.5, fontWeight: 700, color: '#111827', display: 'block', marginBottom: 5 }}>Email *</label>
-                <input value={form.email} onChange={e => setF('email', e.target.value)} placeholder="you@gmail.com" style={{ width: '100%', border: '1.5px solid #E5E9EC', borderRadius: 8, padding: '9px 12px', fontFamily: 'inherit', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+                <label style={{ fontSize: 12.5, fontWeight: 700, color: T.ink, display: 'block', marginBottom: 5 }}>Email *</label>
+                <input value={form.email} onChange={e => setF('email', e.target.value)} placeholder="you@gmail.com" style={{ width: '100%', border: `1.5px solid ${T.line}`, borderRadius: 8, padding: '9px 12px', fontFamily: 'inherit', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <div>
-                <label style={{ fontSize: 12.5, fontWeight: 700, color: '#111827', display: 'block', marginBottom: 8 }}>Which level? <span style={{ color: '#9CA3AF', fontWeight: 500 }}>(optional)</span></label>
+                <label style={{ fontSize: 12.5, fontWeight: 700, color: T.ink, display: 'block', marginBottom: 8 }}>Which level? <span style={{ color: T.ink3, fontWeight: 500 }}>(optional)</span></label>
                 <div style={{ display: 'flex', gap: 8 }}>
                   {LEVELS.map(l => {
                     const active = selectedLevels.includes(l);
-                    return <button key={l} onClick={() => toggleLevel(l)} style={{ border: `1.5px solid ${active ? school.color : '#E5E9EC'}`, background: active ? school.color + '15' : '#fff', color: active ? school.color : '#6B7280', borderRadius: T.btnR, padding: '6px 14px', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, cursor: 'pointer', transition: 'all .15s' }}>{l}</button>;
+                    return <button key={l} onClick={() => toggleLevel(l)} style={{ border: `1.5px solid ${active ? school.color : T.line}`, background: active ? school.color + '15' : T.cardBg, color: active ? school.color : T.ink3, borderRadius: T.btnR, padding: '6px 14px', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, cursor: 'pointer', transition: 'all .15s' }}>{l}</button>;
                   })}
                 </div>
               </div>
               <div>
-                <label style={{ fontSize: 12.5, fontWeight: 700, color: '#111827', display: 'block', marginBottom: 5 }}>Message</label>
-                <textarea value={form.message} onChange={e => setF('message', e.target.value)} placeholder="Questions about admission, fees or facilities…" rows={3} style={{ width: '100%', border: '1.5px solid #E5E9EC', borderRadius: 8, padding: '9px 12px', fontFamily: 'inherit', fontSize: 14, resize: 'vertical', outline: 'none', boxSizing: 'border-box' }} />
+                <label style={{ fontSize: 12.5, fontWeight: 700, color: T.ink, display: 'block', marginBottom: 5 }}>Message</label>
+                <textarea value={form.message} onChange={e => setF('message', e.target.value)} placeholder="Questions about admission, fees or facilities…" rows={3} style={{ width: '100%', border: `1.5px solid ${T.line}`, borderRadius: 8, padding: '9px 12px', fontFamily: 'inherit', fontSize: 14, resize: 'vertical', outline: 'none', boxSizing: 'border-box' }} />
               </div>
               <button
                 onClick={submitEnquiry}
                 disabled={sending || !form.name || !form.phone || !form.email}
-                style={{ border: 'none', background: (!form.name || !form.phone || !form.email) ? '#D1D5DB' : school.color, color: '#fff', borderRadius: 10, padding: '13px', fontFamily: 'inherit', fontSize: 15, fontWeight: 800, cursor: (!form.name || !form.phone || !form.email) ? 'not-allowed' : 'pointer', transition: 'background .2s' }}
+                style={{ border: 'none', background: (!form.name || !form.phone || !form.email) ? T.disabledBg : school.color, color: T.accentText, borderRadius: 10, padding: '13px', fontFamily: 'inherit', fontSize: 15, fontWeight: 800, cursor: (!form.name || !form.phone || !form.email) ? 'not-allowed' : 'pointer', transition: 'background .2s' }}
               >{sending ? 'Sending…' : 'Send enquiry →'}</button>
             </div>
           </div>
         </div>
       )}
       {sent && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#fff', borderRadius: 18, padding: '48px', textAlign: 'center', maxWidth: 380 }}>
+        <div style={{ position: 'fixed', inset: 0, background: T.overlay, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: T.cardBg, borderRadius: 18, padding: '48px', textAlign: 'center', maxWidth: 380 }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#111827', marginBottom: 6 }}>Enquiry sent!</div>
-            <div style={{ fontSize: 14, color: '#6B7280', marginBottom: 20 }}>{school.name} will be in touch within 24 hours.</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: T.ink, marginBottom: 6 }}>Enquiry sent!</div>
+            <div style={{ fontSize: 14, color: T.ink3, marginBottom: 20 }}>{school.name} will be in touch within 24 hours.</div>
             <button onClick={() => { setSent(false); setEnqOpen(false); setForm({ name: '', phone: '', email: '', message: '' }); setSelectedLevels([]); }} style={{ border: 'none', background: school.color, color: '#fff', borderRadius: 10, padding: '10px 24px', fontFamily: 'inherit', fontSize: 14, fontWeight: 800, cursor: 'pointer' }}>Done</button>
           </div>
         </div>
@@ -676,15 +676,15 @@ export default function SCDetail() {
 
       {/* ── Save school modal ────────────────────────────────────────────────── */}
       {saveOpen && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.55)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
-          <div style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 400, overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,.3)' }}>
+        <div style={{ position: 'fixed', inset: 0, background: T.overlay, zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+          <div style={{ background: T.cardBg, borderRadius: 20, width: '100%', maxWidth: 400, overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,.3)' }}>
             <div style={{ padding: '32px 28px 20px', textAlign: 'center' }}>
               <div style={{ fontSize: 44, marginBottom: 12 }}>❤️</div>
               <div style={{ fontSize: 18, fontWeight: 800, color: T.ink, marginBottom: 6 }}>Save {school.name}</div>
               <div style={{ fontSize: 13.5, color: T.ink3, lineHeight: 1.5 }}>Sign in to save schools, compare options and track your applications across devices.</div>
             </div>
             <div style={{ padding: '4px 24px 28px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button onClick={() => toast('Google sign-in coming soon!')} style={{ width: '100%', border: '1.5px solid #E5E9EC', background: '#fff', borderRadius: 10, padding: '11px 16px', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, color: '#374151' }}>
+              <button onClick={() => toast('Google sign-in coming soon!')} style={{ width: '100%', border: `1.5px solid ${T.line}`, background: T.cardBg, borderRadius: 10, padding: '11px 16px', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, color: T.ink2 }}>
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18Z" fill="#34A853"/><path d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332Z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58Z" fill="#EA4335"/></svg>
                 Continue with Google
               </button>

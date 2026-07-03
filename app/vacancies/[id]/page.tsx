@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { V_TYPE_CLR } from '@/lib/data';
 import type { Vacancy } from '@/lib/data';
 import { ExtrasNav, SCAuthModal } from '@/components/ui';
+import { T } from '@/lib/tokens';
 
 function SNApplyModal({ vacancy, user, onClose }: { vacancy: Vacancy; user: {name:string;email:string}|null; onClose: ()=>void }) {
   const [form, setForm] = useState({ phone:'', cover:'', cvFile:null as File|null, cvName:'' });
@@ -22,37 +23,37 @@ function SNApplyModal({ vacancy, user, onClose }: { vacancy: Vacancy; user: {nam
   };
   const handleSubmit = () => { const e = validate(); if (e.length > 0) { setErrors(e); return; } setErrors([]); setSent(true); toast('Application submitted!'); };
   return (
-    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,.65)', zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:24, fontFamily:"'Source Sans 3','Segoe UI',sans-serif" }}>
-      <div style={{ background:'#fff', borderRadius:20, width:'100%', maxWidth:520, maxHeight:'90vh', display:'flex', flexDirection:'column', overflow:'hidden', boxShadow:'0 32px 80px rgba(0,0,0,.35)' }}>
-        <div style={{ padding:'20px 24px', borderBottom:'1px solid #E5E9EC', display:'flex', alignItems:'flex-start', justifyContent:'space-between', flexShrink:0 }}>
-          <div><div style={{ fontSize:17, fontWeight:800, color:'#111827', marginBottom:2 }}>Apply for position</div><div style={{ fontSize:13.5, color:'#1A3D2C', fontWeight:700 }}>{vacancy.title} · {vacancy.sName}</div></div>
-          <button onClick={onClose} style={{ border:'none', background:'#F3F4F6', borderRadius:8, width:32, height:32, cursor:'pointer', fontSize:16, color:'#6B7280', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>✕</button>
+    <div style={{ position:'fixed', inset:0, background:T.overlay, zIndex:500, display:'flex', alignItems:'center', justifyContent:'center', padding:24, fontFamily:T.font }}>
+      <div style={{ background:T.cardBg, borderRadius:20, width:'100%', maxWidth:520, maxHeight:'90vh', display:'flex', flexDirection:'column', overflow:'hidden', boxShadow:`0 32px 80px ${T.shadowColor}` }}>
+        <div style={{ padding:'20px 24px', borderBottom:`1px solid ${T.line}`, display:'flex', alignItems:'flex-start', justifyContent:'space-between', flexShrink:0 }}>
+          <div><div style={{ fontSize:17, fontWeight:800, color:T.ink, marginBottom:2 }}>Apply for position</div><div style={{ fontSize:13.5, color:T.footerBg, fontWeight:700 }}>{vacancy.title} · {vacancy.sName}</div></div>
+          <button onClick={onClose} style={{ border:'none', background:T.inputBg, borderRadius:8, width:32, height:32, cursor:'pointer', fontSize:16, color:T.ink3, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>✕</button>
         </div>
         {sent ? (
           <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'48px 32px', textAlign:'center' }}>
             <div style={{ fontSize:52, marginBottom:12 }}>✅</div>
-            <div style={{ fontSize:20, fontWeight:900, color:'#111827', marginBottom:8 }}>Application submitted!</div>
-            <div style={{ fontSize:14, color:'#6B7280', fontWeight:500, maxWidth:320, lineHeight:1.65, marginBottom:24 }}>{vacancy.sName} will review your CV and contact you at <strong>{user?.email}</strong> within 5 business days.</div>
-            <button onClick={onClose} style={{ border:'none', background:'#1A3D2C', color:'#fff', borderRadius:10, padding:'11px 28px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>Done</button>
+            <div style={{ fontSize:20, fontWeight:900, color:T.ink, marginBottom:8 }}>Application submitted!</div>
+            <div style={{ fontSize:14, color:T.ink3, fontWeight:500, maxWidth:320, lineHeight:1.65, marginBottom:24 }}>{vacancy.sName} will review your CV and contact you at <strong>{user?.email}</strong> within 5 business days.</div>
+            <button onClick={onClose} style={{ border:'none', background:T.footerBg, color:T.cardBg, borderRadius:10, padding:'11px 28px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>Done</button>
           </div>
         ) : (
           <div style={{ flex:1, overflow:'auto', padding:'20px 24px', display:'flex', flexDirection:'column', gap:14 }}>
             <div style={{ display:'flex', gap:12 }}>
               {[['Applying as', user?.name||''], ['Email', user?.email||'']].map(([l,v])=>(
-                <div key={l} style={{ flex:1 }}><label style={{ fontSize:12.5, fontWeight:700, color:'#374151', display:'block', marginBottom:4 }}>{l}</label><div style={{ border:'1.5px solid #E5E9EC', borderRadius:8, padding:'9px 12px', fontSize:14, color:'#6B7280', background:'#F9FAFB', fontFamily:'inherit' }}>{v}</div></div>
+                <div key={l} style={{ flex:1 }}><label style={{ fontSize:12.5, fontWeight:700, color:T.ink2, display:'block', marginBottom:4 }}>{l}</label><div style={{ border:`1.5px solid ${T.line}`, borderRadius:8, padding:'9px 12px', fontSize:14, color:T.ink3, background:T.inputBg, fontFamily:'inherit' }}>{v}</div></div>
               ))}
             </div>
-            <div><label style={{ fontSize:12.5, fontWeight:700, color:'#374151', display:'block', marginBottom:4 }}>Phone number *</label><input value={form.phone} onChange={e=>setF('phone',e.target.value)} placeholder="+234 800 000 0000" style={{ width:'100%', border:'1.5px solid #E5E9EC', borderRadius:8, padding:'9px 12px', fontFamily:'inherit', fontSize:14, outline:'none', boxSizing:'border-box' }} /></div>
-            <div><label style={{ fontSize:12.5, fontWeight:700, color:'#374151', display:'block', marginBottom:4 }}>Cover note * <span style={{ color:'#9CA3AF', fontWeight:500 }}>({form.cover.trim().length}/30 min)</span></label><textarea value={form.cover} onChange={e=>setF('cover',e.target.value)} placeholder="Briefly explain why you are a great fit for this role…" rows={4} style={{ width:'100%', border:`1.5px solid ${form.cover.trim().length>=30?'#1A3D2C':'#E5E9EC'}`, borderRadius:8, padding:'10px 12px', fontFamily:'inherit', fontSize:14, resize:'none', outline:'none', boxSizing:'border-box' }} /></div>
-            <div><label style={{ fontSize:12.5, fontWeight:700, color:'#374151', display:'block', marginBottom:4 }}>CV / Resume (PDF) *</label>
-              <label style={{ display:'flex', alignItems:'center', gap:10, border:`1.5px dashed ${form.cvFile?'#1A3D2C':'#D1D5DB'}`, borderRadius:10, padding:'14px 16px', cursor:'pointer', background:form.cvFile?'#F0FDF4':'#FAFAFA' }}>
+            <div><label style={{ fontSize:12.5, fontWeight:700, color:T.ink2, display:'block', marginBottom:4 }}>Phone number *</label><input value={form.phone} onChange={e=>setF('phone',e.target.value)} placeholder="+234 800 000 0000" style={{ width:'100%', border:`1.5px solid ${T.line}`, borderRadius:8, padding:'9px 12px', fontFamily:'inherit', fontSize:14, outline:'none', boxSizing:'border-box' }} /></div>
+            <div><label style={{ fontSize:12.5, fontWeight:700, color:T.ink2, display:'block', marginBottom:4 }}>Cover note * <span style={{ color:T.ink3, fontWeight:500 }}>({form.cover.trim().length}/30 min)</span></label><textarea value={form.cover} onChange={e=>setF('cover',e.target.value)} placeholder="Briefly explain why you are a great fit for this role…" rows={4} style={{ width:'100%', border:`1.5px solid ${form.cover.trim().length>=30?T.footerBg:T.line}`, borderRadius:8, padding:'10px 12px', fontFamily:'inherit', fontSize:14, resize:'none', outline:'none', boxSizing:'border-box' }} /></div>
+            <div><label style={{ fontSize:12.5, fontWeight:700, color:T.ink2, display:'block', marginBottom:4 }}>CV / Resume (PDF) *</label>
+              <label style={{ display:'flex', alignItems:'center', gap:10, border:`1.5px dashed ${form.cvFile?T.footerBg:'#D1D5DB'}`, borderRadius:10, padding:'14px 16px', cursor:'pointer', background:form.cvFile?T.accentLight:'#FAFAFA' }}>
                 <span style={{ fontSize:22 }}>{form.cvFile?'📄':'⬆️'}</span>
-                <div><div style={{ fontSize:14, fontWeight:700, color:form.cvFile?'#166534':'#374151' }}>{form.cvFile?form.cvName:'Click to upload your CV'}</div><div style={{ fontSize:12, color:'#9CA3AF', fontWeight:500 }}>{form.cvFile?'PDF selected ✓':'PDF only · Max 5MB'}</div></div>
+                <div><div style={{ fontSize:14, fontWeight:700, color:form.cvFile?'#166534':T.ink2 }}>{form.cvFile?form.cvName:'Click to upload your CV'}</div><div style={{ fontSize:12, color:T.ink3, fontWeight:500 }}>{form.cvFile?'PDF selected ✓':'PDF only · Max 5MB'}</div></div>
                 <input type="file" accept=".pdf" style={{ display:'none' }} onChange={e=>{ if(e.target.files?.[0]){ setF('cvFile',e.target.files[0]); setF('cvName',e.target.files[0].name); } }} />
               </label>
             </div>
             {errors.length > 0 && <div style={{ background:'#FEE2E2', border:'1.5px solid #FECACA', borderRadius:10, padding:'12px 14px' }}><div style={{ fontSize:13, fontWeight:800, color:'#B91C1C', marginBottom:5 }}>Please fix the following:</div>{errors.map(e=><div key={e} style={{ fontSize:12.5, color:'#B91C1C', fontWeight:500, marginBottom:3 }}>• {e}</div>)}</div>}
-            <button onClick={handleSubmit} style={{ border:'none', background:'#1A3D2C', color:'#fff', borderRadius:10, padding:'13px', fontFamily:'inherit', fontSize:15, fontWeight:800, cursor:'pointer' }}>Submit application →</button>
+            <button onClick={handleSubmit} style={{ border:'none', background:T.footerBg, color:T.cardBg, borderRadius:10, padding:'13px', fontFamily:'inherit', fontSize:15, fontWeight:800, cursor:'pointer' }}>Submit application →</button>
           </div>
         )}
       </div>
@@ -65,8 +66,8 @@ function BulletList({ text }: { text: string }) {
   return (
     <ul style={{ margin:0, padding:0, listStyle:'none', display:'flex', flexDirection:'column', gap:10 }}>
       {lines.map((line, i) => (
-        <li key={i} style={{ display:'flex', gap:12, alignItems:'flex-start', fontSize:14.5, color:'#374151', lineHeight:1.65 }}>
-          <span style={{ width:7, height:7, borderRadius:'50%', background:'#111827', flexShrink:0, marginTop:7 }} />
+        <li key={i} style={{ display:'flex', gap:12, alignItems:'flex-start', fontSize:14.5, color:T.ink2, lineHeight:1.65 }}>
+          <span style={{ width:7, height:7, borderRadius:'50%', background:T.ink, flexShrink:0, marginTop:7 }} />
           <span>{line.replace(/^[•\-–]\s*/, '')}</span>
         </li>
       ))}
@@ -80,10 +81,10 @@ function NumberedList({ text }: { text: string }) {
     <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
       {lines.map((line, i) => (
         <div key={i} style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
-          <span style={{ width:24, height:24, borderRadius:6, background:'#DCFCE7', border:'1px solid #BBF7D0', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:800, color:'#166534', flexShrink:0 }}>
+          <span style={{ width:24, height:24, borderRadius:6, background:T.accentLight, border:`1px solid ${T.line}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:800, color:'#166534', flexShrink:0 }}>
             {i + 1}
           </span>
-          <span style={{ fontSize:14.5, color:'#374151', lineHeight:1.65, paddingTop:3 }}>
+          <span style={{ fontSize:14.5, color:T.ink2, lineHeight:1.65, paddingTop:3 }}>
             {line.replace(/^[•\-–]\s*/, '')}
           </span>
         </div>
@@ -143,26 +144,26 @@ export default function VacancyDetail() {
       });
   }, [id]);
 
-  const font = "'Source Sans 3','Segoe UI',sans-serif";
+  const font = T.font;
 
   if (loading) return (
-    <div style={{ minHeight:'100vh', background:'#F8FAFB', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:font }}>
+    <div style={{ minHeight:'100vh', background:T.bg, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:font }}>
       <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:14 }}>
-        <div style={{ width:40, height:40, border:'3px solid #E5E9EC', borderTopColor:'#1A3D2C', borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
-        <div style={{ fontSize:14, color:'#6B7280', fontWeight:600 }}>Loading vacancy…</div>
+        <div style={{ width:40, height:40, border:`3px solid ${T.line}`, borderTopColor:T.footerBg, borderRadius:'50%', animation:'spin 0.8s linear infinite' }} />
+        <div style={{ fontSize:14, color:T.ink3, fontWeight:600 }}>Loading vacancy…</div>
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>
     </div>
   );
 
   if (notFound || !vacancy) return (
-    <div style={{ minHeight:'100vh', background:'#F8FAFB', fontFamily:font, display:'flex', flexDirection:'column' }}>
+    <div style={{ minHeight:'100vh', background:T.bg, fontFamily:font, display:'flex', flexDirection:'column' }}>
       <ExtrasNav onBack={() => router.push('/vacancies')} backLabel="← Back to vacancies" />
       <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:14, padding:40 }}>
         <div style={{ fontSize:52 }}>📋</div>
-        <div style={{ fontSize:22, fontWeight:800, color:'#111827' }}>Vacancy not found</div>
-        <div style={{ fontSize:15, color:'#6B7280', fontWeight:500 }}>This listing may have been closed or removed.</div>
-        <button onClick={() => router.push('/vacancies')} style={{ border:'none', background:'#1A3D2C', color:'#fff', borderRadius:10, padding:'11px 24px', fontFamily:font, fontSize:14.5, fontWeight:800, cursor:'pointer', marginTop:8 }}>
+        <div style={{ fontSize:22, fontWeight:800, color:T.ink }}>Vacancy not found</div>
+        <div style={{ fontSize:15, color:T.ink3, fontWeight:500 }}>This listing may have been closed or removed.</div>
+        <button onClick={() => router.push('/vacancies')} style={{ border:'none', background:T.footerBg, color:T.cardBg, borderRadius:10, padding:'11px 24px', fontFamily:font, fontSize:14.5, fontWeight:800, cursor:'pointer', marginTop:8 }}>
           Browse all vacancies
         </button>
       </div>
@@ -187,11 +188,11 @@ export default function VacancyDetail() {
   ].filter(s => s.value);
 
   return (
-    <div style={{ minHeight:'100vh', background:'#F4F5F7', fontFamily:font, display:'flex', flexDirection:'column' }}>
+    <div style={{ minHeight:'100vh', background:T.bg, fontFamily:font, display:'flex', flexDirection:'column' }}>
       <ExtrasNav onBack={() => router.push('/vacancies')} backLabel="← Back to vacancies" />
 
       {/* White header */}
-      <div style={{ background:'#fff', borderBottom:'1.5px solid #E5E9EC', flexShrink:0 }}>
+      <div style={{ background:T.cardBg, borderBottom:`1.5px solid ${T.line}`, flexShrink:0 }}>
         <div style={{ maxWidth:980, margin:'0 auto', padding:'28px 40px 0' }}>
 
           {/* Title row */}
@@ -204,33 +205,33 @@ export default function VacancyDetail() {
             {/* Title + badges + school */}
             <div style={{ flex:1, minWidth:0 }}>
               <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', marginBottom:8 }}>
-                <span style={{ fontSize:13, fontWeight:700, color:'#166534', background:'#DCFCE7', border:'1px solid #BBF7D0', borderRadius:6, padding:'3px 10px' }}>{vacancy.type}</span>
+                <span style={{ fontSize:13, fontWeight:700, color:'#166534', background:T.accentLight, border:`1px solid ${T.line}`, borderRadius:6, padding:'3px 10px' }}>{vacancy.type}</span>
                 {vacancy.trcnRequired && <span style={{ fontSize:13, fontWeight:700, color:'#92400E', background:'#FEF3C7', border:'1px solid #FDE68A', borderRadius:6, padding:'3px 10px' }}>TRCN required</span>}
                 {isExpired && <span style={{ fontSize:13, fontWeight:700, color:'#B91C1C', background:'#FEE2E2', border:'1px solid #FECACA', borderRadius:6, padding:'3px 10px' }}>Deadline passed</span>}
-                <span style={{ fontSize:13, fontWeight:600, color:'#6B7280', background:'#F3F4F6', border:'1px solid #E5E7EB', borderRadius:6, padding:'3px 10px' }}>{vacancy.dept}</span>
+                <span style={{ fontSize:13, fontWeight:600, color:T.ink3, background:T.inputBg, border:`1px solid ${T.line}`, borderRadius:6, padding:'3px 10px' }}>{vacancy.dept}</span>
               </div>
-              <h1 style={{ margin:'0 0 6px', fontSize:27, fontWeight:900, color:'#111827', lineHeight:1.2 }}>{vacancy.title}</h1>
-              <div style={{ fontSize:15, color:'#374151', fontWeight:600 }}>
-                {vacancy.sName}{vacancy.city ? <span> · <span style={{ color:'#6B7280' }}>📍</span> {vacancy.city}</span> : null}
+              <h1 style={{ margin:'0 0 6px', fontSize:27, fontWeight:900, color:T.ink, lineHeight:1.2 }}>{vacancy.title}</h1>
+              <div style={{ fontSize:15, color:T.ink2, fontWeight:600 }}>
+                {vacancy.sName}{vacancy.city ? <span> · <span style={{ color:T.ink3 }}>📍</span> {vacancy.city}</span> : null}
               </div>
             </div>
 
             {/* Deadline top-right */}
             {deadlineStr && (
               <div style={{ textAlign:'right', flexShrink:0, paddingTop:2 }}>
-                <div style={{ fontSize:11, fontWeight:700, color:'#9CA3AF', textTransform:'uppercase', letterSpacing:.8, marginBottom:3 }}>Deadline</div>
-                <div style={{ fontSize:19, fontWeight:900, color: isExpired ? '#B91C1C' : '#111827' }}>{deadlineStr}</div>
+                <div style={{ fontSize:11, fontWeight:700, color:T.ink3, textTransform:'uppercase', letterSpacing:.8, marginBottom:3 }}>Deadline</div>
+                <div style={{ fontSize:19, fontWeight:900, color: isExpired ? '#B91C1C' : T.ink }}>{deadlineStr}</div>
               </div>
             )}
           </div>
 
           {/* Stats row — attached to bottom of header */}
           {statsRow.length > 0 && (
-            <div style={{ display:'grid', gridTemplateColumns:`repeat(${statsRow.length}, 1fr)`, border:'1.5px solid #E5E9EC', borderBottom:'none', borderRadius:'10px 10px 0 0', overflow:'hidden' }}>
+            <div style={{ display:'grid', gridTemplateColumns:`repeat(${statsRow.length}, 1fr)`, border:`1.5px solid ${T.line}`, borderBottom:'none', borderRadius:'10px 10px 0 0', overflow:'hidden' }}>
               {statsRow.map((s, i) => (
-                <div key={s.label} style={{ padding:'13px 18px', background:'#F9FAFB', borderRight: i < statsRow.length - 1 ? '1.5px solid #E5E9EC' : 'none' }}>
-                  <div style={{ fontSize:10.5, fontWeight:700, color:'#9CA3AF', textTransform:'uppercase', letterSpacing:.7, marginBottom:3 }}>{s.label}</div>
-                  <div style={{ fontSize:15, fontWeight:800, color:'#111827' }}>{s.value}</div>
+                <div key={s.label} style={{ padding:'13px 18px', background:T.inputBg, borderRight: i < statsRow.length - 1 ? `1.5px solid ${T.line}` : 'none' }}>
+                  <div style={{ fontSize:10.5, fontWeight:700, color:T.ink3, textTransform:'uppercase', letterSpacing:.7, marginBottom:3 }}>{s.label}</div>
+                  <div style={{ fontSize:15, fontWeight:800, color:T.ink }}>{s.value}</div>
                 </div>
               ))}
             </div>
@@ -246,9 +247,9 @@ export default function VacancyDetail() {
 
           {/* About this role */}
           {(vacancy.roleOverview || vacancy.summary) && (
-            <section style={{ background:'#fff', border:'1.5px solid #E5E9EC', borderRadius:14, padding:'24px 26px' }}>
-              <h2 style={{ margin:'0 0 14px', fontSize:17, fontWeight:800, color:'#111827' }}>About this role</h2>
-              <p style={{ margin:0, fontSize:14.5, color:'#374151', lineHeight:1.75 }}>
+            <section style={{ background:T.cardBg, border:`1.5px solid ${T.line}`, borderRadius:14, padding:'24px 26px' }}>
+              <h2 style={{ margin:'0 0 14px', fontSize:17, fontWeight:800, color:T.ink }}>About this role</h2>
+              <p style={{ margin:0, fontSize:14.5, color:T.ink2, lineHeight:1.75 }}>
                 {vacancy.roleOverview ?? vacancy.summary}
               </p>
             </section>
@@ -256,28 +257,28 @@ export default function VacancyDetail() {
 
           {/* Key responsibilities */}
           {vacancy.keyResponsibilities && (
-            <section style={{ background:'#fff', border:'1.5px solid #E5E9EC', borderRadius:14, padding:'24px 26px' }}>
-              <h2 style={{ margin:'0 0 16px', fontSize:17, fontWeight:800, color:'#111827' }}>Key responsibilities</h2>
+            <section style={{ background:T.cardBg, border:`1.5px solid ${T.line}`, borderRadius:14, padding:'24px 26px' }}>
+              <h2 style={{ margin:'0 0 16px', fontSize:17, fontWeight:800, color:T.ink }}>Key responsibilities</h2>
               <BulletList text={vacancy.keyResponsibilities} />
             </section>
           )}
 
           {/* Requirements & qualifications — numbered */}
           {vacancy.requirements && (
-            <section style={{ background:'#fff', border:'1.5px solid #E5E9EC', borderRadius:14, padding:'24px 26px' }}>
-              <h2 style={{ margin:'0 0 16px', fontSize:17, fontWeight:800, color:'#111827' }}>Requirements & qualifications</h2>
+            <section style={{ background:T.cardBg, border:`1.5px solid ${T.line}`, borderRadius:14, padding:'24px 26px' }}>
+              <h2 style={{ margin:'0 0 16px', fontSize:17, fontWeight:800, color:T.ink }}>Requirements & qualifications</h2>
               <NumberedList text={vacancy.requirements} />
             </section>
           )}
 
           {/* Perks & benefits — grey outlined chips */}
           {vacancy.perks.length > 0 && (
-            <section style={{ background:'#fff', border:'1.5px solid #E5E9EC', borderRadius:14, padding:'24px 26px' }}>
-              <h2 style={{ margin:'0 0 16px', fontSize:17, fontWeight:800, color:'#111827' }}>Perks & benefits</h2>
+            <section style={{ background:T.cardBg, border:`1.5px solid ${T.line}`, borderRadius:14, padding:'24px 26px' }}>
+              <h2 style={{ margin:'0 0 16px', fontSize:17, fontWeight:800, color:T.ink }}>Perks & benefits</h2>
               <div style={{ display:'flex', flexWrap:'wrap', gap:8 }}>
                 {vacancy.perks.map(p => (
-                  <span key={p} style={{ display:'flex', alignItems:'center', gap:8, fontSize:13.5, fontWeight:600, color:'#374151', background:'#fff', border:'1.5px solid #D1D5DB', borderRadius:20, padding:'7px 14px' }}>
-                    <span style={{ width:7, height:7, borderRadius:'50%', background:'#374151', flexShrink:0 }} />
+                  <span key={p} style={{ display:'flex', alignItems:'center', gap:8, fontSize:13.5, fontWeight:600, color:T.ink2, background:T.cardBg, border:`1.5px solid ${T.line}`, borderRadius:20, padding:'7px 14px' }}>
+                    <span style={{ width:7, height:7, borderRadius:'50%', background:T.ink2, flexShrink:0 }} />
                     {p}
                   </span>
                 ))}
@@ -287,9 +288,9 @@ export default function VacancyDetail() {
 
           {/* How to apply */}
           {vacancy.applyInstructions && (
-            <section style={{ background:'#fff', border:'1.5px solid #E5E9EC', borderRadius:14, padding:'24px 26px' }}>
-              <h2 style={{ margin:'0 0 12px', fontSize:17, fontWeight:800, color:'#111827' }}>How to apply</h2>
-              <p style={{ margin:0, fontSize:14, color:'#374151', lineHeight:1.7 }}>{vacancy.applyInstructions}</p>
+            <section style={{ background:T.cardBg, border:`1.5px solid ${T.line}`, borderRadius:14, padding:'24px 26px' }}>
+              <h2 style={{ margin:'0 0 12px', fontSize:17, fontWeight:800, color:T.ink }}>How to apply</h2>
+              <p style={{ margin:0, fontSize:14, color:T.ink2, lineHeight:1.7 }}>{vacancy.applyInstructions}</p>
             </section>
           )}
         </div>
@@ -298,7 +299,7 @@ export default function VacancyDetail() {
         <div style={{ display:'flex', flexDirection:'column', gap:16, position:'sticky', top:24 }}>
 
           {/* Apply CTA — dark forest green card */}
-          <div style={{ background:'#1A3D2C', borderRadius:14, padding:'22px 22px' }}>
+          <div style={{ background:T.footerBg, borderRadius:14, padding:'22px 22px' }}>
             <div style={{ fontSize:17, fontWeight:800, color:'#fff', marginBottom:8 }}>Apply for this role</div>
             <div style={{ fontSize:13.5, color:'rgba(255,255,255,.65)', lineHeight:1.65, marginBottom:18 }}>
               Applications submitted via SchoolCity are shared directly with the school's SchoolOS recruitment inbox.
@@ -320,8 +321,8 @@ export default function VacancyDetail() {
           </div>
 
           {/* Job details */}
-          <div style={{ background:'#fff', border:'1.5px solid #E5E9EC', borderRadius:14, padding:'18px 20px' }}>
-            <div style={{ fontSize:11.5, fontWeight:800, color:'#9CA3AF', textTransform:'uppercase', letterSpacing:.7, marginBottom:14 }}>Job details</div>
+          <div style={{ background:T.cardBg, border:`1.5px solid ${T.line}`, borderRadius:14, padding:'18px 20px' }}>
+            <div style={{ fontSize:11.5, fontWeight:800, color:T.ink3, textTransform:'uppercase', letterSpacing:.7, marginBottom:14 }}>Job details</div>
             <div style={{ display:'flex', flexDirection:'column', gap:11 }}>
               {[
                 { label:'Employment', value: vacancy.type, badge: V_TYPE_CLR[vacancy.type] },
@@ -334,30 +335,30 @@ export default function VacancyDetail() {
                 { label:'Deadline',    value: deadlineStr },
               ].filter(r => r.value).map(r => (
                 <div key={r.label} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:8 }}>
-                  <span style={{ fontSize:13, color:'#9CA3AF', fontWeight:600, flexShrink:0 }}>{r.label}</span>
+                  <span style={{ fontSize:13, color:T.ink3, fontWeight:600, flexShrink:0 }}>{r.label}</span>
                   {r.badge
                     ? <span style={{ fontSize:12, fontWeight:700, color:'#fff', background:r.badge, borderRadius:5, padding:'2px 8px' }}>{r.value}</span>
-                    : <span style={{ fontSize:13, color:'#111827', fontWeight:700, textAlign:'right' }}>{r.value}</span>}
+                    : <span style={{ fontSize:13, color:T.ink, fontWeight:700, textAlign:'right' }}>{r.value}</span>}
                 </div>
               ))}
             </div>
           </div>
 
           {/* Posted by */}
-          <div style={{ background:'#fff', border:'1.5px solid #E5E9EC', borderRadius:14, padding:'18px 20px' }}>
-            <div style={{ fontSize:11.5, fontWeight:800, color:'#9CA3AF', textTransform:'uppercase', letterSpacing:.7, marginBottom:14 }}>Posted by</div>
+          <div style={{ background:T.cardBg, border:`1.5px solid ${T.line}`, borderRadius:14, padding:'18px 20px' }}>
+            <div style={{ fontSize:11.5, fontWeight:800, color:T.ink3, textTransform:'uppercase', letterSpacing:.7, marginBottom:14 }}>Posted by</div>
             <div style={{ display:'flex', alignItems:'center', gap:13, marginBottom:14 }}>
               <div style={{ width:42, height:42, borderRadius:11, background:color, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, fontSize:18, fontWeight:900, color:'#fff' }}>
                 {vacancy.sName[0]}
               </div>
               <div>
-                <div style={{ fontSize:14, fontWeight:800, color:'#111827' }}>{vacancy.sName}</div>
-                {vacancy.city && <div style={{ fontSize:12.5, color:'#6B7280', fontWeight:600, marginTop:2 }}>📍 {vacancy.city}</div>}
+                <div style={{ fontSize:14, fontWeight:800, color:T.ink }}>{vacancy.sName}</div>
+                {vacancy.city && <div style={{ fontSize:12.5, color:T.ink3, fontWeight:600, marginTop:2 }}>📍 {vacancy.city}</div>}
               </div>
             </div>
             <button
               onClick={() => router.push('/schools/' + vacancy.sId)}
-              style={{ width:'100%', border:'1.5px solid #D1D5DB', background:'#fff', borderRadius:9, padding:'10px', fontFamily:font, fontSize:13.5, fontWeight:700, color:'#374151', cursor:'pointer' }}>
+              style={{ width:'100%', border:`1.5px solid ${T.line}`, background:T.cardBg, borderRadius:9, padding:'10px', fontFamily:font, fontSize:13.5, fontWeight:700, color:T.ink2, cursor:'pointer' }}>
               View school profile →
             </button>
           </div>

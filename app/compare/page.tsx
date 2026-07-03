@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { SCCompareModal } from '@/components/ui';
 import { useSchools } from '@/lib/useSchools';
+import { T } from '@/lib/tokens';
 
 export default function ComparePage() {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function ComparePage() {
   };
 
   return (
-    <div style={{ minHeight:'100vh', background:'#F8FAFB' }}>
+    <div style={{ minHeight:'100vh', background:T.bg }}>
       <SCCompareModal
         compareIds={compareIds}
         allSchools={schools}

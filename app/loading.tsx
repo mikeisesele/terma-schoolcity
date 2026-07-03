@@ -1,3 +1,5 @@
+import { T } from '@/lib/tokens';
+
 export default function Loading() {
-  return <div style={{ minHeight: '60vh', display: 'grid', placeItems: 'center', color: '#7A9880', fontWeight: 600 }}>Loading…</div>;
+  return <div style={{ minHeight: '60vh', display: 'grid', placeItems: 'center', color: T.ink3, fontWeight: 600 }}>Loading…</div>;
 }
