@@ -92,10 +92,58 @@ export function useSchools(): UseSchoolsResult {
       if (err) {
         setError(err.message);
         // keep static fallback
-      } else if (data && data.length >= 5) {
-        // Only switch to live data when we have a meaningful seeded dataset;
-        // a small count means the DB is partially seeded and the static list is richer.
-        setSchools((data as DBSchool[]).map(mapDbToSchool));
+      } else if (data && data.length > 0) {
+        // Merge: start from the full static list (preserves bannerUrl, imageUrl, all rich data),
+        // enrich matching schools with live DB values (id→UUID, phone, email, address, plan, color),
+        // and append any DB schools whose names don't match any static entry.
+        const merged = [...SN_SCHOOLS];
+        const usedDbIds = new Set<string>();
+        const nameLower = (s: string) => s.toLowerCase().trim();
+
+        for (const row of data as DBSchool[]) {
+          const idx = merged.findIndex(s => nameLower(s.name) === nameLower(row.name));
+          if (idx !== -1) {
+            merged[idx] = {
+              ...merged[idx],
+              id: row.id,                               // use UUID so detail page fetches live data
+              phone: row.phone ?? merged[idx].phone,
+              email: row.email ?? merged[idx].email,
+              address: row.address ?? merged[idx].address,
+              tagline: row.motto ?? merged[idx].tagline,
+              color: row.primary_colour ?? merged[idx].color,
+              ktPlan: row.plan === 'premium' ? 'Premium' : row.plan === 'standard' ? 'Standard' : merged[idx].ktPlan,
+              verified: row.status === 'active',
+            };
+            usedDbIds.add(row.id);
+          }
+        }
+
+        // Append DB-only schools (not matched to any static entry)
+        const BANNER_POOL = SN_SCHOOLS.filter(s => s.bannerUrl).map(s => s.bannerUrl!);
+        let poolIdx = 0;
+        for (const row of data as DBSchool[]) {
+          if (!usedDbIds.has(row.id)) {
+            const banner = BANNER_POOL[poolIdx % BANNER_POOL.length];
+            poolIdx++;
+            merged.push({
+              id: row.id,
+              name: row.name,
+              ktPlan: row.plan === 'premium' ? 'Premium' : row.plan === 'standard' ? 'Standard' : undefined,
+              city: row.address ?? 'Nigeria',
+              state: 'NG', type: 'Day', gender: 'Mixed', levels: 'Nursery–SSS',
+              orientation: 'Non-denominational', transport: false, boarding: false,
+              rating: 4.5, reviews: 0, verified: row.status === 'active',
+              feeFrom: 0, feeTo: 0,
+              color: row.primary_colour ?? '#1A3D2C',
+              tagline: row.motto ?? '',
+              features: [], scholarships: 0, vacancies: 0, students: '', established: 2000,
+              address: row.address ?? '', phone: row.phone ?? '', email: row.email ?? '',
+              bannerUrl: banner, imageUrl: banner,
+            });
+          }
+        }
+
+        setSchools(merged);
         setIsLive(true);
       }
       // Otherwise keep the static SN_SCHOOLS fallback (dev / partially seeded DB)
