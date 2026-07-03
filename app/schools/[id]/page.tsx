@@ -166,7 +166,7 @@ export default function SCDetail() {
 
   const dbBadges = achievements.map(a => {
     const { icon, color, bg } = achievementStyle(a.type);
-    const parts = [a.description, a.issuedAt ? new Date(a.issuedAt).getFullYear().toString() : null].filter(Boolean);
+    const parts = [a.description, a.year ? String(a.year) : null].filter(Boolean);
     return { icon, label: a.title, sub: parts.join(' · '), color, bg };
   });
 

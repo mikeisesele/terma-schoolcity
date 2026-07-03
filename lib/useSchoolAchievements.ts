@@ -13,7 +13,7 @@ export type Achievement = {
   type: AchievementType;
   title: string;
   description: string | null;
-  issuedAt: string | null;
+  year: number | null;
 };
 
 export type UseSchoolAchievementsResult = {
@@ -32,9 +32,9 @@ export function useSchoolAchievements(schoolId: string | null | undefined): UseS
 
     supabase
       .from('school_achievements')
-      .select('id, type, title, description, issued_at')
+      .select('id, type, title, description, year')
       .eq('school_id', schoolId)
-      .order('issued_at', { ascending: false })
+      .order('year', { ascending: false, nullsFirst: false })
       .then(({ data }) => {
         if (cancelled) return;
         setAchievements(
@@ -43,7 +43,7 @@ export function useSchoolAchievements(schoolId: string | null | undefined): UseS
             type:        (a.type as AchievementType) ?? 'other',
             title:       String(a.title),
             description: a.description != null ? String(a.description) : null,
-            issuedAt:    a.issued_at != null ? String(a.issued_at) : null,
+            year:        a.year != null ? Number(a.year) : null,
           }))
         );
         setLoading(false);
