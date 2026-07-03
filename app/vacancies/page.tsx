@@ -71,8 +71,13 @@ export default function SNFindVacancy() {
   const [applyVac, setApplyVac] = useState<Vacancy|null>(null);
   const [user, setUser]     = useState<{name:string;email:string;avatar:string;color:string}|null>(null);
   const [showAuth, setShowAuth] = useState(false);
+  const [authApplyEmail, setAuthApplyEmail] = useState<string | undefined>(undefined);
+
+  const today = new Date(); today.setHours(0,0,0,0);
 
   const shown = vacancies.filter(v => {
+    // Client-side expiry guard: hides static fallback data that is past deadline
+    if (v.deadline) { const dl = new Date(v.deadline); dl.setHours(0,0,0,0); if (dl < today) return false; }
     const mq  = !q || v.title.toLowerCase().includes(q.toLowerCase()) || v.sName.toLowerCase().includes(q.toLowerCase()) || v.city.toLowerCase().includes(q.toLowerCase());
     const md  = dept === 'All departments' || v.dept === dept;
     const mt  = type === 'All' || v.type === type;
@@ -119,28 +124,49 @@ export default function SNFindVacancy() {
       <div style={{ flex:1, maxWidth:1100, width:'100%', margin:'0 auto', padding:'24px 40px' }}>
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           {shown.map(v => (
-            <div key={v.id} style={{ background:'#fff', borderRadius:14, border:'1.5px solid #E5E9EC', overflow:'hidden', display:'flex', boxShadow:'0 1px 6px rgba(0,0,0,.05)', transition:'box-shadow .2s' }}
+            <div key={v.id} style={{ background:'#fff', borderRadius:14, border:'1.5px solid #E5E9EC', overflow:'hidden', display:'flex', boxShadow:'0 1px 6px rgba(0,0,0,.05)', transition:'box-shadow .2s', cursor:'pointer' }}
+              onClick={() => router.push('/vacancies/'+v.id)}
               onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.boxShadow='0 6px 20px rgba(0,0,0,.1)'}
               onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.boxShadow='0 1px 6px rgba(0,0,0,.05)'}>
               <div style={{ width:5, background:v.sColor, flexShrink:0 }} />
-              <div style={{ flex:1, padding:'14px 18px', display:'flex', alignItems:'flex-start', gap:14 }}>
-                <div style={{ width:42, height:42, borderRadius:10, background:v.sColor+'18', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, border:`1.5px solid ${v.sColor}30` }}>
-                  <span style={{ fontSize:17, fontWeight:900, color:v.sColor }}>{v.sName[0]}</span>
+              <div style={{ flex:1, padding:'16px 18px', display:'flex', alignItems:'flex-start', gap:14 }}>
+                <div style={{ width:44, height:44, borderRadius:11, background:v.sColor+'18', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, border:`1.5px solid ${v.sColor}30` }}>
+                  <span style={{ fontSize:18, fontWeight:900, color:v.sColor }}>{v.sName[0]}</span>
                 </div>
                 <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:3, flexWrap:'wrap' }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4, flexWrap:'wrap' }}>
                     <span style={{ fontSize:15.5, fontWeight:800, color:'#111827' }}>{v.title}</span>
                     <span style={{ fontSize:11.5, fontWeight:700, color:'#fff', background:V_TYPE_CLR[v.type]||'#6B7280', borderRadius:5, padding:'2px 8px', flexShrink:0 }}>{v.type}</span>
+                    {v.trcnRequired && <span style={{ fontSize:11, fontWeight:700, color:'#7C3AED', background:'#F5F3FF', border:'1px solid #DDD6FE', borderRadius:5, padding:'2px 8px', flexShrink:0 }}>TRCN required</span>}
                   </div>
                   <div style={{ fontSize:13, color:'#1A3D2C', fontWeight:700, marginBottom:3 }}>{v.sName} · 📍 {v.city}</div>
-                  <div style={{ fontSize:12.5, color:'#9CA3AF', fontWeight:600, marginBottom:5 }}>{v.dept}</div>
-                  <div style={{ fontSize:13.5, color:'#374151', fontWeight:500, lineHeight:1.5 }}>{v.summary}</div>
+                  <div style={{ fontSize:12.5, color:'#9CA3AF', fontWeight:600, marginBottom:6 }}>{v.dept}</div>
+                  {/* Key info row */}
+                  <div style={{ display:'flex', gap:14, flexWrap:'wrap', marginBottom:8, fontSize:13, color:'#374151', fontWeight:600 }}>
+                    {v.salaryRange && v.salaryRange !== 'Negotiable / Not disclosed' && (
+                      <span>💰 {v.salaryRange}</span>
+                    )}
+                    {v.experienceLevel && <span>🎯 {v.experienceLevel}</span>}
+                    {v.minQualification && <span>🎓 {v.minQualification} min.</span>}
+                  </div>
+                  <div style={{ fontSize:13.5, color:'#374151', fontWeight:500, lineHeight:1.5, overflow:'hidden', display:'-webkit-box', WebkitLineClamp:2, WebkitBoxOrient:'vertical' as const }}>
+                    {v.roleOverview ?? v.summary}
+                  </div>
+                  {/* Perks chips */}
+                  {v.perks.length > 0 && (
+                    <div style={{ display:'flex', gap:5, flexWrap:'wrap', marginTop:8 }}>
+                      {v.perks.slice(0,4).map(p => (
+                        <span key={p} style={{ fontSize:11.5, fontWeight:600, color:'#166534', background:'#F0FDF4', border:'1px solid #BBF7D0', borderRadius:5, padding:'2px 8px' }}>{p}</span>
+                      ))}
+                      {v.perks.length > 4 && <span style={{ fontSize:11.5, fontWeight:600, color:'#9CA3AF', background:'#F9FAFB', border:'1px solid #E5E9EC', borderRadius:5, padding:'2px 8px' }}>+{v.perks.length - 4} more</span>}
+                    </div>
+                  )}
                 </div>
                 <div style={{ flexShrink:0, textAlign:'right', display:'flex', flexDirection:'column', gap:8, alignItems:'flex-end' }}>
                   <div style={{ fontSize:12.5, color:'#9CA3AF', fontWeight:600, whiteSpace:'nowrap' }}>Deadline: {v.deadline}</div>
-                  <div style={{ display:'flex', gap:7 }}>
-                    <button onClick={() => router.push('/schools/'+v.sId)} style={{ border:'1.5px solid #E5E9EC', background:'#fff', color:'#374151', borderRadius:8, padding:'7px 13px', fontFamily:'inherit', fontSize:12.5, fontWeight:700, cursor:'pointer' }}>View school</button>
-                    <button onClick={() => { if (!user) { setShowAuth(true); return; } setApplyVac(v); }}
+                  <div style={{ display:'flex', gap:7, marginTop:4 }}>
+                    <button onClick={e => { e.stopPropagation(); router.push('/schools/'+v.sId); }} style={{ border:'1.5px solid #E5E9EC', background:'#fff', color:'#374151', borderRadius:8, padding:'7px 13px', fontFamily:'inherit', fontSize:12.5, fontWeight:700, cursor:'pointer' }}>View school</button>
+                    <button onClick={e => { e.stopPropagation(); if (!user) { setAuthApplyEmail(v.applyEmail); setShowAuth(true); return; } setApplyVac(v); }}
                       style={{ border:'none', background:v.sColor, color:'#fff', borderRadius:8, padding:'7px 15px', fontFamily:'inherit', fontSize:12.5, fontWeight:800, cursor:'pointer' }}>
                       {user ? 'Apply' : 'Sign in to apply'}
                     </button>
@@ -157,7 +183,7 @@ export default function SNFindVacancy() {
         </div>
       </div>
       {applyVac && <SNApplyModal vacancy={applyVac} user={user} onClose={()=>setApplyVac(null)} />}
-      {showAuth && <SCAuthModal onClose={()=>setShowAuth(false)} onSuccess={acc=>{ setUser(acc); setShowAuth(false); toast('Welcome, '+acc.name.split(' ')[0]+'!'); }} reason="apply" />}
+      {showAuth && <SCAuthModal onClose={()=>setShowAuth(false)} onSuccess={acc=>{ setUser(acc); setShowAuth(false); toast('Welcome, '+acc.name.split(' ')[0]+'!'); }} reason="apply" applyEmail={authApplyEmail} />}
     </div>
   );
 }
