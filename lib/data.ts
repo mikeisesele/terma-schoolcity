@@ -67,10 +67,12 @@ export function deriveFacilityImages(features: string[]): Record<string, string[
 // ── Marketing copy (hardcoded — design spec, not real data) ──────────────────
 export const SN_PARENT_FEATURES = [
   { emoji:'📊', title:'Results, instantly', text:'CA scores, exams, class standing, and term report cards — on your phone the moment they are published. No printing. No waiting.' },
-  { emoji:'💬', title:'School communication that works', text:"Targeted announcements for your child's class. Absence notes in two taps. No WhatsApp groups. No lost messages." },
-  { emoji:'📅', title:'Attendance and calendar', text:'See every day your child was present, absent, or excused. School events, PTA dates, and exam schedules in one calendar.' },
-  { emoji:'💳', title:'Fee payments and receipts', text:'Pay full or part from your phone. Siblings combined. Instant receipts. Complete payment history.' },
-  { emoji:'🔔', title:'Pickup confirmation', text:'Every pickup verified with a 4-digit code. Medical alerts visible to the driver at handover.' },
+  { emoji:'💬', title:'No more WhatsApp chains', text:"Targeted announcements for your child's class, not a group of 300 parents. Absence notes in two taps. All communication through the school, by design." },
+  { emoji:'🗓️', title:'School calendar, live', text:'Exam dates, PTA meetings, school events and holidays — all in one place, always current. No more missed notices.' },
+  { emoji:'📋', title:'Attendance record', text:"See every day your child was present, absent, or excused — for the whole term. Know before the report card arrives." },
+  { emoji:'🌅', title:'Daily welfare reports', text:"Teachers send a brief daily note on your child's mood, participation and wellbeing. School day visibility, not just results day." },
+  { emoji:'💳', title:'Fee payments and receipts', text:'Pay full or part from your phone. Siblings combined on one checkout. Instant receipts. Complete payment history.' },
+  { emoji:'🔔', title:'Pickup confirmation', text:'Every pickup verified with a 4-digit code. Medical alerts visible to the driver at handover. Every child, every time.' },
   { emoji:'🚌', title:'Live bus tracking', text:'See the bus on a map. Get notified when your child boards and when they arrive — for families on the school bus.' },
 ];
 
