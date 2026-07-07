@@ -1,18 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { T } from '@/lib/tokens';
 import { SCNav } from '@/components/ui';
-import { apiFn } from '@/lib/supabase';
+import { apiFn, supabase } from '@/lib/supabase';
 
 export default function SNListSchool() {
   const router = useRouter();
   const [form, setForm] = useState({ name:'', phone:'', email:'', city:'' });
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [foundingSlots, setFoundingSlots] = useState<{ used: number; remaining: number } | null>(null);
   const set = (k: string, v: string) => setForm(p=>({...p,[k]:v}));
+
+  useEffect(() => {
+    supabase.from('schools').select('id', { count: 'exact', head: true }).eq('is_founding_school', true)
+      .then(({ count }) => {
+        const used = count ?? 0;
+        setFoundingSlots({ used, remaining: Math.max(0, 20 - used) });
+      }).catch(() => null);
+  }, []);
   const inp: React.CSSProperties = { width:'100%', border:`1.5px solid ${T.line}`, borderRadius:9, padding:'11px 14px', fontFamily:'inherit', fontSize:14, outline:'none', background:T.bg, color:T.ink, boxSizing:'border-box' };
 
   const handleSubmit = async () => {
@@ -66,7 +75,15 @@ export default function SNListSchool() {
         <div style={{ maxWidth:640, margin:'0 auto', textAlign:'center' }}>
           <div style={{ fontSize:11, fontWeight:700, color:T.accentText+'60', letterSpacing:'.18em', textTransform:'uppercase', marginBottom:12 }}>SchoolCity listing is a SchoolOS benefit</div>
           <h1 style={{ margin:'0 0 10px', fontSize:34, fontWeight:900, color:T.accentText, lineHeight:1.1 }}>Get your school on SchoolOS — and on SchoolCity.</h1>
-          <p style={{ margin:0, fontSize:15, color:T.accentText+'78', lineHeight:1.7 }}>SchoolCity listings are available to schools on SchoolOS Standard or Premium. Register below and our team will set up your full platform in 48 hours.</p>
+          <p style={{ margin:0, fontSize:15, color:T.accentText+'78', lineHeight:1.7 }}>SchoolCity listings are available to schools on SchoolOS Standard or Pro. Register below and our team will set up your full platform in 48 hours.</p>
+          {foundingSlots !== null && foundingSlots.remaining > 0 && (
+            <div style={{ marginTop:16, display:'inline-flex', alignItems:'center', gap:8, background:'rgba(184,125,32,0.18)', border:'1.5px solid rgba(184,125,32,0.4)', borderRadius:40, padding:'8px 18px' }}>
+              <span style={{ fontSize:15 }}>⭐</span>
+              <span style={{ fontSize:13, fontWeight:700, color:T.accentText }}>
+                Founding school: {foundingSlots.remaining} of 20 slots remaining — lock in ₦7,000/student/yr for 2 years
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
