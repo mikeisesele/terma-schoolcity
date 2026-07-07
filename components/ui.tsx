@@ -111,8 +111,8 @@ export function SCCard({ school, onSelect, isFav, onToggleFav, inCompare, onTogg
         <div style={{ position:'absolute', top:12, left:12, width:40, height:40, borderRadius:T.avatarR, background:'rgba(255,255,255,.22)', border:'2px solid rgba(255,255,255,.5)', display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(8px)' }}>
           <span style={{ fontSize:18, fontWeight:800, color:'#fff', lineHeight:1 }}>{school.name[0]}</span>
         </div>
-        {school.ktPlan==='Premium'&&<span style={{ position:'absolute', top:10, right:10, fontSize:9.5, fontWeight:800, color:'#fff', background:'rgba(184,125,32,.88)', borderRadius:T.badgeR, padding:'3px 10px' }}>⭐ Premium</span>}
-        {school.verified&&school.ktPlan!=='Premium'&&<span style={{ position:'absolute', top:10, right:10, fontSize:9.5, fontWeight:800, color:'#fff', background:'rgba(255,255,255,.2)', borderRadius:T.badgeR, padding:'2px 8px', border:'1px solid rgba(255,255,255,.35)' }}>✓ Verified</span>}
+        {school.ktPlan==='Pro'&&<span style={{ position:'absolute', top:10, right:10, fontSize:9.5, fontWeight:800, color:'#fff', background:'rgba(184,125,32,.88)', borderRadius:T.badgeR, padding:'3px 10px' }}>⭐ Pro</span>}
+        {school.verified&&school.ktPlan!=='Pro'&&<span style={{ position:'absolute', top:10, right:10, fontSize:9.5, fontWeight:800, color:'#fff', background:'rgba(255,255,255,.2)', borderRadius:T.badgeR, padding:'2px 8px', border:'1px solid rgba(255,255,255,.35)' }}>✓ Verified</span>}
         <div style={{ position:'absolute', bottom:10, left:12, right:44 }}>
           <div style={{ fontSize:15, fontWeight:800, color:'#fff', lineHeight:1.2, textShadow:'0 1px 6px rgba(0,0,0,.45)' }}>{school.name}</div>
           <div style={{ fontSize:11.5, color:'rgba(255,255,255,.8)', fontWeight:600 }}>📍 {school.city}</div>
@@ -195,7 +195,7 @@ export function SCCompareModal({ compareIds, allSchools, onClose, onRemove, onSe
     { label:'Scholarships',   key:'scholarships', render: s => s.scholarships > 0 ? <span style={{ color:'#7C3AED', fontWeight:700 }}>{s.scholarships} available</span> : <span style={{ color:ink3 }}>None</span>, compare: s => s.scholarships },
     { label:'Vacancies',      key:'vacancies',    render: s => s.vacancies > 0 ? <span style={{ color:accent, fontWeight:700 }}>{s.vacancies} open</span> : <span style={{ color:ink3 }}>None</span> },
     { label:'Special needs',  key:'special',      render: s => s.special ? <span style={{ color:'#0369A1', fontWeight:700 }}>✓ Yes</span> : <span style={{ color:ink3 }}>—</span> },
-    { label:'SchoolOS plan',  key:'plan',         render: s => <span style={{ fontSize:12, fontWeight:800, color: s.ktPlan==='Premium'?'#B87D20':s.ktPlan==='Standard'?accent:ink3, background: s.ktPlan==='Premium'?'#FEF3C7':s.ktPlan==='Standard'?accentLight:'#F3F4F6', borderRadius:4, padding:'2px 8px' }}>{s.ktPlan||'—'}</span> },
+    { label:'SchoolOS plan',  key:'plan',         render: s => <span style={{ fontSize:12, fontWeight:800, color: s.ktPlan==='Pro'?'#B87D20':s.ktPlan==='Standard'?accent:ink3, background: s.ktPlan==='Pro'?'#FEF3C7':s.ktPlan==='Standard'?accentLight:'#F3F4F6', borderRadius:4, padding:'2px 8px' }}>{s.ktPlan||'—'}</span> },
   ];
 
   const isDiff = (row: typeof rows[0]) => {

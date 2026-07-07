@@ -46,7 +46,7 @@ function mapDbToSchool(row: DBSchool): School {
   return {
     id:           row.id,
     name:         row.name,
-    ktPlan:       row.plan === 'premium' ? 'Premium' : row.plan === 'standard' ? 'Standard' : undefined,
+    ktPlan:       row.plan === 'pro' || row.plan === 'premium' ? 'Pro' : row.plan === 'standard' ? 'Standard' : undefined,
     city:         row.city ?? row.address ?? 'Nigeria',
     state:        row.state ?? 'NG',
     type:         row.type ?? 'Day',

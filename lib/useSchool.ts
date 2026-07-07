@@ -84,7 +84,7 @@ export function useSchool(id: string): UseSchoolResult {
       setSchool({
         id:           String(row.id),
         name:         String(row.name),
-        ktPlan:       row.plan === 'premium' ? 'Premium' : row.plan === 'standard' ? 'Standard' : undefined,
+        ktPlan:       row.plan === 'pro' || row.plan === 'premium' ? 'Pro' : row.plan === 'standard' ? 'Standard' : undefined,
         city:         String(row.city ?? row.address ?? 'Nigeria'),
         state:        String(row.state ?? 'NG'),
         type:         String(row.type ?? 'Day'),
