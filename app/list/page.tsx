@@ -88,9 +88,14 @@ export default function SNListSchool() {
       </div>
 
       <div style={{ maxWidth:900, margin:'0 auto', padding:'36px 40px 0', display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16 }}>
-        {([['📋','SchoolCity profile','A verified public listing that parents find when searching — with photos, fees, facilities and ratings.'],
-          ['👨‍👩‍👧','Parent app','Every parent gets live bus tracking, instant results, fee payments and school communication on their phone.'],
-          ['🏆','SchoolOS Verified badge','Schools on Standard+ display the SchoolOS Verified badge — a trust signal parents recognise.']] as [string,string,string][]).map(([e,t,d])=>(
+        {([
+          ['📋','SchoolCity public profile','A verified listing parents find when searching — photos, fees, facilities, ratings and direct enquiry.'],
+          ['💳','Digital fee collection','Parents pay by card or bank transfer through Paystack. Automated receipts, overdue reminders, installment plans.'],
+          ['📊','Results & report cards','4-step approval chain: Subject Teacher → Class Teacher → Head → Admin. Digital report cards published instantly.'],
+          ['🚌','Live bus tracking','GPS every 5 seconds during trips. 4-digit pickup codes. Real-time ETA notifications for every parent.'],
+          ['👨‍👩‍👧','Parent app (free)','Every parent gets live tracking, instant results, fee payments and announcements on their phone. No app store sign-up.'],
+          ['🏆','SchoolOS Verified badge','Displayed on your SchoolCity listing. A trust signal parents in Nigeria recognise when comparing schools.'],
+        ] as [string,string,string][]).map(([e,t,d])=>(
           <div key={t} style={{ background:T.cardBg, borderRadius:T.cardR, border:`1.5px solid ${T.cardBorder}`, padding:'20px 18px' }}>
             <div style={{ fontSize:28, marginBottom:10 }}>{e}</div>
             <div style={{ fontSize:14, fontWeight:800, color:T.ink, marginBottom:6 }}>{t}</div>
