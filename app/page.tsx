@@ -9,6 +9,8 @@ import { SCNav, SCCard, SCCompareBar, SCCompareModal, SCAuthModal } from '@/comp
 import { useSchools } from '@/lib/useSchools';
 import type { School } from '@/lib/data';
 
+const SCHOOLOS_URL = process.env.NEXT_PUBLIC_SCHOOLOS_URL ?? 'https://schoolos.ng';
+
 export default function SNHome() {
   const router = useRouter();
   const { schools } = useSchools();
@@ -212,8 +214,8 @@ export default function SNHome() {
       <div style={{ background:T.footerBg, padding:'20px 48px', display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
         <span style={{ fontSize:15, fontWeight:700, color:T.footerText }}>SchoolCity <span style={{ fontStyle:'italic', opacity:.6 }}>by SchoolOS</span></span>
         <div style={{ display:'flex', gap:24, alignItems:'center' }}>
-          <a href="https://schoolos.ng/legal/privacy" style={{ fontSize:12, color:T.footerText, opacity:.55, textDecoration:'none' }}>Privacy Policy</a>
-          <a href="https://schoolos.ng/legal/terms" style={{ fontSize:12, color:T.footerText, opacity:.55, textDecoration:'none' }}>Terms of Service</a>
+          <a href={`${SCHOOLOS_URL}/legal/privacy`} style={{ fontSize:12, color:T.footerText, opacity:.55, textDecoration:'none' }}>Privacy Policy</a>
+          <a href={`${SCHOOLOS_URL}/legal/terms`} style={{ fontSize:12, color:T.footerText, opacity:.55, textDecoration:'none' }}>Terms of Service</a>
           <a href="mailto:hello@schoolos.ng" style={{ fontSize:12, color:T.footerText, opacity:.55, textDecoration:'none' }}>Contact</a>
           <span style={{ fontSize:11, color:T.footerText, opacity:.4 }}>© 2026 SchoolOS Technologies Ltd.</span>
         </div>
