@@ -74,7 +74,7 @@ export default function SNListSchool() {
       <div style={{ background:`linear-gradient(135deg,${T.accent},${T.accent}ee)`, padding:'40px 40px 36px' }}>
         <div style={{ maxWidth:640, margin:'0 auto', textAlign:'center' }}>
           <div style={{ fontSize:11, fontWeight:700, color:T.accentText+'60', letterSpacing:'.18em', textTransform:'uppercase', marginBottom:12 }}>SchoolCity listing is a SchoolOS benefit</div>
-          <h1 style={{ margin:'0 0 10px', fontSize:34, fontWeight:900, color:T.accentText, lineHeight:1.1 }}>Get your school on SchoolOS — and on SchoolCity.</h1>
+          <h1 style={{ margin:'0 0 10px', fontSize:34, fontWeight:900, color:T.accentText, lineHeight:1.1 }}>Run your school on SchoolOS.<br/>Get discovered on SchoolCity.</h1>
           <p style={{ margin:0, fontSize:15, color:T.accentText+'78', lineHeight:1.7 }}>SchoolCity listings are available to schools on SchoolOS Standard or Pro. Register below and our team will set up your full platform in 48 hours.</p>
           {foundingSlots !== null && foundingSlots.remaining > 0 && (
             <div style={{ marginTop:16, display:'inline-flex', alignItems:'center', gap:8, background:'rgba(184,125,32,0.18)', border:'1.5px solid rgba(184,125,32,0.4)', borderRadius:40, padding:'8px 18px' }}>
