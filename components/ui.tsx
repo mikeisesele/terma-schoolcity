@@ -23,9 +23,10 @@ export function SHead({ title, sub, link, onLink }: { title: React.ReactNode; su
   );
 }
 
-export function SCNav({ onBack, rightSlot, onNav }: {
+export function SCNav({ onBack, backHref, rightSlot, onNav }: {
   onBack?: () => void;
   backLabel?: string;
+  backHref?: string;
   rightSlot?: React.ReactNode;
   onNav?: (v: string) => void;
 }) {
@@ -49,13 +50,19 @@ export function SCNav({ onBack, rightSlot, onNav }: {
           <div style={{ fontSize:11, fontWeight:500, color:T.ink3, marginTop:3, lineHeight:1 }}>Find the perfect school for your child</div>
         </div>
       </div>
-      {onBack && <>
+      {(onBack || backHref) && <>
         <div style={{ width:1, height:28, background:T.navBorder, marginLeft:4, marginRight:4 }}/>
-        <button onClick={onBack} title="Back to home" style={{ border:'none', background:'transparent', color:T.ink3, cursor:'pointer', padding:'6px 8px', borderRadius:8, display:'flex', alignItems:'center', gap:6, fontSize:13, fontWeight:700, fontFamily:'inherit', transition:'color .15s' }}
-          onMouseEnter={e=>(e.currentTarget.style.color=T.navInk)} onMouseLeave={e=>(e.currentTarget.style.color=T.ink3)}>
-          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
-          Home
-        </button>
+        {backHref
+          ? <a href={backHref} style={{ border:'none', background:'transparent', color:T.ink3, cursor:'pointer', padding:'6px 8px', borderRadius:8, display:'flex', alignItems:'center', gap:6, fontSize:13, fontWeight:700, fontFamily:'inherit', textDecoration:'none' }}>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              Home
+            </a>
+          : <button onClick={onBack} title="Back to home" style={{ border:'none', background:'transparent', color:T.ink3, cursor:'pointer', padding:'6px 8px', borderRadius:8, display:'flex', alignItems:'center', gap:6, fontSize:13, fontWeight:700, fontFamily:'inherit', transition:'color .15s' }}
+              onMouseEnter={e=>(e.currentTarget.style.color=T.navInk)} onMouseLeave={e=>(e.currentTarget.style.color=T.ink3)}>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11 4L6 9l5 5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              Home
+            </button>
+        }
       </>}
       <div style={{ flex:1 }}/>
       {!onBack && ([['Browse schools','find'],['Vacancies','find-vacancy']] as [string,string][]).map(([lbl,v])=>(
