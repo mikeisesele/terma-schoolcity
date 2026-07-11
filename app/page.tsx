@@ -32,17 +32,19 @@ export default function SNHome() {
   }, []);
 
   useEffect(() => {
-    const t = setInterval(() => setSlide(s => (s+1) % (carousel.length || 1)), 4500);
+    if (!carousel.length) return;
+    const t = setInterval(() => setSlide(s => (s+1) % carousel.length), 4500);
     return () => clearInterval(t);
-  }, []);
+  }, [carousel.length]);
   useEffect(() => {
+    if (!carousel.length) return;
     const handler = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft')  setSlide(s => (s - 1 + carousel.length) % (carousel.length || 1));
-      if (e.key === 'ArrowRight') setSlide(s => (s + 1) % (carousel.length || 1));
+      if (e.key === 'ArrowLeft')  setSlide(s => (s - 1 + carousel.length) % carousel.length);
+      if (e.key === 'ArrowRight') setSlide(s => (s + 1) % carousel.length);
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, []);
+  }, [carousel.length]);
 
   const signIn = (account: {name:string;email:string;avatar:string;color:string}) => {
     setUser(account);
