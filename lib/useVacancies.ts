@@ -66,3 +66,39 @@ export function useVacancies(): UseVacanciesResult {
 
   return { vacancies, loading, error };
 }
+
+export type SchoolVacancy = {
+  id: string; title: string; department: string; type: string;
+  deadline: string | null; summary: string | null;
+  role_overview: string | null; key_responsibilities: string | null;
+  requirements: string | null; salary_range: string | null;
+  min_qualification: string | null; experience_level: string | null;
+  location: string | null; trcn_required: boolean;
+  apply_email: string; apply_instructions: string | null; perks: string[];
+};
+
+export function useSchoolVacancies(schoolId: string | null): { vacancies: SchoolVacancy[]; loading: boolean } {
+  const [vacancies, setVacancies] = useState<SchoolVacancy[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!schoolId) return;
+    let cancelled = false;
+    setLoading(true);
+    supabase
+      .from('school_vacancies')
+      .select('id,title,department,type,deadline,summary,role_overview,key_responsibilities,requirements,salary_range,min_qualification,experience_level,location,trcn_required,apply_email,apply_instructions,perks')
+      .eq('school_id', schoolId)
+      .eq('status', 'published')
+      .order('published_at', { ascending: false })
+      .then(({ data }) => {
+        if (!cancelled) {
+          setVacancies((data ?? []) as unknown as SchoolVacancy[]);
+          setLoading(false);
+        }
+      });
+    return () => { cancelled = true; };
+  }, [schoolId]);
+
+  return { vacancies, loading };
+}

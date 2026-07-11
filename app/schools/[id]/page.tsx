@@ -12,6 +12,7 @@ import { useSchoolAchievements } from '@/lib/useSchoolAchievements';
 import { supabase } from '@/lib/supabase';
 import { deriveFacilityImages } from '@/lib/data';
 import type { AchievementType } from '@/lib/useSchoolAchievements';
+import { useSchoolVacancies } from '@/lib/useVacancies';
 
 const LEVELS = ['Nursery', 'Primary', 'JSS', 'SSS'] as const;
 type Level = (typeof LEVELS)[number];
@@ -95,6 +96,7 @@ export default function SCDetail() {
   const { reviews }              = useReviews(school?.id);
   const { byCategory }           = useSchoolPhotos(school?.id);
   const { achievements }         = useSchoolAchievements(school?.id);
+  const { vacancies: jobList }   = useSchoolVacancies(school?.id ?? null);
 
   const [tab, setTab]                       = useState('overview');
   const [enquireOpen, setEnqOpen]           = useState(false);
@@ -162,9 +164,13 @@ export default function SCDetail() {
     }
   };
 
+  // Curriculum options stored in features[] — filter them out before building facility list
+  const CURRIC_OPTS = new Set(['WAEC / NECO', 'Cambridge (IGCSE)', 'British Curriculum', 'French Baccalaureate', 'Montessori', 'UTME']);
+  const facilityFeatures = school.features.filter(f => !CURRIC_OPTS.has(f));
+
   // Facilities — DB photos with derived fallback
-  const fallbackImages = deriveFacilityImages(school.features);
-  const facilityList: FacilityCard[] = school.features.map(label => {
+  const fallbackImages = deriveFacilityImages(facilityFeatures);
+  const facilityList: FacilityCard[] = facilityFeatures.map(label => {
     const { emoji, color } = featureEmoji(label);
     const dbPhotos = byCategory[label] ?? [];
     const fallback = fallbackImages[label] ?? [];
@@ -172,8 +178,8 @@ export default function SCDetail() {
     return { label, emoji, color, photoCount: urls.length, urls, description: featureDescription(label) };
   });
 
-  // Activities & Events — photo categories not in the school's features list
-  const featureSet = new Set(school.features.map(f => f.toLowerCase()));
+  // Activities & Events — photo categories not in the school's facility features
+  const featureSet = new Set(facilityFeatures.map(f => f.toLowerCase()));
   const activityList = Object.keys(byCategory)
     .filter(cat => !featureSet.has(cat.toLowerCase()))
     .map(cat => ({ label: cat, emoji: activityEmoji(cat), photos: byCategory[cat] }));
@@ -184,7 +190,7 @@ export default function SCDetail() {
     school.ktPlan === 'Pro' && { icon: '⭐', label: 'SchoolOS Pro', sub: 'Full platform — GPS, fees, CBT, analytics', color: '#B87D20', bg: '#F5EDD0' },
     school.rating >= 4.7 && { icon: '🏆', label: 'Top Rated School', sub: `Rated ${school.rating}/5 by ${school.reviews} parents`, color: '#7A4A00', bg: '#FEF3C7' },
     school.scholarships > 2 && { icon: '🎓', label: 'Scholarship Excellence', sub: `${school.scholarships} scholarship programmes available`, color: '#5B21B6', bg: '#EDE9FE' },
-    school.features.length >= 5 && { icon: '🌟', label: 'Well-Equipped Campus', sub: `${school.features.length} verified facilities`, color: '#065F46', bg: '#D1FAE5' },
+    facilityFeatures.length >= 5 && { icon: '🌟', label: 'Well-Equipped Campus', sub: `${facilityFeatures.length} verified facilities`, color: '#065F46', bg: '#D1FAE5' },
     school.established > 0 && school.established <= 2005 && { icon: '🏛️', label: 'Established Institution', sub: `${2026 - school.established}+ years of academic excellence`, color: '#1E3A5F', bg: '#DBEAFE' },
   ].filter(Boolean) as { icon: string; label: string; sub: string; color: string; bg: string }[];
 
@@ -202,8 +208,9 @@ export default function SCDetail() {
 
   const tabs: [string, string][] = [
     ['overview', 'Overview'],
+    ['facilities', `Facilities (${facilityList.length})`],
     ['jobs', `Vacancies (${school.vacancies})`],
-    ['scholarships', `Scholarships (${school.scholarships})`],
+    ...(school.scholarships > 0 ? [['scholarships', `Scholarships (${school.scholarships})`] as [string, string]] : []),
     ['map', 'Map'],
   ];
 
@@ -500,18 +507,73 @@ export default function SCDetail() {
           </div>
         )}
 
+        {/* ── Facilities tab ───────────────────────────────────────────────── */}
+        {tab === 'facilities' && (
+          <div>
+            <div style={{ marginBottom: 20 }}>
+              <h2 style={{ margin: '0 0 4px', fontSize: 18, fontWeight: 800, color: T.ink }}>Campus Facilities</h2>
+              <p style={{ margin: 0, fontSize: 14, color: T.ink3 }}>Tap any facility to view photos</p>
+            </div>
+            {facilityList.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '48px', color: T.ink3, fontSize: 15, fontWeight: 600 }}>No facilities listed for this school yet.</div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+                {facilityList.map(f => (
+                  <div
+                    key={f.label}
+                    onClick={() => setFM(f)}
+                    style={{ background: T.cardBg, borderRadius: 16, padding: '22px 18px', textAlign: 'center', cursor: 'pointer', border: `1.5px solid ${T.line}`, transition: 'all .2s', boxShadow: `0 1px 6px ${T.shadowColor}` }}
+                    onMouseEnter={e => { const d = e.currentTarget as HTMLDivElement; d.style.borderColor = f.color + '60'; d.style.boxShadow = `0 6px 20px ${f.color}20`; d.style.transform = 'translateY(-2px)'; }}
+                    onMouseLeave={e => { const d = e.currentTarget as HTMLDivElement; d.style.borderColor = T.line; d.style.boxShadow = `0 1px 6px ${T.shadowColor}`; d.style.transform = 'none'; }}
+                  >
+                    <div style={{ fontSize: 38, marginBottom: 10 }}>{f.emoji}</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: T.ink, marginBottom: 6 }}>{f.label}</div>
+                    {f.description && <div style={{ fontSize: 12, color: T.ink3, fontWeight: 400, lineHeight: 1.45, marginBottom: 10 }}>{f.description}</div>}
+                    {f.photoCount > 0
+                      ? <div style={{ fontSize: 11.5, fontWeight: 800, color: f.color, background: f.color + '14', borderRadius: T.btnR, padding: '4px 10px', display: 'inline-block' }}>📷 {f.photoCount} photos</div>
+                      : <div style={{ fontSize: 11.5, color: T.ink3, fontWeight: 500 }}>No photos yet</div>
+                    }
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* ── Vacancies ────────────────────────────────────────────────────── */}
         {tab === 'jobs' && (
-          <div style={{ textAlign: 'center', padding: '48px' }}>
-            {school.vacancies === 0 ? (
-              <div style={{ color: T.ink3, fontSize: 15, fontWeight: 600 }}>No open vacancies at this time.</div>
+          <div>
+            {jobList.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '48px', color: T.ink3, fontSize: 15, fontWeight: 600 }}>No open vacancies at this time.</div>
             ) : (
-              <>
-                <div style={{ fontSize: 32, marginBottom: 12 }}>💼</div>
-                <div style={{ fontSize: 16, fontWeight: 800, color: T.ink, marginBottom: 8 }}>{school.vacancies} open {school.vacancies === 1 ? 'vacancy' : 'vacancies'}</div>
-                <div style={{ fontSize: 14, color: T.ink3, fontWeight: 500, marginBottom: 20 }}>Enquire directly for details on available positions and how to apply.</div>
-                <button onClick={() => setEnqOpen(true)} style={{ border: 'none', background: T.accent, color: T.accentText, borderRadius: T.btnR, padding: '11px 24px', fontFamily: 'inherit', fontSize: 14, fontWeight: 800, cursor: 'pointer' }}>Enquire about vacancies →</button>
-              </>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {jobList.map(job => (
+                  <div key={job.id} style={{ background: T.cardBg, borderRadius: T.cardR, border: `1.5px solid ${T.cardBorder}`, padding: '20px 24px', boxShadow: `0 2px 12px ${T.shadowColor}` }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 8 }}>
+                      <div>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: T.ink, marginBottom: 4 }}>{job.title}</div>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                          <span style={{ fontSize: 12.5, fontWeight: 700, color: T.ink2 }}>{job.department}</span>
+                          <span style={{ fontSize: 12, fontWeight: 700, color: '#1A3D2C', background: '#E3EDE6', borderRadius: T.btnR, padding: '2px 9px' }}>{job.type}</span>
+                          {job.trcn_required && <span style={{ fontSize: 12, fontWeight: 700, color: '#7C3AED', background: '#EDE9FE', borderRadius: T.btnR, padding: '2px 9px' }}>TRCN required</span>}
+                          {job.location && <span style={{ fontSize: 12, color: T.ink3, fontWeight: 600 }}>📍 {job.location}</span>}
+                        </div>
+                      </div>
+                      {job.deadline && (
+                        <div style={{ fontSize: 12, color: T.ink3, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                          Deadline: {new Date(job.deadline).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </div>
+                      )}
+                    </div>
+                    {job.summary && <p style={{ margin: '10px 0 0', fontSize: 14, color: T.ink2, lineHeight: 1.65 }}>{job.summary}</p>}
+                    {job.salary_range && <div style={{ marginTop: 10, fontSize: 13, fontWeight: 700, color: T.ink }}>💰 {job.salary_range}</div>}
+                    <div style={{ marginTop: 14, display: 'flex', gap: 10, alignItems: 'center' }}>
+                      <a href={`mailto:${job.apply_email}?subject=Application: ${encodeURIComponent(job.title)}`} style={{ border: 'none', background: T.accent, color: T.accentText, borderRadius: T.btnR, padding: '9px 20px', fontFamily: T.font, fontSize: 13.5, fontWeight: 800, cursor: 'pointer', textDecoration: 'none', display: 'inline-block' }}>Apply →</a>
+                      {job.apply_instructions && <span style={{ fontSize: 12.5, color: T.ink3 }}>{job.apply_instructions}</span>}
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
@@ -519,18 +581,16 @@ export default function SCDetail() {
         {/* ── Scholarships ─────────────────────────────────────────────────── */}
         {tab === 'scholarships' && (
           <div>
-            {school.scholarships === 0 ? (
-              <div style={{ textAlign: 'center', padding: '48px', color: T.ink3, fontSize: 15, fontWeight: 600 }}>No scholarship programmes listed at this time.</div>
-            ) : (
-              <>
-                <div style={{ background: '#FFFBEB', border: '1.5px solid #FDE68A', borderRadius: T.cardR, padding: '16px 20px', fontSize: 14, color: '#92400E', fontWeight: 600, marginBottom: 20 }}>
-                  🎓 {school.name} offers {school.scholarships} scholarship programme{school.scholarships !== 1 ? 's' : ''}. Enquire directly for eligibility criteria and how to apply.
-                </div>
-                <div style={{ textAlign: 'center', padding: '24px 48px' }}>
-                  <button onClick={() => setEnqOpen(true)} style={{ border: 'none', background: '#D97706', color: '#fff', borderRadius: T.btnR, padding: '12px 28px', fontFamily: 'inherit', fontSize: 14, fontWeight: 800, cursor: 'pointer' }}>Enquire about scholarships →</button>
-                </div>
-              </>
-            )}
+            <div style={{ background: '#FFFBEB', border: '1.5px solid #FDE68A', borderRadius: T.cardR, padding: '20px 24px', marginBottom: 24 }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: '#92400E', marginBottom: 6 }}>🎓 {school.scholarships} Scholarship Programme{school.scholarships !== 1 ? 's' : ''}</div>
+              <p style={{ margin: 0, fontSize: 14, color: '#92400E', lineHeight: 1.65 }}>
+                {school.name} offers {school.scholarships} scholarship programme{school.scholarships !== 1 ? 's' : ''} for eligible students. Contact the school directly for eligibility criteria, the application process, and deadlines.
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <button onClick={() => setEnqOpen(true)} style={{ border: 'none', background: T.accent, color: T.accentText, borderRadius: T.btnR, padding: '11px 24px', fontFamily: 'inherit', fontSize: 14, fontWeight: 800, cursor: 'pointer' }}>Enquire about scholarships →</button>
+              {school.phone && <a href={`tel:${school.phone}`} style={{ border: `1.5px solid ${T.line}`, background: T.cardBg, color: T.ink2, borderRadius: T.btnR, padding: '11px 20px', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, cursor: 'pointer', textDecoration: 'none', display: 'inline-block' }}>📞 Call</a>}
+            </div>
           </div>
         )}
 

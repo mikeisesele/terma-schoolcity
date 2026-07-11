@@ -58,8 +58,11 @@ export function deriveFacilityImages(features: string[]): Record<string, string[
     else if (lower.includes('nursery') || lower.includes('playground')) map[f] = FI.nursery;
     else if (lower.includes('chapel') || lower.includes('mosque'))      map[f] = FI.religion;
     else if (lower.includes('cafeteria') || lower.includes('dining'))   map[f] = FI.life;
-    else if (lower.includes('ict'))        map[f] = FI.ict;
-    else if (lower.includes('sick bay') || lower.includes('medical'))   map[f] = FI.academic;
+    else if (lower.includes('ict') || lower.includes('computer'))       map[f] = FI.ict;
+    else if (lower.includes('sick') || lower.includes('medical') || lower.includes('sick bay')) map[f] = FI.academic;
+    else if (lower.includes('art') || lower.includes('studio') || lower.includes('drama'))      map[f] = FI.cultural;
+    else if (lower.includes('assembly') || lower.includes('hall'))      map[f] = FI.academic;
+    else if (lower.includes('security'))                                 map[f] = FI.academic;
   }
   return map;
 }
