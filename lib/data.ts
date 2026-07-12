@@ -19,6 +19,8 @@ export type School = {
   bannerUrl?: string;
   imageUrl?: string;
   facilityImages?: Record<string, string[]>;
+  lat?: number | null;
+  lng?: number | null;
 };
 
 // ── Facility image pools (static CDN path constants — not real data) ──────────

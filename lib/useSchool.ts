@@ -51,7 +51,8 @@ export function useSchool(id: string): UseSchoolResult {
                    type, gender, levels, orientation, transport, boarding,
                    fees_from_kobo, fees_to_kobo, features,
                    scholarships, review_count, students, established,
-                   is_featured, is_special, special_focus, rating`)
+                   is_featured, is_special, special_focus, rating,
+                   lat, lng`)
           .eq('id', id)
           .maybeSingle(),
 
@@ -113,6 +114,8 @@ export function useSchool(id: string): UseSchoolResult {
         isFeatured:   Boolean(row.is_featured),
         bannerUrl:    row.banner_url != null ? String(row.banner_url) : undefined,
         imageUrl:     row.image_url != null ? String(row.image_url) : undefined,
+        lat:          typeof row.lat === 'number' ? row.lat : null,
+        lng:          typeof row.lng === 'number' ? row.lng : null,
         campuses:     campuses.length > 1 ? campuses : undefined,
         facilityImages: deriveFacilityImages(features),
       });

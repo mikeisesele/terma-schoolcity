@@ -150,8 +150,8 @@ export default function SCDetail() {
     setSending(true);
     try {
       const payload: Record<string, unknown> = {
-        school_id: school.id, parent_name: form.name, parent_phone: form.phone,
-        parent_email: form.email, message: form.message || null, source: 'schoolnet',
+        school_id: school.id, parent_name: form.name, phone: form.phone,
+        email: form.email, message: form.message || null, source: 'schoolnet',
       };
       if (selectedLevels.length > 0) payload.level_interest = selectedLevels.join(',');
       const { error } = await supabase.from('school_enquiries').insert(payload);
@@ -607,7 +607,17 @@ export default function SCDetail() {
               </div>
             </div>
             <div style={{ borderRadius: T.cardR, overflow: 'hidden', border: `1.5px solid ${T.cardBorder}`, height: 420 }}>
-              <iframe title="School map" src="https://www.openstreetmap.org/export/embed.html?bbox=7.37%2C9.09%2C7.43%2C9.13&layer=mapnik&marker=9.1092%2C7.3911" width="100%" height="420" style={{ border: 'none', display: 'block' }} loading="lazy" />
+              {school.lat != null && school.lng != null ? (() => {
+                const delta = 0.03;
+                const bbox = `${school.lng - delta}%2C${school.lat - delta}%2C${school.lng + delta}%2C${school.lat + delta}`;
+                const src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${school.lat}%2C${school.lng}`;
+                return <iframe title="School map" src={src} width="100%" height="420" style={{ border: 'none', display: 'block' }} loading="lazy" />;
+              })() : (
+                <div style={{ height: 420, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, background: T.inputBg, color: T.ink3 }}>
+                  <span style={{ fontSize: 40 }}>📍</span>
+                  <span style={{ fontSize: 14, fontWeight: 600 }}>Location not available</span>
+                </div>
+              )}
             </div>
           </div>
         )}

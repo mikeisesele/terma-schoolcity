@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
 import { T } from '@/lib/tokens';
-import { SCNav, SCCard } from '@/components/ui';
+import { SCNav, SCCard, SCCompareBar, SCCompareModal } from '@/components/ui';
 import { useSchools } from '@/lib/useSchools';
 import type { School } from '@/lib/data';
 
@@ -42,6 +43,31 @@ export default function SNFindSchool() {
   const [extra, setExtra] = useState('All');
   const [maxFee, setMaxFee] = useState(2000);
   const [openF, setOpenF] = useState<string|null>(null);
+  const [favs, setFavs] = useState<string[]>([]);
+  const [compare, setCompare] = useState<string[]>([]);
+  const [compareOpen, setCompareOpen] = useState(false);
+
+  useEffect(() => {
+    try { const f = localStorage.getItem('sc_favs'); if (f) setFavs(JSON.parse(f)); } catch {}
+    try { const c = localStorage.getItem('sc_compare'); if (c) setCompare(JSON.parse(c)); } catch {}
+  }, []);
+
+  const toggleFav = (id: string) => {
+    const next = favs.includes(id) ? favs.filter(x => x !== id) : [...favs, id];
+    setFavs(next);
+    try { localStorage.setItem('sc_favs', JSON.stringify(next)); } catch {}
+    toast(next.includes(id) ? 'School saved ♥' : 'Removed from saved');
+  };
+
+  const toggleCompare = (id: string) => {
+    setCompare(prev => {
+      if (prev.includes(id)) { const n = prev.filter(x => x !== id); try { localStorage.setItem('sc_compare', JSON.stringify(n)); } catch {} return n; }
+      if (prev.length >= 3) { toast('You can compare up to 3 schools'); return prev; }
+      const next = [...prev, id];
+      try { localStorage.setItem('sc_compare', JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
 
   const results = schools.filter(s => {
     const mq = !q || s.name.toLowerCase().includes(q.toLowerCase()) || s.city.toLowerCase().includes(q.toLowerCase());
@@ -89,10 +115,12 @@ export default function SNFindSchool() {
 
       <div style={{ maxWidth:1400, margin:'0 auto', padding:'28px 48px 48px' }}>
         <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16 }}>
-          {results.map(s=><SCCard key={s.id} school={s} onSelect={onSelect} />)}
+          {results.map(s=><SCCard key={s.id} school={s} onSelect={onSelect} isFav={favs.includes(s.id)} onToggleFav={toggleFav} inCompare={compare.includes(s.id)} onToggleCompare={toggleCompare}/>)}
           {results.length===0&&<div style={{ gridColumn:'1/-1', textAlign:'center', padding:'64px', color:T.ink3, fontSize:15, fontWeight:600 }}>No schools match your filters.</div>}
         </div>
       </div>
+      {compare.length > 0 && <SCCompareBar compareIds={compare} allSchools={schools} onOpen={()=>setCompareOpen(true)} onRemove={id=>{const n=compare.filter(x=>x!==id);setCompare(n);try{localStorage.setItem('sc_compare',JSON.stringify(n));}catch{}}} onClear={()=>{setCompare([]);try{localStorage.removeItem('sc_compare');}catch{}}} />}
+      {compareOpen && <SCCompareModal compareIds={compare} allSchools={schools} onClose={()=>setCompareOpen(false)} onRemove={id=>{const n=compare.filter(x=>x!==id);setCompare(n);try{localStorage.setItem('sc_compare',JSON.stringify(n));}catch{}}} onSelect={s=>{setCompareOpen(false);onSelect(s);}} />}
     </div>
   );
 }
