@@ -1,19 +1,23 @@
 import { T } from '@/lib/tokens';
 import { SCNav } from '@/components/ui';
-import { supabase } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase-server';
 
 const SCHOOLOS_URL = process.env.NEXT_PUBLIC_SCHOOLOS_URL ?? 'https://schoolos.ng';
 const FOREST = '#1A3D2C';
 const GOLD   = '#B87D20';
 const CREAM  = '#FAF7F0';
+const FOUNDING_CAP = 20;
 
 async function getFoundingSlots(): Promise<{ remaining: number } | null> {
   try {
-    const { count } = await supabase
-      .from('schools')
+    const supabase = await createServerClient();
+    const { count, error } = await supabase
+      .from('users')
       .select('id', { count: 'exact', head: true })
-      .eq('is_founding_school', true);
-    return { remaining: Math.max(0, 20 - (count ?? 0)) };
+      .eq('role', 'admin')
+      .not('school_id', 'is', null);
+    if (error) return null;
+    return { remaining: Math.max(0, FOUNDING_CAP - (count ?? 0)) };
   } catch {
     return null;
   }
@@ -21,10 +25,12 @@ async function getFoundingSlots(): Promise<{ remaining: number } | null> {
 
 async function getSchoolCount(): Promise<number> {
   try {
-    const { count } = await supabase
+    const supabase = await createServerClient();
+    const { count, error } = await supabase
       .from('schools')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'active');
+    if (error) return 0;
     return count ?? 0;
   } catch {
     return 0;
@@ -77,7 +83,7 @@ export default async function SNListSchool() {
             <div style={{ marginBottom: 32, display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(184,125,32,.18)', border: '1.5px solid rgba(184,125,32,.45)', borderRadius: 40, padding: '9px 20px' }}>
               <span style={{ fontSize: 15 }}>⭐</span>
               <span style={{ fontSize: 13, fontWeight: 700, color: CREAM }}>
-                Founding school offer — lock in ₦7,000/student/yr for 2 years
+                Founding school offer — lock in ₦7,000/student/yr for 2 years · {foundingSlots!.remaining} of {FOUNDING_CAP} slots remaining
               </span>
             </div>
           )}
