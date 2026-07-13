@@ -80,11 +80,11 @@ export function deriveFacilityImages(features: string[]): Record<string, string[
 
 // ── Marketing copy (hardcoded — design spec, not real data) ──────────────────
 export const SN_PARENT_FEATURES = [
-  { emoji:'📊', title:'Results & report cards', text:'CA scores, class exams, term standings, and official report cards — on your phone the moment school publishes. No printing, no gate queues.' },
-  { emoji:'💬', title:'Class announcements', text:"Notices targeted to your child's exact class, not a group of 400 parents. Absence notes in two taps. Every message through the school, on record." },
-  { emoji:'💳', title:'Fees — pay on your phone', text:'Pay term fees in full or part from your phone. Siblings on one checkout. Instant digital receipts and a complete payment history in your account.' },
-  { emoji:'🔔', title:'Safe pickup & drop-off', text:'Every handover verified with a 4-digit code. Medical alerts visible to the driver at handover. Every child, every time — morning and afternoon.' },
-  { emoji:'🚌', title:'Live bus tracking', text:'See the school bus on a live map. Notified when your child boards and when they arrive — for every family on the bus.' },
+  { emoji:'📊', title:'Results & report cards', text:'Scores and report cards on your phone the moment school publishes.' },
+  { emoji:'💬', title:'Class announcements', text:"Notices for your child's exact class — not a group of 400 parents." },
+  { emoji:'💳', title:'Pay fees on your phone', text:'Full or part payments, siblings on one checkout, instant receipts.' },
+  { emoji:'🔔', title:'Safe pickup & drop-off', text:'Every handover verified with a 4-digit code. Every child, every time.' },
+  { emoji:'🚌', title:'Live bus tracking', text:'See the bus on a map. Notified when your child boards and arrives.' },
 ];
 
 // ── Vacancy type + filter constants ──────────────────────────────────────────
