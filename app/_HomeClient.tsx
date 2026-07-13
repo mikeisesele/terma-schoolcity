@@ -206,8 +206,8 @@ export function HomeClient({
             <p style={{ fontSize:13.5, color:T.ink3, lineHeight:1.65, margin:0 }}>Fees, results, attendance, transport and parent communication — one platform. SchoolCity listing included on Standard and above.</p>
           </div>
           <div style={{ display:'flex', gap:12, flexShrink:0, flexWrap:'wrap' }}>
-            {([[standardPrice, 'Standard — full school suite', T.accent, T.accentText, '/list'],
-               [proPrice, 'Pro — analytics, CBT, multi-campus', 'transparent', T.accent, '/list']] as [string,string,string,string,string][]).map(([price, label, bg, fg, href])=>(
+            {([[standardPrice, 'Standard — attendance, results, fees & GPS transport', T.accent, T.accentText, '/list'],
+               [proPrice, 'Pro — AI grading, proctored CBT & white-label portal', 'transparent', T.accent, '/list']] as [string,string,string,string,string][]).map(([price, label, bg, fg, href])=>(
               <a key={price} href={href} style={{ display:'flex', flexDirection:'column', gap:4, background:bg, color:fg, border:`1.5px solid ${T.accent}`, borderRadius:10, padding:'14px 22px', textDecoration:'none', minWidth:180 }}>
                 <span style={{ fontSize:17, fontWeight:900 }}>{price}</span>
                 <span style={{ fontSize:11.5, opacity:.75, fontWeight:600 }}>{label}</span>
