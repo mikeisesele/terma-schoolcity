@@ -81,15 +81,10 @@ export function deriveFacilityImages(features: string[]): Record<string, string[
 // ── Marketing copy (hardcoded — design spec, not real data) ──────────────────
 export const SN_PARENT_FEATURES = [
   { emoji:'📊', title:'Results & report cards', text:'CA scores, class exams, term standings, and official report cards — on your phone the moment school publishes. No printing, no gate queues.' },
-  { emoji:'💬', title:'Class announcements', text:"Notices targeted to your child's exact class, not a group of 400 parents. Absence notes in two taps. Every message flows through the school, on record." },
-  { emoji:'📅', title:'Class & exam timetable', text:"Your child's full class timetable and exam schedule, always current. Check what's on today before leaving home — no more last-minute surprises." },
-  { emoji:'🗓️', title:'School calendar, live', text:'Exam timetables, PTA meetings, school events and public holidays — all in one place, always current. Updated instantly when school makes a change.' },
-  { emoji:'📋', title:'Full attendance record', text:"See every day your child was present, absent, or excused — across the entire term. Know what's happening before the report card arrives." },
-  { emoji:'🏅', title:'Scholarships & bursaries', text:"Browse merit and need-based scholarships your child's school offers and apply directly through the app. No separate forms, no lost paperwork." },
-  { emoji:'💳', title:'Fees — pay on your phone', text:'Pay term fees in full or in part from your phone. Multiple siblings on one checkout. Instant digital receipts and a complete payment history in your account.' },
-  { emoji:'🔔', title:'Safe pickup & drop-off', text:'Every handover — morning drop-off and afternoon pickup — verified with a 4-digit code. Medical alerts visible to the driver at handover. Every child, every time.' },
-  { emoji:'🚌', title:'Live bus tracking', text:'See the school bus on a live map. Get notified when your child boards and when they arrive at school or home — for every family on the bus.' },
-  { emoji:'🎓', title:'Student portal access', text:'Your child gets their own portal for CBT exams, class timetable, results history, and digital library. Available on any phone — no app install needed.' },
+  { emoji:'💬', title:'Class announcements', text:"Notices targeted to your child's exact class, not a group of 400 parents. Absence notes in two taps. Every message through the school, on record." },
+  { emoji:'💳', title:'Fees — pay on your phone', text:'Pay term fees in full or part from your phone. Siblings on one checkout. Instant digital receipts and a complete payment history in your account.' },
+  { emoji:'🔔', title:'Safe pickup & drop-off', text:'Every handover verified with a 4-digit code. Medical alerts visible to the driver at handover. Every child, every time — morning and afternoon.' },
+  { emoji:'🚌', title:'Live bus tracking', text:'See the school bus on a live map. Notified when your child boards and when they arrive — for every family on the bus.' },
 ];
 
 // ── Vacancy type + filter constants ──────────────────────────────────────────
