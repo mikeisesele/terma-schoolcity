@@ -193,7 +193,7 @@ export function HomeClient({
               <span style={{ fontSize:11.5, color:T.accentText+'70', marginTop:4, fontWeight:500 }}>Takes 2 minutes · your school gets set up in 48 hours</span>
             </a>
           </div>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr 1fr', gap:10 }}>{SN_PARENT_FEATURES.map(f=><div key={f.title} style={{ background:T.accentText+'0D', borderRadius:12, padding:'20px 16px', border:'1px solid '+T.accentText+'15' }}><div style={{ fontSize:22, marginBottom:10 }}>{f.emoji}</div><div style={{ fontSize:13, fontWeight:800, color:T.accentText, marginBottom:6, lineHeight:1.25 }}>{f.title}</div><div style={{ fontSize:12, color:T.accentText+'62', lineHeight:1.55 }}>{f.text}</div></div>)}</div>
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:10 }}>{SN_PARENT_FEATURES.map(f=><div key={f.title} style={{ background:T.accentText+'0D', borderRadius:12, padding:'20px 16px', border:'1px solid '+T.accentText+'15' }}><div style={{ fontSize:22, marginBottom:10 }}>{f.emoji}</div><div style={{ fontSize:13, fontWeight:800, color:T.accentText, marginBottom:6, lineHeight:1.25 }}>{f.title}</div><div style={{ fontSize:12, color:T.accentText+'62', lineHeight:1.55 }}>{f.text}</div></div>)}</div>
         </div>
       </div>
 

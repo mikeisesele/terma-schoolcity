@@ -80,14 +80,16 @@ export function deriveFacilityImages(features: string[]): Record<string, string[
 
 // ── Marketing copy (hardcoded — design spec, not real data) ──────────────────
 export const SN_PARENT_FEATURES = [
-  { emoji:'📊', title:'Results, instantly', text:'CA scores, exams, class standing, and term report cards — on your phone the moment they are published. No printing. No waiting.' },
-  { emoji:'💬', title:'No more WhatsApp chains', text:"Targeted announcements for your child's class, not a group of 300 parents. Absence notes in two taps. All communication through the school, by design." },
-  { emoji:'🗓️', title:'School calendar, live', text:'Exam dates, PTA meetings, school events and holidays — all in one place, always current. No more missed notices.' },
-  { emoji:'📋', title:'Attendance record', text:"See every day your child was present, absent, or excused — for the whole term. Know before the report card arrives." },
-  { emoji:'🌅', title:'Daily welfare reports', text:"Teachers send a brief daily note on your child's mood, participation and wellbeing. School day visibility, not just results day." },
-  { emoji:'💳', title:'Fee payments and receipts', text:'Pay full or part from your phone. Siblings combined on one checkout. Instant receipts. Complete payment history.' },
-  { emoji:'🔔', title:'Pickup confirmation', text:'Every pickup verified with a 4-digit code. Medical alerts visible to the driver at handover. Every child, every time.' },
-  { emoji:'🚌', title:'Live bus tracking', text:'See the bus on a map. Get notified when your child boards and when they arrive — for families on the school bus.' },
+  { emoji:'📊', title:'Results & report cards', text:'CA scores, class exams, term standings, and official report cards — on your phone the moment school publishes. No printing, no gate queues.' },
+  { emoji:'💬', title:'Class announcements', text:"Notices targeted to your child's exact class, not a group of 400 parents. Absence notes in two taps. Every message flows through the school, on record." },
+  { emoji:'✉️', title:'Direct teacher messaging', text:"Message your child's class teacher directly from the app. No personal phone numbers, no lost texts — all conversations in one auditable thread." },
+  { emoji:'🗓️', title:'School calendar, live', text:'Exam timetables, PTA meetings, school events and public holidays — all in one place, always current. Updated instantly when school makes a change.' },
+  { emoji:'📋', title:'Full attendance record', text:"See every day your child was present, absent, or excused — across the entire term. Know what's happening before the report card arrives." },
+  { emoji:'🌅', title:'Daily welfare reports', text:"Class teachers send a brief daily note on your child's mood, participation and wellbeing. Real school-day visibility, not just results day." },
+  { emoji:'💳', title:'Fees — pay on your phone', text:'Pay term fees in full or in part from your phone. Multiple siblings on one checkout. Instant digital receipts and a complete payment history in your account.' },
+  { emoji:'🔔', title:'Safe pickup & drop-off', text:'Every handover — morning drop-off and afternoon pickup — verified with a 4-digit code. Medical alerts visible to the driver at handover. Every child, every time.' },
+  { emoji:'🚌', title:'Live bus tracking', text:'See the school bus on a live map. Get notified when your child boards and when they arrive at school or home — for every family on the bus.' },
+  { emoji:'🎓', title:'Student portal access', text:'Your child gets their own portal for CBT exams, class timetable, results history, and digital library. Available on any phone — no app install needed.' },
 ];
 
 // ── Vacancy type + filter constants ──────────────────────────────────────────
