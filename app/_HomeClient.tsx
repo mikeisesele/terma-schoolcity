@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
-import { SN_PARENT_FEATURES } from '@/lib/data';
 import { T } from '@/lib/tokens';
 import { SCNav, SCCard, SCCompareBar, SCCompareModal, SCAuthModal } from '@/components/ui';
 import { useSchools } from '@/lib/useSchools';
@@ -181,41 +180,6 @@ export function HomeClient({
         <div style={{ textAlign:'center', marginTop:32 }}><button onClick={()=>onNav('find')} style={{ border:'1.5px solid '+T.cardBorder, background:T.cardBg, color:T.accent, borderRadius:T.btnR, padding:'12px 32px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>See all {schools.length.toLocaleString()} schools →</button></div>
       </div>
 
-      {/* For parents */}
-      <div style={{ background:T.accent, padding:'48px 48px 40px' }}>
-        <div style={{ maxWidth:1280, margin:'0 auto', display:'grid', gridTemplateColumns:'320px 1fr', gap:56, alignItems:'start' }}>
-          <div>
-            <div style={{ fontSize:11, fontWeight:700, color:T.accentText+'70', letterSpacing:'.15em', textTransform:'uppercase', marginBottom:14 }}>For parents</div>
-            <h2 style={{ fontSize:34, fontWeight:800, color:T.accentText, lineHeight:1.1, margin:'0 0 12px', letterSpacing:'-.01em' }}>Be part of your child&apos;s school day.<br/>From anywhere.</h2>
-            <p style={{ fontSize:14, color:T.accentText+'78', lineHeight:1.65, margin:'0 0 22px' }}>When your child&apos;s school runs Terma, you get a free parent app — results, fees, bus tracking, pickup codes and daily reports, live on your phone.</p>
-            <a href="/list" style={{ display:'inline-flex', flexDirection:'column', alignItems:'flex-start', border:'1.5px solid '+T.accentText+'55', background:'transparent', color:T.accentText, borderRadius:'10px', padding:'13px 24px', fontFamily:T.font, cursor:'pointer', textDecoration:'none' }}>
-              <span style={{ fontSize:14, fontWeight:800, lineHeight:1.2 }}>Is your school not here? Ask them to join →</span>
-              <span style={{ fontSize:11.5, color:T.accentText+'70', marginTop:4, fontWeight:500 }}>Takes 2 minutes · your school gets set up in 48 hours</span>
-            </a>
-          </div>
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(5, 1fr)', gap:10 }}>{SN_PARENT_FEATURES.map(f=><div key={f.title} style={{ background:T.accentText+'0D', borderRadius:12, padding:'20px 16px', border:'1px solid '+T.accentText+'15' }}><div style={{ fontSize:22, marginBottom:10 }}>{f.emoji}</div><div style={{ fontSize:13, fontWeight:800, color:T.accentText, marginBottom:6, lineHeight:1.25 }}>{f.title}</div><div style={{ fontSize:12, color:T.accentText+'62', lineHeight:1.55 }}>{f.text}</div></div>)}</div>
-        </div>
-      </div>
-
-      {/* For schools */}
-      <div style={{ background:T.cardBg, borderTop:`1px solid ${T.cardBorder}`, padding:'36px 48px' }}>
-        <div style={{ maxWidth:1280, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', gap:40, flexWrap:'wrap' }}>
-          <div style={{ flex:1, minWidth:280 }}>
-            <div style={{ fontSize:11, fontWeight:700, color:T.accent, letterSpacing:'.15em', textTransform:'uppercase', marginBottom:10 }}>For school heads</div>
-            <div style={{ fontSize:22, fontWeight:800, color:T.ink, lineHeight:1.2, marginBottom:8 }}>Run your school on Terma.<br/>Get discovered on SchoolCity.</div>
-            <p style={{ fontSize:13.5, color:T.ink3, lineHeight:1.65, margin:0 }}>Fees, results, attendance, transport and parent communication — one platform. SchoolCity listing included on Standard and above.</p>
-          </div>
-          <div style={{ display:'flex', gap:12, flexShrink:0, flexWrap:'wrap' }}>
-            {([[standardPrice, 'Standard — attendance, results, fees & GPS transport', T.accent, T.accentText, '/list'],
-               [proPrice, 'Pro — AI grading, proctored CBT & white-label portal', 'transparent', T.accent, '/list']] as [string,string,string,string,string][]).map(([price, label, bg, fg, href])=>(
-              <a key={price} href={href} style={{ display:'flex', flexDirection:'column', gap:4, background:bg, color:fg, border:`1.5px solid ${T.accent}`, borderRadius:10, padding:'14px 22px', textDecoration:'none', minWidth:180 }}>
-                <span style={{ fontSize:17, fontWeight:900 }}>{price}</span>
-                <span style={{ fontSize:11.5, opacity:.75, fontWeight:600 }}>{label}</span>
-              </a>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* Footer */}
       <div style={{ background:T.footerBg, padding:'20px 48px', display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
