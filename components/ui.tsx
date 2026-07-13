@@ -66,7 +66,7 @@ export function SCNav({ onBack, backHref, rightSlot, onNav }: {
         }
       </>}
       <div style={{ flex:1 }}/>
-      {!onBack && ([['Browse schools','find'],['Vacancies','find-vacancy'],['Compare','compare']] as [string,string][]).map(([lbl,v])=>(
+      {!onBack && ([['Browse schools','find'],['Vacancies','find-vacancy']] as [string,string][]).map(([lbl,v])=>(
         <button key={lbl} onClick={()=>nav(v)} style={{ border:'none', background:'transparent', color:T.ink3, fontFamily:'inherit', fontSize:14, fontWeight:600, cursor:'pointer', padding:'4px 8px', transition:'color .15s' }}
           onMouseEnter={e=>(e.currentTarget.style.color=T.navInk)} onMouseLeave={e=>(e.currentTarget.style.color=T.ink3)}>{lbl}</button>
       ))}
