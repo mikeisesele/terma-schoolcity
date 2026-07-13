@@ -9,9 +9,9 @@ const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-pl
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://schoolcity.schoolos.ng'),
-  title: { default: 'SchoolCity · Find the perfect school for your child', template: '%s · SchoolOS SchoolCity' },
-  description: 'Discover, compare and enquire with verified Nigerian private schools on SchoolOS SchoolCity.',
-  openGraph: { type: 'website', siteName: 'SchoolOS SchoolCity', title: 'Find the perfect school for your child' },
+  title: { default: 'SchoolCity · Find the perfect school for your child', template: '%s · Terma SchoolCity' },
+  description: 'Discover, compare and enquire with verified Nigerian private schools on Terma SchoolCity.',
+  openGraph: { type: 'website', siteName: 'Terma SchoolCity', title: 'Find the perfect school for your child' },
   themeColor: '#FDFAF5',
 };
 

@@ -302,7 +302,7 @@ export default function VacancyDetail() {
           <div style={{ background:T.footerBg, borderRadius:14, padding:'22px 22px' }}>
             <div style={{ fontSize:17, fontWeight:800, color:'#fff', marginBottom:8 }}>Apply for this role</div>
             <div style={{ fontSize:13.5, color:'rgba(255,255,255,.65)', lineHeight:1.65, marginBottom:18 }}>
-              Applications submitted via SchoolCity are shared directly with the school's SchoolOS recruitment inbox.
+              Applications submitted via SchoolCity are shared directly with the school's Terma recruitment inbox.
             </div>
             <button
               onClick={handleApply}
