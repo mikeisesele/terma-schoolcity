@@ -102,7 +102,7 @@ export function HomeClient({
     const mc = catF==='All'||(catF==='Nursery'&&s.levels.includes('Nursery'))||(catF==='Primary'&&s.levels.includes('Primary'))||(catF==='Secondary'&&(s.levels.includes('JSS')||s.levels.includes('SSS')))||(catF==='Boarding'&&s.boarding)||(catF==='Scholarships'&&s.scholarships>0)||(catF==='Special Needs'&&!!s.special);
     return ms && mc;
   });
-  const shown9 = showAll ? shown : shown.slice(0, 9);
+  const shown15 = showAll ? shown : shown.slice(0, 15);
   const C = (s: School) => <SCCard key={s.id} school={s} onSelect={onSelect} isFav={favs.includes(s.id)} onToggleFav={toggleFav} inCompare={compare.includes(s.id)} onToggleCompare={toggleCompare}/>;
 
   const userSlot = user
@@ -176,7 +176,7 @@ export function HomeClient({
       {/* Masonry results */}
       <div style={{ maxWidth:1280, margin:'0 auto', padding:'20px 48px 48px' }}>
         {(q || catF!=='All') && <div style={{ marginBottom:16 }}><span style={{ fontSize:13.5, color:T.ink3, fontWeight:600 }}>{shown.length} school{shown.length!==1?'s':''} found</span></div>}
-        <div style={{ columnCount:3, columnGap:16 }}>{shown9.map(s=>C(s))}{shown.length===0&&<div style={{ columnSpan:'all', padding:'64px', textAlign:'center', color:T.ink3, fontSize:15 }}>No schools match your search.</div>}</div>
+        <div style={{ columnCount:3, columnGap:16 }}>{shown15.map(s=>C(s))}{shown.length===0&&<div style={{ columnSpan:'all', padding:'64px', textAlign:'center', color:T.ink3, fontSize:15 }}>No schools match your search.</div>}</div>
         <div style={{ textAlign:'center', marginTop:32 }}><button onClick={()=>onNav('find')} style={{ border:'1.5px solid '+T.cardBorder, background:T.cardBg, color:T.accent, borderRadius:T.btnR, padding:'12px 32px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>See all {schools.length.toLocaleString()} schools →</button></div>
       </div>
 
