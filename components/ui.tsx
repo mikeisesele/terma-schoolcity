@@ -36,6 +36,7 @@ export function SCNav({ onBack, backHref, rightSlot, onNav }: {
     else if (v === 'find-vacancy') router.push('/vacancies');
     else if (v === 'favorites') router.push('/favourites');
     else if (v === 'list-school') router.push('/list');
+    else if (v === 'compare') router.push('/compare');
     else if (v === 'post-vacancy') router.push('/vacancies/post');
     else router.push('/');
   });
@@ -65,7 +66,7 @@ export function SCNav({ onBack, backHref, rightSlot, onNav }: {
         }
       </>}
       <div style={{ flex:1 }}/>
-      {!onBack && ([['Browse schools','find'],['Vacancies','find-vacancy']] as [string,string][]).map(([lbl,v])=>(
+      {!onBack && ([['Browse schools','find'],['Vacancies','find-vacancy'],['Compare','compare']] as [string,string][]).map(([lbl,v])=>(
         <button key={lbl} onClick={()=>nav(v)} style={{ border:'none', background:'transparent', color:T.ink3, fontFamily:'inherit', fontSize:14, fontWeight:600, cursor:'pointer', padding:'4px 8px', transition:'color .15s' }}
           onMouseEnter={e=>(e.currentTarget.style.color=T.navInk)} onMouseLeave={e=>(e.currentTarget.style.color=T.ink3)}>{lbl}</button>
       ))}
@@ -85,7 +86,7 @@ export function ExtrasNav({ onBack, backLabel, rightSlot }: { onBack?: () => voi
         </div>
         <div>
           <div style={{ fontSize:15, fontWeight:900, color:'#fff', lineHeight:1 }}>SchoolCity</div>
-          <div style={{ fontSize:10, fontWeight:600, color:'rgba(255,255,255,.5)', lineHeight:1 }}>by SchoolOS</div>
+          <div style={{ fontSize:10, fontWeight:600, color:'rgba(255,255,255,.5)', lineHeight:1 }}>by Terma</div>
         </div>
       </div>
       {onBack && (
@@ -189,26 +190,33 @@ export function SCCompareModal({ compareIds, allSchools, onClose, onRemove, onSe
   const line = '#D8E8D5'; const bg = '#FDFAF5'; const cardBg = '#FFFFFF';
   const accent = '#3D7058'; const accentLight = '#DDE8D8';
 
-  const rows: Array<{label:string;key:string;render:(s:School)=>React.ReactNode;compare?:(s:School)=>number}> = [
+  const rows: Array<{label:string;key:string;render:(s:School)=>React.ReactNode;compare?:(s:School)=>number;val?:(s:School)=>string}> = [
     { label:'Rating',         key:'rating',       render: s => <span><span style={{ color:'#F59E0B', fontSize:15 }}>{'★'.repeat(Math.floor(s.rating))}</span><span style={{ color:ink3, fontSize:13, fontWeight:700, marginLeft:5 }}>{s.rating}</span></span>, compare: s => s.rating },
-    { label:'Fees per term',  key:'fee',          render: s => <span style={{ fontWeight:700 }}>₦{(s.feeFrom/1000).toFixed(0)}k – ₦{(s.feeTo/1000).toFixed(0)}k</span>, compare: s => s.feeFrom },
-    { label:'Levels',         key:'levels',       render: s => s.levels },
-    { label:'School type',    key:'type',         render: s => s.type },
-    { label:'Gender',         key:'gender',       render: s => s.gender },
-    { label:'Students',       key:'students',     render: s => s.students },
-    { label:'Orientation',    key:'orient',       render: s => s.orientation },
+    { label:'Fees per term',  key:'fee',          render: s => <span style={{ fontWeight:700, fontFamily:"'Arial', system-ui, sans-serif" }}>₦{(s.feeFrom/1000).toFixed(0)}k – ₦{(s.feeTo/1000).toFixed(0)}k</span>, compare: s => -s.feeFrom },
+    { label:'Levels',         key:'levels',       render: s => s.levels,      val: s => s.levels },
+    { label:'School type',    key:'type',         render: s => s.type,        val: s => s.type },
+    { label:'Gender',         key:'gender',       render: s => s.gender,      val: s => s.gender },
+    { label:'Students',       key:'students',     render: s => s.students,    val: s => String(s.students) },
+    { label:'Orientation',    key:'orient',       render: s => s.orientation, val: s => s.orientation },
     { label:'Transport',      key:'transport',    render: s => s.transport ? <span style={{ color:'#1F8A5B', fontWeight:800 }}>✓ Yes</span> : <span style={{ color:ink3 }}>—</span>, compare: s => s.transport?1:0 },
     { label:'Boarding',       key:'boarding',     render: s => s.boarding  ? <span style={{ color:'#1F8A5B', fontWeight:800 }}>✓ Yes</span> : <span style={{ color:ink3 }}>—</span>, compare: s => s.boarding?1:0 },
     { label:'Scholarships',   key:'scholarships', render: s => s.scholarships > 0 ? <span style={{ color:'#7C3AED', fontWeight:700 }}>{s.scholarships} available</span> : <span style={{ color:ink3 }}>None</span>, compare: s => s.scholarships },
-    { label:'Vacancies',      key:'vacancies',    render: s => s.vacancies > 0 ? <span style={{ color:accent, fontWeight:700 }}>{s.vacancies} open</span> : <span style={{ color:ink3 }}>None</span> },
-    { label:'Special needs',  key:'special',      render: s => s.special ? <span style={{ color:'#0369A1', fontWeight:700 }}>✓ Yes</span> : <span style={{ color:ink3 }}>—</span> },
-    { label:'SchoolOS plan',  key:'plan',         render: s => <span style={{ fontSize:12, fontWeight:800, color: s.ktPlan==='Pro'?'#B87D20':s.ktPlan==='Standard'?accent:ink3, background: s.ktPlan==='Pro'?'#FEF3C7':s.ktPlan==='Standard'?accentLight:'#F3F4F6', borderRadius:4, padding:'2px 8px' }}>{s.ktPlan||'—'}</span> },
+    { label:'Vacancies',      key:'vacancies',    render: s => s.vacancies > 0 ? <span style={{ color:accent, fontWeight:700 }}>{s.vacancies} open</span> : <span style={{ color:ink3 }}>None</span>, val: s => String(s.vacancies) },
+    { label:'Special needs',  key:'special',      render: s => s.special ? <span style={{ color:'#0369A1', fontWeight:700 }}>✓ Yes</span> : <span style={{ color:ink3 }}>—</span>, val: s => String(s.special ?? false) },
+    { label:'Term plan',      key:'plan',         render: s => <span style={{ fontSize:12, fontWeight:800, color: s.ktPlan==='Pro'?'#B87D20':s.ktPlan==='Standard'?accent:ink3, background: s.ktPlan==='Pro'?'#FEF3C7':s.ktPlan==='Standard'?accentLight:'#F3F4F6', borderRadius:4, padding:'2px 8px' }}>{s.ktPlan||'—'}</span>, val: s => s.ktPlan ?? '' },
   ];
 
   const isDiff = (row: typeof rows[0]) => {
-    if (schools.length < 2 || !row.compare) return false;
-    const vals = schools.map(s => row.compare!(s));
-    return vals.some(v => v !== vals[0]);
+    if (schools.length < 2) return false;
+    if (row.compare) {
+      const vals = schools.map(s => row.compare!(s));
+      return vals.some(v => v !== vals[0]);
+    }
+    if (row.val) {
+      const vals = schools.map(s => row.val!(s));
+      return vals.some(v => v !== vals[0]);
+    }
+    return false;
   };
   const isBest = (row: typeof rows[0], school: School) => {
     if (schools.length < 2 || !row.compare) return false;
@@ -248,7 +256,7 @@ export function SCCompareModal({ compareIds, allSchools, onClose, onRemove, onSe
                   </th>
                 ))}
                 {schools.length < 3 && (
-                  <th style={{ padding:'16px 12px', background:bg, borderBottom:'2px solid '+line, borderLeft:'1px solid '+line, position:'sticky', top:0, zIndex:2 }}>
+                  <th onClick={onClose} style={{ padding:'16px 12px', background:bg, borderBottom:'2px solid '+line, borderLeft:'1px solid '+line, position:'sticky', top:0, zIndex:2, cursor:'pointer' }}>
                     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:8 }}>
                       <div style={{ width:52, height:52, borderRadius:14, border:'2px dashed '+line, display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, color:line }}>+</div>
                       <div style={{ fontSize:12, color:ink3, fontWeight:600, textAlign:'center', lineHeight:1.4 }}>Add a school<br/>to compare</div>

@@ -83,12 +83,13 @@ export default function SNHome() {
   });
 
   const safeSlide = carousel.length > 0 ? slide % carousel.length : 0;
-  const onSelect = (s: School) => router.push('/schools/' + s.id);
+  const onSelect = (s: School) => router.push('/schools/' + s.slug);
   const onNav = (v: string) => {
     if (v === 'find') router.push('/find');
     else if (v === 'find-vacancy') router.push('/vacancies');
     else if (v === 'favorites') router.push('/favourites');
     else if (v === 'list-school') router.push('/list');
+    else if (v === 'compare') router.push('/compare');
   };
 
   const shown = schools.filter(s => {
@@ -180,7 +181,7 @@ export default function SNHome() {
           <div>
             <div style={{ fontSize:11, fontWeight:700, color:T.accentText+'70', letterSpacing:'.15em', textTransform:'uppercase', marginBottom:14 }}>For parents</div>
             <h2 style={{ fontSize:34, fontWeight:800, color:T.accentText, lineHeight:1.1, margin:'0 0 12px', letterSpacing:'-.01em' }}>Be part of your child&apos;s school day.<br/>From anywhere.</h2>
-            <p style={{ fontSize:14, color:T.accentText+'78', lineHeight:1.65, margin:'0 0 22px' }}>When your child&apos;s school runs SchoolOS, you get a free parent app — results, fees, bus tracking, pickup codes and daily reports, live on your phone.</p>
+            <p style={{ fontSize:14, color:T.accentText+'78', lineHeight:1.65, margin:'0 0 22px' }}>When your child&apos;s school runs Terma, you get a free parent app — results, fees, bus tracking, pickup codes and daily reports, live on your phone.</p>
             <a href="/list" style={{ display:'inline-flex', flexDirection:'column', alignItems:'flex-start', border:'1.5px solid '+T.accentText+'55', background:'transparent', color:T.accentText, borderRadius:'10px', padding:'13px 24px', fontFamily:T.font, cursor:'pointer', textDecoration:'none' }}>
               <span style={{ fontSize:14, fontWeight:800, lineHeight:1.2 }}>Is your school not here? Ask them to join →</span>
               <span style={{ fontSize:11.5, color:T.accentText+'70', marginTop:4, fontWeight:500 }}>Takes 2 minutes · your school gets set up in 48 hours</span>
@@ -195,7 +196,7 @@ export default function SNHome() {
         <div style={{ maxWidth:1280, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'space-between', gap:40, flexWrap:'wrap' }}>
           <div style={{ flex:1, minWidth:280 }}>
             <div style={{ fontSize:11, fontWeight:700, color:T.accent, letterSpacing:'.15em', textTransform:'uppercase', marginBottom:10 }}>For school heads</div>
-            <div style={{ fontSize:22, fontWeight:800, color:T.ink, lineHeight:1.2, marginBottom:8 }}>Run your school on SchoolOS.<br/>Get discovered on SchoolCity.</div>
+            <div style={{ fontSize:22, fontWeight:800, color:T.ink, lineHeight:1.2, marginBottom:8 }}>Run your school on Terma.<br/>Get discovered on SchoolCity.</div>
             <p style={{ fontSize:13.5, color:T.ink3, lineHeight:1.65, margin:0 }}>Fees, results, attendance, transport and parent communication — one platform. SchoolCity listing included on Standard and above.</p>
           </div>
           <div style={{ display:'flex', gap:12, flexShrink:0, flexWrap:'wrap' }}>
@@ -212,12 +213,12 @@ export default function SNHome() {
 
       {/* Footer */}
       <div style={{ background:T.footerBg, padding:'20px 48px', display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
-        <span style={{ fontSize:15, fontWeight:700, color:T.footerText }}>SchoolCity <span style={{ fontStyle:'italic', opacity:.6 }}>by SchoolOS</span></span>
+        <span style={{ fontSize:15, fontWeight:700, color:T.footerText }}>SchoolCity <span style={{ fontStyle:'italic', opacity:.6 }}>by Terma</span></span>
         <div style={{ display:'flex', gap:24, alignItems:'center' }}>
           <a href={`${SCHOOLOS_URL}/legal/privacy`} style={{ fontSize:12, color:T.footerText, opacity:.55, textDecoration:'none' }}>Privacy Policy</a>
           <a href={`${SCHOOLOS_URL}/legal/terms`} style={{ fontSize:12, color:T.footerText, opacity:.55, textDecoration:'none' }}>Terms of Service</a>
           <a href="mailto:hello@schoolos.ng" style={{ fontSize:12, color:T.footerText, opacity:.55, textDecoration:'none' }}>Contact</a>
-          <span style={{ fontSize:11, color:T.footerText, opacity:.4 }}>© 2026 SchoolOS Technologies Ltd.</span>
+          <span style={{ fontSize:11, color:T.footerText, opacity:.4 }}>© 2026 Terma Technologies Ltd.</span>
         </div>
       </div>
 

@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { deriveFacilityImages } from '@/lib/data';
+import { deriveFacilityImages, toSlug } from '@/lib/data';
 import type { School, Campus } from '@/lib/data';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -27,22 +27,21 @@ export type UseSchoolResult = {
   notFound: boolean;
 };
 
-export function useSchool(id: string): UseSchoolResult {
+export function useSchool(idOrSlug: string): UseSchoolResult {
   const [school,   setSchool]   = useState<School | null>(null);
   const [loading,  setLoading]  = useState(true);
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    if (!id || !UUID_RE.test(id)) {
+    if (!idOrSlug) {
       setLoading(false);
       setNotFound(true);
       return;
     }
 
     let cancelled = false;
-    (async () => {
-      setLoading(true);
 
+    async function fetchByUuid(uuid: string) {
       const [schoolRes, campusRes, vacCountRes] = await Promise.all([
         supabase
           .from('schools')
@@ -53,19 +52,19 @@ export function useSchool(id: string): UseSchoolResult {
                    scholarships, review_count, students, established,
                    is_featured, is_special, special_focus, rating,
                    lat, lng`)
-          .eq('id', id)
+          .eq('id', uuid)
           .maybeSingle(),
 
         supabase
           .from('school_campuses')
           .select('name, address, city, phone')
-          .eq('school_id', id)
+          .eq('school_id', uuid)
           .order('name'),
 
         supabase
           .from('school_vacancies')
           .select('id', { count: 'exact', head: true })
-          .eq('school_id', id)
+          .eq('school_id', uuid)
           .eq('status', 'published'),
       ]);
 
@@ -78,13 +77,15 @@ export function useSchool(id: string): UseSchoolResult {
       }
 
       const row = schoolRes.data as Record<string, unknown>;
+      const name = String(row.name);
       const features = (row.features as string[]) ?? [];
       const campuses = (campusRes.data ?? []) as Campus[];
       const vacCount = vacCountRes.count ?? 0;
 
       setSchool({
         id:           String(row.id),
-        name:         String(row.name),
+        slug:         toSlug(name),
+        name,
         ktPlan:       row.plan === 'pro' || row.plan === 'premium' ? 'Pro' : row.plan === 'standard' ? 'Standard' : undefined,
         city:         String(row.city ?? row.address ?? 'Nigeria'),
         state:        String(row.state ?? 'NG'),
@@ -121,9 +122,32 @@ export function useSchool(id: string): UseSchoolResult {
       });
 
       setLoading(false);
-    })();
+    }
+
+    if (UUID_RE.test(idOrSlug)) {
+      setLoading(true);
+      fetchByUuid(idOrSlug);
+    } else {
+      // Slug path: resolve to UUID first via a lightweight query, then fetch full detail.
+      setLoading(true);
+      (async () => {
+        const { data: rows } = await supabase
+          .from('schools')
+          .select('id, name')
+          .eq('status', 'active');
+        if (cancelled) return;
+        const match = (rows ?? []).find(r => toSlug(r.name) === idOrSlug);
+        if (!match) {
+          setNotFound(true);
+          setLoading(false);
+          return;
+        }
+        await fetchByUuid(match.id);
+      })();
+    }
+
     return () => { cancelled = true; };
-  }, [id]);
+  }, [idOrSlug]);
 
   return { school, loading, notFound };
 }

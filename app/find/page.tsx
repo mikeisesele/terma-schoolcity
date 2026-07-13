@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { T } from '@/lib/tokens';
 import { SCNav, SCCard, SCCompareBar, SCCompareModal } from '@/components/ui';
@@ -32,25 +32,45 @@ function Chip({ id, label, val, setVal, opts, openF, setOpenF }: {
   );
 }
 
-export default function SNFindSchool() {
+function SNFindSchoolInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { schools } = useSchools();
-  const [q, setQ] = useState('');
-  const [level, setLevel] = useState('All');
-  const [type, setType] = useState('All');
-  const [gender, setGender] = useState('All');
-  const [orient, setOrient] = useState('All');
-  const [extra, setExtra] = useState('All');
-  const [maxFee, setMaxFee] = useState(2000);
+
+  // Filter state lives in the URL
+  const q      = searchParams.get('q') ?? '';
+  const level  = searchParams.get('level') ?? 'All';
+  const type   = searchParams.get('type') ?? 'All';
+  const gender = searchParams.get('gender') ?? 'All';
+  const orient = searchParams.get('orient') ?? 'All';
+  const extra  = searchParams.get('extra') ?? 'All';
+  const maxFee = Number(searchParams.get('maxFee') ?? '2000');
+
+  // Local-only UI state
   const [openF, setOpenF] = useState<string|null>(null);
   const [favs, setFavs] = useState<string[]>([]);
   const [compare, setCompare] = useState<string[]>([]);
   const [compareOpen, setCompareOpen] = useState(false);
+  // Slider tracks its own local value during drag; URL param is source of truth otherwise
+  const [sliderFee, setSliderFee] = useState(maxFee);
+  useEffect(() => setSliderFee(maxFee), [maxFee]);
 
   useEffect(() => {
     try { const f = localStorage.getItem('sc_favs'); if (f) setFavs(JSON.parse(f)); } catch {}
     try { const c = localStorage.getItem('sc_compare'); if (c) setCompare(JSON.parse(c)); } catch {}
   }, []);
+
+  function setFilter(key: string, value: string | number) {
+    const params = new URLSearchParams(searchParams.toString());
+    const v = String(value);
+    if (v === 'All' || (key === 'maxFee' && v === '2000') || (key === 'q' && !v)) {
+      params.delete(key);
+    } else {
+      params.set(key, v);
+    }
+    const qs = params.toString();
+    router.replace('/find' + (qs ? '?' + qs : ''), { scroll: false });
+  }
 
   const toggleFav = (id: string) => {
     const next = favs.includes(id) ? favs.filter(x => x !== id) : [...favs, id];
@@ -81,7 +101,7 @@ export default function SNFindSchool() {
   });
   const anyActive = level!=='All'||type!=='All'||gender!=='All'||orient!=='All'||extra!=='All'||maxFee<2000||!!q;
 
-  const onSelect = (s: School) => router.push('/schools/' + s.id);
+  const onSelect = (s: School) => router.push('/schools/' + s.slug);
 
   return (
     <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }} onClick={()=>setOpenF(null)}>
@@ -92,23 +112,32 @@ export default function SNFindSchool() {
         <p style={{ margin:'0 0 24px', fontSize:15, color:T.accentText+'80', textAlign:'center', fontFamily:T.font }}>Search across 1,247 verified schools in Nigeria</p>
         <div style={{ maxWidth:680, margin:'0 auto', display:'flex', alignItems:'stretch', background:'#fff', borderRadius:T.btnR, overflow:'hidden', boxShadow:'0 8px 32px rgba(0,0,0,.15)', height:54 }}>
           <span style={{ padding:'0 18px', color:T.ink3, fontSize:20, display:'flex', alignItems:'center' }}>🔍</span>
-          <input value={q} onChange={e=>setQ(e.target.value)} placeholder="School name, area or city…" style={{ flex:1, border:'none', outline:'none', fontFamily:T.font, fontSize:16, fontWeight:500, color:T.ink }} />
+          <input value={q} onChange={e=>setFilter('q', e.target.value)} placeholder="School name, area or city…" style={{ flex:1, border:'none', outline:'none', fontFamily:T.font, fontSize:16, fontWeight:500, color:T.ink }} />
           <button style={{ border:'none', background:T.accent, color:T.accentText, padding:'0 32px', fontSize:14, fontWeight:800, cursor:'pointer', fontFamily:T.font }}>Search</button>
         </div>
       </div>
 
       <div style={{ background:T.cardBg, borderBottom:'1px solid '+T.line, padding:'14px 48px', display:'flex', gap:10, alignItems:'center', flexWrap:'wrap', position:'sticky', top:72, zIndex:80 }} onClick={e=>{e.stopPropagation();setOpenF(null);}}>
-        <Chip id="level"  label="Level"       val={level}  setVal={setLevel}  opts={['Nursery','Primary','Secondary','Special Needs']} openF={openF} setOpenF={setOpenF}/>
-        <Chip id="type"   label="School type" val={type}   setVal={setType}   opts={['Day','Boarding','Hybrid']} openF={openF} setOpenF={setOpenF}/>
-        <Chip id="gender" label="Gender"      val={gender} setVal={setGender} opts={['Boys','Girls','Mixed']} openF={openF} setOpenF={setOpenF}/>
-        <Chip id="orient" label="Orientation" val={orient} setVal={setOrient} opts={['Christian','Islamic','Non-denominational']} openF={openF} setOpenF={setOpenF}/>
-        <Chip id="extra"  label="More"        val={extra}  setVal={setExtra}  opts={['Scholarships','Transport','Hiring']} openF={openF} setOpenF={setOpenF}/>
+        <Chip id="level"  label="Level"       val={level}  setVal={v=>setFilter('level',v)}  opts={['Nursery','Primary','Secondary','Special Needs']} openF={openF} setOpenF={setOpenF}/>
+        <Chip id="type"   label="School type" val={type}   setVal={v=>setFilter('type',v)}   opts={['Day','Boarding','Hybrid']} openF={openF} setOpenF={setOpenF}/>
+        <Chip id="gender" label="Gender"      val={gender} setVal={v=>setFilter('gender',v)} opts={['Boys','Girls','Mixed']} openF={openF} setOpenF={setOpenF}/>
+        <Chip id="orient" label="Orientation" val={orient} setVal={v=>setFilter('orient',v)} opts={['Christian','Islamic','Non-denominational']} openF={openF} setOpenF={setOpenF}/>
+        <Chip id="extra"  label="More"        val={extra}  setVal={v=>setFilter('extra',v)}  opts={['Scholarships','Transport','Hiring']} openF={openF} setOpenF={setOpenF}/>
         <div style={{ display:'flex', alignItems:'center', gap:8, borderLeft:'1.5px solid '+T.line, paddingLeft:14, marginLeft:4 }}>
-          <span style={{ fontSize:13, color:T.ink3, fontWeight:600, whiteSpace:'nowrap' }}>₦{maxFee===2000?'Any fee':'≤₦'+maxFee+'k'}</span>
-          <input type="range" min={100} max={2000} step={50} value={maxFee} onChange={e=>setMaxFee(+e.target.value)} style={{ width:90, accentColor:T.accent, cursor:'pointer' }}/>
+          <span style={{ fontSize:13, color:T.ink3, fontWeight:600, whiteSpace:'nowrap', fontFamily:"'Arial', system-ui, sans-serif" }}>
+            {sliderFee===2000?'Any fee':`≤₦${sliderFee}k`}
+          </span>
+          <input
+            type="range" min={100} max={2000} step={50}
+            value={sliderFee}
+            onChange={e => setSliderFee(+e.target.value)}
+            onMouseUp={e => setFilter('maxFee', (e.target as HTMLInputElement).value)}
+            onTouchEnd={e => setFilter('maxFee', (e.target as HTMLInputElement).value)}
+            style={{ width:90, accentColor:T.accent, cursor:'pointer' }}
+          />
         </div>
         <div style={{ marginLeft:'auto', display:'flex', alignItems:'center', gap:14 }}>
-          {anyActive&&<button onClick={()=>{setLevel('All');setType('All');setGender('All');setOrient('All');setExtra('All');setMaxFee(2000);setQ('');}} style={{ border:'none', background:'transparent', color:T.ink3, fontFamily:'inherit', fontSize:13, fontWeight:700, cursor:'pointer', textDecoration:'underline' }}>Clear all</button>}
+          {anyActive&&<button onClick={()=>router.replace('/find',{scroll:false})} style={{ border:'none', background:'transparent', color:T.ink3, fontFamily:'inherit', fontSize:13, fontWeight:700, cursor:'pointer', textDecoration:'underline' }}>Clear all</button>}
           <span style={{ fontSize:13, color:T.ink3, fontWeight:600 }}>{results.length} school{results.length!==1?'s':''} found</span>
         </div>
       </div>
@@ -122,5 +151,13 @@ export default function SNFindSchool() {
       {compare.length > 0 && <SCCompareBar compareIds={compare} allSchools={schools} onOpen={()=>setCompareOpen(true)} onRemove={id=>{const n=compare.filter(x=>x!==id);setCompare(n);try{localStorage.setItem('sc_compare',JSON.stringify(n));}catch{}}} onClear={()=>{setCompare([]);try{localStorage.removeItem('sc_compare');}catch{}}} />}
       {compareOpen && <SCCompareModal compareIds={compare} allSchools={schools} onClose={()=>setCompareOpen(false)} onRemove={id=>{const n=compare.filter(x=>x!==id);setCompare(n);try{localStorage.setItem('sc_compare',JSON.stringify(n));}catch{}}} onSelect={s=>{setCompareOpen(false);onSelect(s);}} />}
     </div>
+  );
+}
+
+export default function SNFindSchool() {
+  return (
+    <Suspense>
+      <SNFindSchoolInner />
+    </Suspense>
   );
 }

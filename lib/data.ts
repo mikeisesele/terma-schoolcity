@@ -7,7 +7,7 @@ export type Campus = {
 };
 
 export type School = {
-  id: string; name: string; ktPlan?: string; city: string; state: string;
+  id: string; slug: string; name: string; ktPlan?: string; city: string; state: string;
   type: string; gender: string; levels: string; orientation: string;
   transport: boolean; boarding: boolean; rating: number; reviews: number;
   verified: boolean; feeFrom: number; feeTo: number; color: string;
@@ -22,6 +22,15 @@ export type School = {
   lat?: number | null;
   lng?: number | null;
 };
+
+/** Derive a URL-safe slug from a school name. */
+export function toSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[''`]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
 
 // ── Facility image pools (static CDN path constants — not real data) ──────────
 export const FI = {

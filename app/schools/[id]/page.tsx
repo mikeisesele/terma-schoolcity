@@ -186,8 +186,8 @@ export default function SCDetail() {
 
   // Awards — platform auto-badges + DB achievements
   const platformBadges = [
-    school.verified && { icon: '✅', label: 'SchoolOS Verified',   sub: 'Identity & facilities verified by SchoolOS',         color: '#1A3D2C', bg: '#E3EDE6' },
-    school.ktPlan === 'Pro' && { icon: '⭐', label: 'SchoolOS Pro', sub: 'Full platform — GPS, fees, CBT, analytics', color: '#B87D20', bg: '#F5EDD0' },
+    school.verified && { icon: '✅', label: 'Terma Verified',   sub: 'Identity & facilities verified by Terma',         color: '#1A3D2C', bg: '#E3EDE6' },
+    school.ktPlan === 'Pro' && { icon: '⭐', label: 'Terma Pro', sub: 'Full platform — GPS, fees, CBT, analytics', color: '#B87D20', bg: '#F5EDD0' },
     school.rating >= 4.7 && { icon: '🏆', label: 'Top Rated School', sub: `Rated ${school.rating}/5 by ${school.reviews} parents`, color: '#7A4A00', bg: '#FEF3C7' },
     school.scholarships > 2 && { icon: '🎓', label: 'Scholarship Excellence', sub: `${school.scholarships} scholarship programmes available`, color: '#5B21B6', bg: '#EDE9FE' },
     facilityFeatures.length >= 5 && { icon: '🌟', label: 'Well-Equipped Campus', sub: `${facilityFeatures.length} verified facilities`, color: '#065F46', bg: '#D1FAE5' },

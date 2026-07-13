@@ -28,7 +28,7 @@ export default function ComparePage() {
         allSchools={schools}
         onClose={() => router.back()}
         onRemove={onRemove}
-        onSelect={s => router.push('/schools/' + s.id)}
+        onSelect={s => router.push('/schools/' + s.slug)}
       />
     </div>
   );
