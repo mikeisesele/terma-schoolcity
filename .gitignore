@@ -8,3 +8,5 @@ out/
 *.log
 next-env.d.ts
 .claude/settings.local.json
+.vercel
+.env*

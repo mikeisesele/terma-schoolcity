@@ -8,7 +8,7 @@ const cormorant = Cormorant_Garamond({ subsets: ['latin'], variable: '--font-cor
 const plusJakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-plus-jakarta', weight: ['400', '500', '600', '700', '800'], display: 'swap' });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://schoolcity.schoolos.ng'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://schools.terma.ng'),
   title: { default: 'SchoolCity · Find the perfect school for your child', template: '%s · Terma SchoolCity' },
   description: 'Discover, compare and enquire with verified Nigerian private schools on Terma SchoolCity.',
   openGraph: { type: 'website', siteName: 'Terma SchoolCity', title: 'Find the perfect school for your child' },
