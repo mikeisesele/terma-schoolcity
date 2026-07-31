@@ -8,7 +8,7 @@ import { SCNav, SCCard, SCCompareBar, SCCompareModal, SCAuthModal } from '@/comp
 import { useSchools } from '@/lib/useSchools';
 import type { School } from '@/lib/data';
 
-const SCHOOLOS_URL = process.env.NEXT_PUBLIC_SCHOOLOS_URL ?? 'https://schoolos.ng';
+const SCHOOLOS_URL = process.env.NEXT_PUBLIC_SCHOOLOS_URL ?? 'https://terma.ng';
 
 export function HomeClient({
   standardPrice,
@@ -187,7 +187,7 @@ export function HomeClient({
         <div style={{ display:'flex', gap:24, alignItems:'center' }}>
           <a href={`${SCHOOLOS_URL}/legal/privacy`} style={{ fontSize:12, color:T.footerText, opacity:.55, textDecoration:'none' }}>Privacy Policy</a>
           <a href={`${SCHOOLOS_URL}/legal/terms`} style={{ fontSize:12, color:T.footerText, opacity:.55, textDecoration:'none' }}>Terms of Service</a>
-          <a href="mailto:hello@schoolos.ng" style={{ fontSize:12, color:T.footerText, opacity:.55, textDecoration:'none' }}>Contact</a>
+          <a href="mailto:hello@terma.ng" style={{ fontSize:12, color:T.footerText, opacity:.55, textDecoration:'none' }}>Contact</a>
           <span style={{ fontSize:11, color:T.footerText, opacity:.4 }}>© 2026 Terma Technologies Ltd.</span>
         </div>
       </div>

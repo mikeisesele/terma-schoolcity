@@ -2,7 +2,7 @@ import { T } from '@/lib/tokens';
 import { SCNav } from '@/components/ui';
 import { createServerClient } from '@/lib/supabase-server';
 
-const SCHOOLOS_URL = process.env.NEXT_PUBLIC_SCHOOLOS_URL ?? 'https://schoolos.ng';
+const SCHOOLOS_URL = process.env.NEXT_PUBLIC_SCHOOLOS_URL ?? 'https://terma.ng';
 const FOREST = '#1A3D2C';
 const GOLD   = '#B87D20';
 const CREAM  = '#FAF7F0';
