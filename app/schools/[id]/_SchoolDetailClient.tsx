@@ -151,7 +151,7 @@ export function SchoolDetailClient() {
     try {
       const payload: Record<string, unknown> = {
         school_id: school.id, parent_name: form.name, phone: form.phone,
-        email: form.email, message: form.message || null, source: 'schoolnet',
+        email: form.email, message: form.message || null, source: 'schoolcity',
       };
       if (selectedLevels.length > 0) payload.level_interest = selectedLevels.join(',');
       const { error } = await supabase.from('school_enquiries').insert(payload);
