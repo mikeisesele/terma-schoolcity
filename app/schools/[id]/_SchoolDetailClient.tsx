@@ -55,20 +55,20 @@ function featureEmoji(label: string): { emoji: string; color: string } {
 
 function featureDescription(label: string): string {
   const l = label.toLowerCase();
-  if (l.includes('science'))     return 'Fully equipped for WAEC/NECO Biology, Chemistry & Physics practicals';
-  if (l.includes('computer'))    return '40+ workstations, broadband internet, coding curriculum';
-  if (l.includes('library'))     return '3,000+ books, quiet reading room, digital catalogue';
-  if (l.includes('transport') || l.includes('bus'))  return 'GPS-tracked buses covering major routes';
-  if (l.includes('sport') || l.includes('field'))    return 'Football pitch, basketball court, athletics track';
-  if (l.includes('swimming'))    return 'Olympic-standard pool, trained lifeguards on duty';
-  if (l.includes('boarding') || l.includes('hostel')) return 'Safe, supervised residential quarters with house parents';
-  if (l.includes('music'))       return 'Instruments, recording space, choir and band practice area';
-  if (l.includes('dining') || l.includes('cafeteria')) return 'Hot meals, dietary options, supervised dining hall';
-  if (l.includes('security'))    return 'CCTV surveillance, gated compound, security personnel';
-  if (l.includes('assembly') || l.includes('hall')) return 'Capacity 500+, air-conditioned, AV system';
-  if (l.includes('sick') || l.includes('medical')) return 'Registered nurse on-site, first aid, parent notification';
-  if (l.includes('nursery') || l.includes('playground')) return 'Age-appropriate play areas, sensory rooms and outdoor learning spaces';
-  if (l.includes('ict'))         return 'ICT infrastructure, digital labs, technology integration';
+  if (l.includes('science'))     return 'Equipped for Biology, Chemistry and Physics practicals';
+  if (l.includes('computer'))    return 'Workstations, internet access and technology curriculum';
+  if (l.includes('library'))     return 'Book collection, quiet reading room and study space';
+  if (l.includes('transport') || l.includes('bus'))  return 'School buses covering major routes';
+  if (l.includes('sport') || l.includes('field'))    return 'Football pitch, basketball court and athletics facilities';
+  if (l.includes('swimming'))    return 'Swimming pool with trained lifeguards on duty';
+  if (l.includes('boarding') || l.includes('hostel')) return 'Supervised residential quarters with house parents';
+  if (l.includes('music'))       return 'Instruments, practice rooms and performance space';
+  if (l.includes('dining') || l.includes('cafeteria')) return 'Supervised dining hall with hot meals';
+  if (l.includes('security'))    return 'CCTV surveillance, gated compound and security personnel';
+  if (l.includes('assembly') || l.includes('hall')) return 'Air-conditioned hall with AV system';
+  if (l.includes('sick') || l.includes('medical')) return 'Registered nurse on-site, first aid and parent notification';
+  if (l.includes('nursery') || l.includes('playground')) return 'Age-appropriate play areas and outdoor learning spaces';
+  if (l.includes('ict'))         return 'Digital labs and technology integration across subjects';
   if (l.includes('art'))         return 'Art studio with supplies for visual arts and crafts';
   return '';
 }
@@ -177,9 +177,11 @@ export function SchoolDetailClient() {
     }
   };
 
-  // Curriculum options stored in features[] — filter them out before building facility list
+  // Curriculum options and internal system keys stored in features[] — filter them out
   const CURRIC_OPTS = new Set(['WAEC / NECO', 'Cambridge (IGCSE)', 'British Curriculum', 'French Baccalaureate', 'Montessori', 'UTME']);
-  const facilityFeatures = school.features.filter(f => !CURRIC_OPTS.has(f));
+  // System/internal keys look like snake_case (all lowercase, no spaces, has underscore or starts with ai_/is_)
+  const isSystemKey = (f: string) => /^[a-z][a-z0-9_]*$/.test(f) && (f.includes('_') || f.startsWith('ai') || f.startsWith('is'));
+  const facilityFeatures = school.features.filter(f => !CURRIC_OPTS.has(f) && !isSystemKey(f));
 
   // Facilities — DB photos with derived fallback
   const fallbackImages = deriveFacilityImages(facilityFeatures);
