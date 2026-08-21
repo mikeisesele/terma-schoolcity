@@ -106,7 +106,18 @@ export function SchoolDetailClient() {
   const rawId  = typeof params.id === 'string' ? params.id : (params.id?.[0] ?? '');
 
   const { school, loading: schoolLoading, notFound } = useSchool(rawId);
-  const { reviews }              = useReviews(school?.id);
+  const { reviews, refetch: refetchReviews } = useReviews(school?.id);
+
+  // Rating computed live from loaded reviews (not the static DB column)
+  const computedCount  = reviews.length;
+  const computedRating = computedCount > 0
+    ? Math.round((reviews.reduce((s, r) => s + r.rating, 0) / computedCount) * 10) / 10
+    : 0;
+
+  // Review form state
+  const [reviewForm, setReviewForm] = useState({ author: '', role: 'parent' as 'parent' | 'student' | 'alumnus', rating: 0, hover: 0, body: '', tag: '' });
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewDone, setReviewDone] = useState(false);
   const { byCategory }           = useSchoolPhotos(school?.id);
   const { achievements }         = useSchoolAchievements(school?.id);
   const { vacancies: jobList }   = useSchoolVacancies(school?.id ?? null);
@@ -203,7 +214,7 @@ export function SchoolDetailClient() {
   const platformBadges = [
     school.verified && { icon: '✅', label: 'Terma Verified',   sub: 'Identity & facilities verified by Terma',         color: '#1A3D2C', bg: '#E3EDE6' },
     school.ktPlan === 'Pro' && { icon: '⭐', label: 'Terma Pro', sub: 'Full platform — GPS, fees, CBT, analytics', color: '#B87D20', bg: '#F5EDD0' },
-    school.rating >= 4.7 && { icon: '🏆', label: 'Top Rated School', sub: `Rated ${school.rating}/5 by ${school.reviews} parents`, color: '#7A4A00', bg: '#FEF3C7' },
+    computedCount > 0 && computedRating >= 4.7 && { icon: '🏆', label: 'Top Rated School', sub: `Rated ${computedRating.toFixed(1)}/5 by ${computedCount} reviewers`, color: '#7A4A00', bg: '#FEF3C7' },
     school.scholarships > 2 && { icon: '🎓', label: 'Scholarship Excellence', sub: `${school.scholarships} scholarship programmes available`, color: '#5B21B6', bg: '#EDE9FE' },
     facilityFeatures.length >= 5 && { icon: '🌟', label: 'Well-Equipped Campus', sub: `${facilityFeatures.length} verified facilities`, color: '#065F46', bg: '#D1FAE5' },
     school.established > 0 && school.established <= 2005 && { icon: '🏛️', label: 'Established Institution', sub: `${2026 - school.established}+ years of academic excellence`, color: '#1E3A5F', bg: '#DBEAFE' },
@@ -217,8 +228,7 @@ export function SchoolDetailClient() {
 
   const allBadges = [...platformBadges, ...dbBadges];
 
-  // Rating distribution from loaded reviews
-  const ratingDist = [5, 4, 3, 2, 1].map(star => ({ star, count: reviews.filter(r => r.rating === star).length }));
+  const ratingDist  = [5, 4, 3, 2, 1].map(star => ({ star, count: reviews.filter(r => r.rating === star).length }));
   const ratingTotal = ratingDist.reduce((s, r) => s + r.count, 0);
 
   const tabs: [string, string][] = [
@@ -329,21 +339,26 @@ export function SchoolDetailClient() {
               </div>
             </div>
           </div>
-          {/* Right: rating widget */}
-          {school.reviews > 0 && (
-            <button
-              onClick={() => setRO(true)}
-              style={{ background: 'rgba(0,0,0,.45)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 16, padding: '14px 20px', textAlign: 'center', backdropFilter: 'blur(12px)', cursor: 'pointer', flexShrink: 0, marginLeft: 20, marginBottom: 4 }}
-            >
-              <div style={{ fontSize: 36, fontWeight: 900, color: '#fff', lineHeight: 1 }}>{school.rating.toFixed(1)}</div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 2, margin: '4px 0' }}>
-                {[1, 2, 3, 4, 5].map(s => (
-                  <span key={s} style={{ fontSize: 13, color: s <= Math.round(school.rating) ? '#FCD34D' : 'rgba(255,255,255,.3)' }}>★</span>
-                ))}
-              </div>
-              <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.7)', fontWeight: 600 }}>{school.reviews} reviews</div>
-            </button>
-          )}
+          {/* Right: rating widget — always visible */}
+          <button
+            onClick={() => setRO(true)}
+            style={{ background: 'rgba(0,0,0,.45)', border: '1px solid rgba(255,255,255,.2)', borderRadius: 16, padding: '14px 20px', textAlign: 'center', backdropFilter: 'blur(12px)', cursor: 'pointer', flexShrink: 0, marginLeft: 20, marginBottom: 4 }}
+          >
+            {computedCount > 0 ? (
+              <>
+                <div style={{ fontSize: 36, fontWeight: 900, color: '#fff', lineHeight: 1 }}>{computedRating.toFixed(1)}</div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 2, margin: '4px 0' }}>
+                  {[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: 13, color: s <= Math.round(computedRating) ? '#FCD34D' : 'rgba(255,255,255,.3)' }}>★</span>)}
+                </div>
+                <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.7)', fontWeight: 600 }}>{computedCount} {computedCount === 1 ? 'review' : 'reviews'}</div>
+              </>
+            ) : (
+              <>
+                <div style={{ fontSize: 22, lineHeight: 1, marginBottom: 4 }}>★</div>
+                <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,.85)', fontWeight: 700, whiteSpace: 'nowrap' }}>Rate this school</div>
+              </>
+            )}
+          </button>
         </div>
       </div>
 
@@ -696,16 +711,16 @@ export function SchoolDetailClient() {
           <div style={{ background: T.cardBg, borderRadius: 18, width: '100%', maxWidth: 600, maxHeight: '85vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 24px 64px rgba(0,0,0,.35)' }}>
             <div style={{ padding: '20px 24px', borderBottom: `1px solid ${T.line}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
               <div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: T.ink }}>Parent reviews</div>
-                <div style={{ fontSize: 13, color: T.ink3 }}>Submitted via the SchoolOS Parent App</div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: T.ink }}>Reviews</div>
+                <div style={{ fontSize: 13, color: T.ink3 }}>From parents, students and alumni</div>
               </div>
               <button onClick={() => setRO(false)} style={{ border: 'none', background: T.inputBg, borderRadius: 8, width: 32, height: 32, cursor: 'pointer', fontSize: 16, color: T.ink3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
             </div>
             <div style={{ padding: '16px 24px', borderBottom: `1px solid ${T.line}`, display: 'flex', gap: 24, alignItems: 'center', flexShrink: 0 }}>
               <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 48, fontWeight: 900, color: T.ink, lineHeight: 1 }}>{school.rating.toFixed(1)}</div>
-                <Stars rating={school.rating} />
-                <div style={{ fontSize: 12, color: T.ink3, fontWeight: 600, marginTop: 3 }}>{school.reviews} reviews</div>
+                <div style={{ fontSize: 48, fontWeight: 900, color: T.ink, lineHeight: 1 }}>{computedCount > 0 ? computedRating.toFixed(1) : '—'}</div>
+                <Stars rating={computedRating} />
+                <div style={{ fontSize: 12, color: T.ink3, fontWeight: 600, marginTop: 3 }}>{computedCount} {computedCount === 1 ? 'review' : 'reviews'}</div>
               </div>
               <div style={{ flex: 1 }}>
                 {ratingDist.map(({ star, count }) => (
@@ -743,6 +758,72 @@ export function SchoolDetailClient() {
                   <p style={{ margin: 0, fontSize: 14, color: T.ink2, lineHeight: 1.65, paddingLeft: 48 }}>{r.body}</p>
                 </div>
               ))}
+            </div>
+
+            {/* ── Write a review form ─────────────────────────────────────── */}
+            <div style={{ borderTop: `1px solid ${T.line}`, padding: '20px 24px', flexShrink: 0 }}>
+              {reviewDone ? (
+                <div style={{ textAlign: 'center', padding: '12px 0' }}>
+                  <div style={{ fontSize: 28, marginBottom: 8 }}>🙏</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: T.ink }}>Thank you!</div>
+                  <div style={{ fontSize: 13, color: T.ink3, marginTop: 4 }}>Your review will appear shortly.</div>
+                </div>
+              ) : (
+                <>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: T.ink, marginBottom: 12 }}>Write a review</div>
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                    {(['parent', 'student', 'alumnus'] as const).map(role => (
+                      <button key={role} onClick={() => setReviewForm(f => ({ ...f, role }))}
+                        style={{ padding: '5px 14px', borderRadius: 9999, border: `1.5px solid ${reviewForm.role === role ? school.color : T.line}`, background: reviewForm.role === role ? school.color + '15' : 'transparent', color: reviewForm.role === role ? school.color : T.ink3, fontFamily: 'inherit', fontSize: 12.5, fontWeight: reviewForm.role === role ? 700 : 500, cursor: 'pointer', textTransform: 'capitalize' }}
+                      >{role}</button>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
+                    {[1,2,3,4,5].map(n => (
+                      <button key={n} type="button"
+                        onMouseEnter={() => setReviewForm(f => ({ ...f, hover: n }))}
+                        onMouseLeave={() => setReviewForm(f => ({ ...f, hover: 0 }))}
+                        onClick={() => setReviewForm(f => ({ ...f, rating: n }))}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 28, color: n <= (reviewForm.hover || reviewForm.rating) ? T.starActive : T.starEmpty, padding: 0, lineHeight: 1, transition: 'transform .1s', transform: n <= (reviewForm.hover || reviewForm.rating) ? 'scale(1.2)' : 'scale(1)' }}
+                      >★</button>
+                    ))}
+                  </div>
+                  <input
+                    value={reviewForm.author}
+                    onChange={e => setReviewForm(f => ({ ...f, author: e.target.value }))}
+                    placeholder="Your name (e.g. Mrs Amara Obi)"
+                    style={{ width: '100%', border: `1.5px solid ${T.line}`, borderRadius: 8, padding: '9px 12px', fontFamily: 'inherit', fontSize: 14, outline: 'none', boxSizing: 'border-box', marginBottom: 8 }}
+                  />
+                  <textarea
+                    value={reviewForm.body}
+                    onChange={e => setReviewForm(f => ({ ...f, body: e.target.value }))}
+                    placeholder="Share what you think — academics, teachers, facilities…"
+                    rows={3}
+                    style={{ width: '100%', border: `1.5px solid ${T.line}`, borderRadius: 8, padding: '9px 12px', fontFamily: 'inherit', fontSize: 14, resize: 'vertical', outline: 'none', boxSizing: 'border-box', marginBottom: 10 }}
+                  />
+                  <button
+                    disabled={reviewSubmitting || !reviewForm.rating || !reviewForm.author.trim() || reviewForm.body.trim().length < 10}
+                    onClick={async () => {
+                      if (!school?.id) return;
+                      setReviewSubmitting(true);
+                      const { supabase: sc } = await import('@/lib/supabase');
+                      await sc.from('school_reviews').insert({
+                        school_id: school.id,
+                        author: reviewForm.author.trim(),
+                        body: reviewForm.body.trim(),
+                        rating: reviewForm.rating,
+                        tag: null,
+                        author_role: reviewForm.role,
+                        is_featured: false,
+                      });
+                      setReviewSubmitting(false);
+                      setReviewDone(true);
+                      refetchReviews();
+                    }}
+                    style={{ width: '100%', border: 'none', background: (!reviewForm.rating || !reviewForm.author.trim() || reviewForm.body.trim().length < 10) ? T.inputBg : school.color, color: (!reviewForm.rating || !reviewForm.author.trim() || reviewForm.body.trim().length < 10) ? T.ink3 : '#fff', borderRadius: 10, padding: '12px', fontFamily: 'inherit', fontSize: 14, fontWeight: 800, cursor: (!reviewForm.rating || !reviewForm.author.trim() || reviewForm.body.trim().length < 10) ? 'not-allowed' : 'pointer', transition: 'background .2s' }}
+                  >{reviewSubmitting ? 'Submitting…' : 'Submit review →'}</button>
+                </>
+              )}
             </div>
           </div>
         </div>
