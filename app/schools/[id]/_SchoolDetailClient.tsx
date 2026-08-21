@@ -151,6 +151,13 @@ export function SchoolDetailClient() {
     return () => window.removeEventListener('keydown', h);
   }, [lightbox, facilityModal]);
 
+  useEffect(() => {
+    if (!reviewsOpen) return;
+    const h = (e: KeyboardEvent) => { if (e.key === 'Escape') setRO(false); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, [reviewsOpen]);
+
   if (schoolLoading) return <div style={{ padding: 40, fontFamily: T.font, color: T.ink2 }}>Loading…</div>;
   if (notFound || !school) return <div style={{ padding: 40, fontFamily: T.font, color: T.ink2 }}>School not found.</div>;
 
