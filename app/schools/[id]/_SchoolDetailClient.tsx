@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter, useParams } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { T } from '@/lib/tokens';
@@ -13,6 +14,18 @@ import { supabase } from '@/lib/supabase';
 import { deriveFacilityImages } from '@/lib/data';
 import type { AchievementType } from '@/lib/useSchoolAchievements';
 import { useSchoolVacancies } from '@/lib/useVacancies';
+
+const SchoolMap = dynamic(
+  () => import('./_SchoolMap').then(m => m.SchoolMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div style={{ height: 420, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f5f5f0', color: '#9BA89D', fontSize: 14 }}>
+        Loading map…
+      </div>
+    ),
+  },
+);
 
 const LEVELS = ['Nursery', 'Primary', 'JSS', 'SSS'] as const;
 type Level = (typeof LEVELS)[number];
@@ -607,12 +620,9 @@ export function SchoolDetailClient() {
               </div>
             </div>
             <div style={{ borderRadius: T.cardR, overflow: 'hidden', border: `1.5px solid ${T.cardBorder}`, height: 420 }}>
-              {school.lat != null && school.lng != null ? (() => {
-                const delta = 0.03;
-                const bbox = `${school.lng - delta}%2C${school.lat - delta}%2C${school.lng + delta}%2C${school.lat + delta}`;
-                const src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${school.lat}%2C${school.lng}`;
-                return <iframe title="School map" src={src} width="100%" height="420" style={{ border: 'none', display: 'block' }} loading="lazy" />;
-              })() : (
+              {school.lat != null && school.lng != null ? (
+                <SchoolMap lat={school.lat} lng={school.lng} schoolName={school.name} />
+              ) : (
                 <div style={{ height: 420, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 10, background: T.inputBg, color: T.ink3 }}>
                   <span style={{ fontSize: 40 }}>📍</span>
                   <span style={{ fontSize: 14, fontWeight: 600 }}>Location not available</span>
