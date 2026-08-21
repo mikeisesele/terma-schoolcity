@@ -5,14 +5,30 @@ import { SchoolDetailClient } from './_SchoolDetailClient';
 
 type Props = { params: { id: string } };
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function toSlug(name: string): string {
+  return name.toLowerCase().replace(/[''`]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 // ── Server-side school fetch (shared by generateMetadata and the page) ──────
-async function fetchSchoolSeo(id: string) {
+async function fetchSchoolSeo(idOrSlug: string) {
   try {
     const supabase = await createServerClient();
+
+    let uuid = idOrSlug;
+    if (!UUID_RE.test(idOrSlug)) {
+      // Slug path: resolve to UUID first
+      const { data: rows } = await supabase.from('schools').select('id, name').eq('status', 'active');
+      const match = (rows ?? []).find(r => toSlug(r.name) === idOrSlug);
+      if (!match) return null;
+      uuid = match.id;
+    }
+
     const { data } = await supabase
       .from('schools')
       .select('id, name, city, state, type, gender, levels, fees_from_kobo, fees_to_kobo, rating, review_count, image_url, motto')
-      .eq('id', id)
+      .eq('id', uuid)
       .maybeSingle();
     return data as {
       id: string;
