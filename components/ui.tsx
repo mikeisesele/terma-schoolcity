@@ -71,7 +71,7 @@ export function SCNav({ onBack, backHref, rightSlot, onNav }: {
           onMouseEnter={e=>(e.currentTarget.style.color=T.navInk)} onMouseLeave={e=>(e.currentTarget.style.color=T.ink3)}>{lbl}</button>
       ))}
       {rightSlot}
-      {!onBack && <button onClick={()=>nav('list-school')} style={{ background:T.accent, color:T.accentText, border:'none', borderRadius:T.btnR, padding:'10px 22px', fontFamily:'inherit', fontSize:13, fontWeight:700, cursor:'pointer' }}>List your school</button>}
+      {!onBack && <button onClick={()=>nav('list-school')} style={{ background:T.accent, color:T.accentText, border:'none', borderRadius:T.btnR, padding:'10px 22px', fontFamily:'inherit', fontSize:13, fontWeight:700, cursor:'pointer' }}>For schools →</button>}
     </div>
   );
 }

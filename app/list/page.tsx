@@ -2,27 +2,12 @@ import { T } from '@/lib/tokens';
 import { SCNav } from '@/components/ui';
 import { createServerClient } from '@/lib/supabase-server';
 
-const SCHOOLOS_URL = process.env.NEXT_PUBLIC_SCHOOLOS_URL ?? 'https://terma.ng';
+const SCHOOLOS_URL = process.env.NODE_ENV === 'production'
+  ? 'https://app.terma.ng'
+  : (process.env.NEXT_PUBLIC_SCHOOLOS_URL ?? 'https://app.terma.ng');
 const FOREST = '#1A3D2C';
 const GOLD   = '#B87D20';
 const CREAM  = '#FAF7F0';
-const FOUNDING_CAP = 20;
-
-async function getFoundingSlots(): Promise<{ remaining: number } | null> {
-  try {
-    const supabase = await createServerClient();
-    const { count, error } = await supabase
-      .from('users')
-      .select('id', { count: 'exact', head: true })
-      .eq('role', 'admin')
-      .not('school_id', 'is', null);
-    if (error) return null;
-    return { remaining: Math.max(0, FOUNDING_CAP - (count ?? 0)) };
-  } catch {
-    return null;
-  }
-}
-
 async function getSchoolCount(): Promise<number> {
   try {
     const supabase = await createServerClient();
@@ -38,21 +23,20 @@ async function getSchoolCount(): Promise<number> {
 }
 
 const FEATURES: [string, string, string][] = [
-  ['🌐', 'Public school profile', 'A verified listing parents discover when searching SchoolCity. Photos, fees, facilities, ratings and a direct enquiry button — all managed from your school portal.'],
-  ['📋', 'Student & staff records', 'Basic digital records for your students and staff, accessible to the right people in your school. The foundation every school needs to run properly.'],
-  ['📢', 'School announcements', 'Broadcast updates to all parents instantly. No WhatsApp groups. School-to-parent communication, done properly.'],
-  ['🏛️', 'School info management', "Keep your school's profile accurate — address, photos, description, fee ranges. What parents see on SchoolCity is always up to date."],
+  ['🏫', 'Your school, ready to run', 'Set up students, staff, core school information and the access each person needs from one secure operating system.'],
+  ['📊', 'Results parents can understand', 'CBT scores, assessment results and report cards move through one workflow and reach families when the school releases them.'],
+  ['📢', 'Communication without the noise', 'Announcements, calendar updates and direct parent communication live in one place instead of scattered group chats.'],
+  ['🌐', 'A verified SchoolCity profile', 'Schools appear on SchoolCity after onboarding, with a complete profile families can trust and use to make an enquiry.'],
 ];
 
 const STATIC_STATS: [string, string][] = [
-  ['94%',     'PARENT SATISFACTION'],
-  ['Minutes', 'TO GO LIVE'],
-  ['₦0',      'TO GET STARTED'],
+  ['One', 'SCHOOL SYSTEM'],
+  ['Parents', 'KEPT INFORMED'],
+  ['Verified', 'SCHOOLCITY PROFILE'],
 ];
 
 export default async function SNListSchool() {
-  const [foundingSlots, schoolCount] = await Promise.all([getFoundingSlots(), getSchoolCount()]);
-  const showFounding  = foundingSlots !== null && foundingSlots.remaining > 0;
+  const schoolCount = await getSchoolCount();
   const schoolCountLabel = schoolCount > 0 ? `${schoolCount}+` : '500+';
 
   return (
@@ -67,33 +51,24 @@ export default async function SNListSchool() {
 
         <div style={{ maxWidth: 680, margin: '0 auto', textAlign: 'center', position: 'relative' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(250,247,240,.45)', letterSpacing: '.2em', textTransform: 'uppercase', marginBottom: 20 }}>
-            SchoolCity Listing · Completely Free
+            For schools ready to run better
           </div>
 
           <h1 style={{ margin: '0 0 20px', fontFamily: "'Cormorant Garamond','Georgia',serif", lineHeight: 1.05, fontWeight: 700 }}>
-            <span style={{ display: 'block', fontSize: 54, color: CREAM }}>List your school.</span>
-            <span style={{ display: 'block', fontSize: 54, color: GOLD, fontStyle: 'italic' }}>Reach more parents.</span>
+            <span style={{ display: 'block', fontSize: 54, color: CREAM }}>Bring Terma to</span>
+            <span style={{ display: 'block', fontSize: 54, color: GOLD, fontStyle: 'italic' }}>your school.</span>
           </h1>
 
           <p style={{ margin: '0 0 28px', fontSize: 16, color: 'rgba(250,247,240,.65)', lineHeight: 1.7, maxWidth: 520, marginLeft: 'auto', marginRight: 'auto' }}>
-            Create a free SchoolCity profile in 5 minutes. Parents searching in your area will find your school — with photos, fees, facilities and direct enquiry.
+            One school operating system for your staff, students and parents. Set up your school with Terma, then publish a verified SchoolCity profile that families can discover with confidence.
           </p>
-
-          {showFounding && (
-            <div style={{ marginBottom: 32, display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(184,125,32,.18)', border: '1.5px solid rgba(184,125,32,.45)', borderRadius: 40, padding: '9px 20px' }}>
-              <span style={{ fontSize: 15 }}>⭐</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: CREAM }}>
-                Founding school offer — lock in ₦7,000/student/yr for 2 years · {foundingSlots!.remaining} of {FOUNDING_CAP} slots remaining
-              </span>
-            </div>
-          )}
 
           <div>
             <a
               href={`${SCHOOLOS_URL}/register`}
               style={{ display: 'inline-block', background: GOLD, color: FOREST, borderRadius: 100, padding: '15px 40px', fontSize: 15.5, fontWeight: 800, textDecoration: 'none', fontFamily: T.font, letterSpacing: '-.01em' }}
             >
-              List your school — free →
+              Get started with Terma →
             </a>
           </div>
         </div>
@@ -125,8 +100,8 @@ export default async function SNListSchool() {
             What you get
           </div>
           <h2 style={{ margin: 0, fontFamily: "'Cormorant Garamond','Georgia',serif", fontSize: 42, fontWeight: 700, lineHeight: 1.05, color: FOREST }}>
-            Everything you need.<br />
-            <span style={{ fontStyle: 'italic' }}>Nothing to pay.</span>
+            One system for the work<br />
+            <span style={{ fontStyle: 'italic' }}>that matters every day.</span>
           </h2>
         </div>
 
@@ -141,27 +116,7 @@ export default async function SNListSchool() {
         </div>
       </div>
 
-      {/* ── Upsell: full platform ── */}
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 40px 64px' }}>
-        <div style={{ background: 'rgba(184,125,32,.06)', border: `1.5px solid rgba(184,125,32,.25)`, borderRadius: 20, padding: '32px 36px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: GOLD, letterSpacing: '.16em', textTransform: 'uppercase', marginBottom: 10 }}>
-            Want the full platform?
-          </div>
-          <h3 style={{ margin: '0 0 12px', fontSize: 22, fontWeight: 800, color: FOREST }}>
-            Start a Standard trial — free for one term.
-          </h3>
-          <p style={{ margin: '0 0 20px', fontSize: 14, color: T.ink2, lineHeight: 1.7 }}>
-            Full operational tools: results, fee collection, GPS, parent app, CBT. Up to 50 students.<br />
-            After the trial, your school drops back to Free — listing stays live, records preserved. No data lost.
-          </p>
-          <a
-            href={`${SCHOOLOS_URL}/register`}
-            style={{ display: 'inline-block', background: FOREST, color: CREAM, borderRadius: 10, padding: '13px 28px', fontSize: 14.5, fontWeight: 800, textDecoration: 'none', fontFamily: T.font }}
-          >
-            Get started →
-          </a>
-        </div>
-      </div>
+      <div style={{ height: 64 }} />
     </div>
   );
 }
