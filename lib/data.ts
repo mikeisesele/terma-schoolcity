@@ -23,6 +23,16 @@ export type School = {
   lng?: number | null;
 };
 
+/**
+ * SchoolCity presents one paid tier. Older plan codes remain in the database
+ * for subscription history, but must never create a separate public tier.
+ */
+export function publicPlanLabel(plan: unknown): 'Standard' | undefined {
+  return ['trial', 'standard', 'starter', 'premium', 'pro', 'custom'].includes(String(plan))
+    ? 'Standard'
+    : undefined;
+}
+
 /** Derive a URL-safe slug from a school name. */
 export function toSlug(name: string): string {
   return name

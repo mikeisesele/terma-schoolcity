@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { deriveFacilityImages, toSlug } from '@/lib/data';
+import { deriveFacilityImages, publicPlanLabel, toSlug } from '@/lib/data';
 import type { School, Campus } from '@/lib/data';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -86,7 +86,7 @@ export function useSchool(idOrSlug: string): UseSchoolResult {
         id:           String(row.id),
         slug:         toSlug(name),
         name,
-        ktPlan:       row.plan === 'pro' || row.plan === 'premium' ? 'Pro' : row.plan === 'standard' ? 'Standard' : undefined,
+        ktPlan:       publicPlanLabel(row.plan),
         city:         String(row.city ?? row.address ?? 'Nigeria'),
         state:        String(row.state ?? 'NG'),
         type:         String(row.type ?? 'Day'),

@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { deriveFacilityImages, toSlug } from '@/lib/data';
+import { deriveFacilityImages, publicPlanLabel, toSlug } from '@/lib/data';
 import type { School } from '@/lib/data';
 
 type DBSchool = {
@@ -47,7 +47,7 @@ function mapDbToSchool(row: DBSchool): School {
     id:           row.id,
     slug:         toSlug(row.name),
     name:         row.name,
-    ktPlan:       row.plan === 'pro' || row.plan === 'premium' ? 'Pro' : row.plan === 'standard' ? 'Standard' : undefined,
+    ktPlan:       publicPlanLabel(row.plan),
     city:         row.city ?? row.address ?? 'Nigeria',
     state:        row.state ?? 'NG',
     type:         row.type ?? 'Day',

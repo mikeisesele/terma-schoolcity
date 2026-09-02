@@ -10,13 +10,7 @@ import type { School } from '@/lib/data';
 
 const SCHOOLOS_URL = process.env.NEXT_PUBLIC_SCHOOLOS_URL ?? 'https://terma.ng';
 
-export function HomeClient({
-  standardPrice,
-  proPrice,
-}: {
-  standardPrice: string;
-  proPrice: string;
-}) {
+export function HomeClient() {
   const router = useRouter();
   const { schools } = useSchools();
   const carousel = schools.filter(s => s.isFeatured && !s.special);

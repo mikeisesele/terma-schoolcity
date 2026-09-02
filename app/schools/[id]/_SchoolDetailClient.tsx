@@ -209,7 +209,7 @@ export function SchoolDetailClient() {
   // Awards — platform auto-badges + DB achievements
   const platformBadges = [
     school.verified && { icon: '✅', label: 'Terma Verified',   sub: 'Identity & facilities verified by Terma',         color: '#1A3D2C', bg: '#E3EDE6' },
-    school.ktPlan === 'Pro' && { icon: '⭐', label: 'Terma Pro', sub: 'Full platform — GPS, fees, CBT, analytics', color: '#B87D20', bg: '#F5EDD0' },
+    school.ktPlan === 'Standard' && { icon: '⭐', label: 'Terma Standard', sub: 'Full platform — GPS, fees, CBT, analytics', color: '#B87D20', bg: '#F5EDD0' },
     school.reviews > 0 && school.rating >= 4.7 && { icon: '🏆', label: 'Top Rated School', sub: `Rated ${school.rating.toFixed(1)}/5 by ${school.reviews} reviewers`, color: '#7A4A00', bg: '#FEF3C7' },
     school.scholarships > 2 && { icon: '🎓', label: 'Scholarship Excellence', sub: `${school.scholarships} scholarship programmes available`, color: '#5B21B6', bg: '#EDE9FE' },
     facilityFeatures.length >= 5 && { icon: '🌟', label: 'Well-Equipped Campus', sub: `${facilityFeatures.length} verified facilities`, color: '#065F46', bg: '#D1FAE5' },
@@ -319,8 +319,8 @@ export function SchoolDetailClient() {
                   {school.verified && (
                     <span style={{ background: 'rgba(255,255,255,.22)', border: '1px solid rgba(255,255,255,.45)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>✓ Verified</span>
                   )}
-                  {school.ktPlan === 'Pro' && (
-                    <span style={{ background: 'rgba(184,125,32,.9)', border: '1px solid rgba(255,255,255,.3)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>⭐ Pro</span>
+                  {school.ktPlan === 'Standard' && (
+                    <span style={{ background: 'rgba(184,125,32,.9)', border: '1px solid rgba(255,255,255,.3)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>⭐ Standard</span>
                   )}
                 </div>
                 {school.tagline && (
