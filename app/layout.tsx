@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { DM_Sans, Cormorant_Garamond, Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 import './globals.css';
@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: { default: 'SchoolCity · Find the perfect school for your child', template: '%s · Terma SchoolCity' },
   description: 'Discover, compare and enquire with verified Nigerian private schools on Terma SchoolCity.',
   openGraph: { type: 'website', siteName: 'Terma SchoolCity', title: 'Find the perfect school for your child' },
+};
+
+export const viewport: Viewport = {
   themeColor: '#FDFAF5',
 };
 
