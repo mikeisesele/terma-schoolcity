@@ -13,9 +13,9 @@ const SCHOOLOS_URL = process.env.NEXT_PUBLIC_SCHOOLOS_URL ?? 'https://terma.ng';
 export function HomeClient() {
   const router = useRouter();
   const { schools } = useSchools();
-  const carousel = schools.filter(s => s.isFeatured && !s.special);
   const [q, setQ]         = useState('');
   const [catF, setCatF]   = useState('All');
+  const [spotlightCity, setSpotlightCity] = useState('');
   const [showAll, setShowAll] = useState(false);
   const [slide, setSlide] = useState(0);
   const [favs, setFavs]   = useState<string[]>([]);
@@ -25,12 +25,30 @@ export function HomeClient() {
   const [showAuth, setShowAuth] = useState(false);
   const [authReason, setAuthReason] = useState('save');
   const [pendingFavId, setPendingFavId] = useState<string|null>(null);
+  const nowMs = Date.now();
+  const activeSpotlights = schools.filter(s =>
+    !s.special &&
+    s.schoolcityTier === 'spotlight' &&
+    !!s.schoolcityTierExpiresAt &&
+    new Date(s.schoolcityTierExpiresAt).getTime() > nowMs
+  );
+  const spotlightCities = Array.from(new Set(activeSpotlights.map(s => s.city).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+  const cityFromSearch = spotlightCities.find(city => q.toLowerCase().includes(city.toLowerCase())) ?? '';
+  const activeSpotlightCity = spotlightCity || cityFromSearch;
+  const carousel = activeSpotlightCity
+    ? activeSpotlights.filter(s => s.city.toLowerCase() === activeSpotlightCity.toLowerCase())
+    : activeSpotlights;
 
   useEffect(() => {
     try { const u = localStorage.getItem('sc_user'); if (u) setUser(JSON.parse(u)); } catch {}
     try { const f = localStorage.getItem('sc_favs'); if (f) setFavs(JSON.parse(f)); } catch {}
     try { const c = localStorage.getItem('sc_compare'); if (c) setCompare(JSON.parse(c)); } catch {}
+    try { const city = localStorage.getItem('sc_spotlight_city'); if (city) setSpotlightCity(city); } catch {}
   }, []);
+
+  useEffect(() => {
+    setSlide(0);
+  }, [activeSpotlightCity, carousel.length]);
 
   useEffect(() => {
     if (!carousel.length) return;
@@ -80,6 +98,13 @@ export function HomeClient() {
     try { localStorage.setItem('sc_compare', JSON.stringify(next)); } catch {}
     return next;
   });
+  const chooseSpotlightCity = (city: string) => {
+    setSpotlightCity(city);
+    try {
+      if (city) localStorage.setItem('sc_spotlight_city', city);
+      else localStorage.removeItem('sc_spotlight_city');
+    } catch {}
+  };
 
   const safeSlide = carousel.length > 0 ? slide % carousel.length : 0;
   const onSelect = (s: School) => router.push('/schools/' + s.slug);
@@ -114,9 +139,23 @@ export function HomeClient() {
     <div style={{ minHeight:'100vh', background:T.bg, fontFamily:T.font }}>
       <SCNav onNav={onNav} rightSlot={userSlot}/>
 
-      {/* Featured school carousel — padded, rounded */}
+      {/* Spotlight school carousel — padded, rounded */}
       <div style={{ padding:'28px 40px 0' }}>
         <div style={{ position:'relative', borderRadius:28, overflow:'hidden', height:520 }}>
+          {carousel.length === 0 && (
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg,#1A3D2C 0%,#1f6b45 60%,#B87D20 140%)', display:'flex', alignItems:'center', padding:'0 60px' }}>
+              <div style={{ maxWidth:560 }}>
+                <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,.62)', letterSpacing:1.8, textTransform:'uppercase', marginBottom:12 }}>
+                  Spotlight schools{activeSpotlightCity ? ` · ${activeSpotlightCity}` : ''}
+                </div>
+                <h2 style={{ margin:'0 0 10px', fontSize:44, fontWeight:800, color:'#fff', lineHeight:1.05, letterSpacing:'-.02em' }}>Find schools near you</h2>
+                <p style={{ margin:'0 0 24px', fontSize:17, color:'rgba(255,255,255,.78)', fontWeight:500, lineHeight:1.6 }}>
+                  No Spotlight schools are active{activeSpotlightCity ? ` in ${activeSpotlightCity}` : ''} right now. Browse verified schools below or search by city.
+                </p>
+                <button onClick={()=>onNav('find')} style={{ border:'none', background:'#fff', color:T.navInk, borderRadius:T.btnR, padding:'13px 28px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>Browse verified schools →</button>
+              </div>
+            </div>
+          )}
           {carousel.map((s, i) => (
             <div key={s.id} style={{ position:'absolute', inset:0, transition:'opacity 1.2s cubic-bezier(.4,0,.2,1)', opacity:i===safeSlide?1:0, pointerEvents:i===safeSlide?'auto':'none', background:'linear-gradient(135deg,'+s.color+' 0%,'+s.color+'dd 45%,'+s.color+'99 100%)' }}>
               {s.bannerUrl && <div style={{ position:'absolute', inset:0, backgroundImage:`url(${s.bannerUrl})`, backgroundSize:'cover', backgroundPosition:'center' }}/>}
@@ -125,7 +164,7 @@ export function HomeClient() {
               <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 55%)' }}/>
               <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', padding:'0 60px' }}>
                 <div style={{ flex:1, maxWidth:540 }}>
-                  <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,.62)', letterSpacing:1.8, textTransform:'uppercase', marginBottom:12 }}>Featured school · {s.city}</div>
+                  <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,.62)', letterSpacing:1.8, textTransform:'uppercase', marginBottom:12 }}>Spotlight school · {s.city}</div>
                   <h2 style={{ margin:'0 0 8px', fontSize:44, fontWeight:800, color:'#fff', lineHeight:1.05, letterSpacing:'-.02em' }}>{s.name}</h2>
                   <p style={{ margin:'0 0 18px', fontSize:17, color:'rgba(255,255,255,.78)', fontWeight:400 }}>{s.tagline}</p>
                   <div style={{ display:'flex', gap:10, marginBottom:20, flexWrap:'wrap' }}>
@@ -146,10 +185,23 @@ export function HomeClient() {
           <div style={{ position:'absolute', bottom:18, left:'50%', transform:'translateX(-50%)', display:'flex', gap:7 }}>
             {carousel.map((_,i)=><button key={i} onClick={()=>setSlide(i)} style={{ width:i===safeSlide?22:7, height:7, borderRadius:4, border:'none', background:i===safeSlide?'rgba(255,255,255,.95)':'rgba(255,255,255,.38)', cursor:'pointer', padding:0, transition:'all .3s' }}/>)}
           </div>
-          <div style={{ position:'absolute', bottom:18, right:20, display:'flex', gap:0 }}>
+          {carousel.length > 1 && <div style={{ position:'absolute', bottom:18, right:20, display:'flex', gap:0 }}>
             <button onClick={e=>{e.stopPropagation();setSlide(s=>(s-1+carousel.length)%carousel.length);}} style={{ border:'none', background:'rgba(0,0,0,.28)', backdropFilter:'blur(8px)', color:'#fff', width:40, height:36, fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'6px 0 0 6px', borderRight:'1px solid rgba(255,255,255,.15)' }}>‹</button>
             <button onClick={e=>{e.stopPropagation();setSlide(s=>(s+1)%(carousel.length||1));}} style={{ border:'none', background:'rgba(0,0,0,.28)', backdropFilter:'blur(8px)', color:'#fff', width:40, height:36, fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'0 6px 6px 0' }}>›</button>
-          </div>
+          </div>}
+          {spotlightCities.length > 0 && (
+            <div style={{ position:'absolute', top:18, right:20, display:'flex', gap:8, alignItems:'center', justifyContent:'flex-end', maxWidth:'calc(100% - 40px)' }}>
+              <select
+                value={activeSpotlightCity}
+                onChange={e=>chooseSpotlightCity(e.target.value)}
+                aria-label="Filter Spotlight schools by city"
+                style={{ border:'1px solid rgba(255,255,255,.34)', background:'rgba(255,255,255,.92)', color:T.navInk, borderRadius:999, padding:'8px 34px 8px 13px', fontFamily:'inherit', fontSize:12, fontWeight:800, cursor:'pointer', backdropFilter:'blur(10px)', outline:'none' }}
+              >
+                <option value="">All Spotlight cities</option>
+                {spotlightCities.map(city => <option key={city} value={city}>{city}</option>)}
+              </select>
+            </div>
+          )}
         </div>
       </div>
 

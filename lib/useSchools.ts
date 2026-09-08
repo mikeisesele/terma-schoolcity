@@ -36,6 +36,8 @@ type DBSchool = {
   students: string | null;
   established: number | null;
   is_featured: boolean | null;
+  schoolcity_tier: string | null;
+  schoolcity_tier_expires_at: string | null;
   is_special: boolean | null;
   special_focus: string[] | null;
   rating: number | null;
@@ -74,6 +76,8 @@ function mapDbToSchool(row: DBSchool): School {
     special:      row.is_special ?? false,
     specialFocus: row.special_focus ?? [],
     isFeatured:   row.is_featured ?? false,
+    schoolcityTier: row.schoolcity_tier === 'spotlight' || row.schoolcity_tier === 'rated' ? row.schoolcity_tier : null,
+    schoolcityTierExpiresAt: row.schoolcity_tier_expires_at,
     bannerUrl:    row.banner_url ?? undefined,
     imageUrl:     row.image_url ?? undefined,
     facilityImages: deriveFacilityImages(features),
@@ -102,7 +106,8 @@ export function useSchools(): UseSchoolsResult {
                  type, gender, levels, orientation, transport, boarding,
                  fees_from_kobo, fees_to_kobo, features,
                  scholarships, review_count, students, established,
-                 is_featured, is_special, special_focus, rating`)
+                 is_featured, schoolcity_tier, schoolcity_tier_expires_at,
+                 is_special, special_focus, rating`)
         .eq('status', 'active')
         .order('name');
 

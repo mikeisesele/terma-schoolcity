@@ -15,6 +15,8 @@ export type School = {
   students: string; established: number; address: string; phone: string;
   email: string; special?: boolean; specialFocus?: string[];
   isFeatured?: boolean;
+  schoolcityTier?: 'spotlight' | 'rated' | null;
+  schoolcityTierExpiresAt?: string | null;
   campuses?: Campus[];
   bannerUrl?: string;
   imageUrl?: string;
