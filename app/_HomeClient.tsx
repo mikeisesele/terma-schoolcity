@@ -38,6 +38,14 @@ export function HomeClient() {
   const carousel = activeSpotlightCity
     ? activeSpotlights.filter(s => s.city.toLowerCase() === activeSpotlightCity.toLowerCase())
     : activeSpotlights;
+  const activeTopRated = schools
+    .filter(s =>
+      !s.special &&
+      s.schoolcityTier === 'rated' &&
+      !!s.schoolcityTierExpiresAt &&
+      new Date(s.schoolcityTierExpiresAt).getTime() > nowMs
+    )
+    .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews || a.name.localeCompare(b.name));
 
   useEffect(() => {
     try { const u = localStorage.getItem('sc_user'); if (u) setUser(JSON.parse(u)); } catch {}
@@ -121,6 +129,12 @@ export function HomeClient() {
     const mc = catF==='All'||(catF==='Nursery'&&s.levels.includes('Nursery'))||(catF==='Primary'&&s.levels.includes('Primary'))||(catF==='Secondary'&&(s.levels.includes('JSS')||s.levels.includes('SSS')))||(catF==='Boarding'&&s.boarding)||(catF==='Scholarships'&&s.scholarships>0)||(catF==='Special Needs'&&!!s.special);
     return ms && mc;
   });
+  const topRatedShown = activeTopRated.filter(s => {
+    const cityMatch = !activeSpotlightCity || s.city.toLowerCase() === activeSpotlightCity.toLowerCase();
+    const ms = !q || s.name.toLowerCase().includes(q.toLowerCase()) || s.city.toLowerCase().includes(q.toLowerCase());
+    const mc = catF==='All'||(catF==='Nursery'&&s.levels.includes('Nursery'))||(catF==='Primary'&&s.levels.includes('Primary'))||(catF==='Secondary'&&(s.levels.includes('JSS')||s.levels.includes('SSS')))||(catF==='Boarding'&&s.boarding)||(catF==='Scholarships'&&s.scholarships>0)||(catF==='Special Needs'&&!!s.special);
+    return cityMatch && ms && mc;
+  }).slice(0, 6);
   const shown15 = showAll ? shown : shown.slice(0, 15);
   const C = (s: School) => <SCCard key={s.id} school={s} onSelect={onSelect} isFav={favs.includes(s.id)} onToggleFav={toggleFav} inCompare={compare.includes(s.id)} onToggleCompare={toggleCompare}/>;
 
@@ -221,6 +235,28 @@ export function HomeClient() {
 
       {/* Masonry results */}
       <div style={{ maxWidth:1280, margin:'0 auto', padding:'20px 48px 48px' }}>
+        {topRatedShown.length > 0 && (
+          <section aria-label="Top-Rated schools" style={{ marginBottom:32 }}>
+            <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between', gap:16, marginBottom:14 }}>
+              <div>
+                <div style={{ fontSize:11, fontWeight:900, letterSpacing:1.4, textTransform:'uppercase', color:T.accent, marginBottom:5 }}>Top-Rated schools</div>
+                <h2 style={{ margin:0, fontFamily:T.headFont, fontSize:28, color:T.ink, lineHeight:1.1 }}>Priority schools parents should compare first</h2>
+              </div>
+              <div style={{ fontSize:12.5, fontWeight:700, color:T.ink3, whiteSpace:'nowrap' }}>
+                {activeSpotlightCity ? `${activeSpotlightCity} placements` : 'Active placements'}
+              </div>
+            </div>
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:16 }}>
+              {topRatedShown.map(s=>C(s))}
+            </div>
+          </section>
+        )}
+        <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between', gap:16, marginBottom:16 }}>
+          <div>
+            <div style={{ fontSize:11, fontWeight:900, letterSpacing:1.4, textTransform:'uppercase', color:T.ink3, marginBottom:5 }}>Browse schools</div>
+            <h2 style={{ margin:0, fontFamily:T.headFont, fontSize:26, color:T.ink, lineHeight:1.1 }}>All verified schools</h2>
+          </div>
+        </div>
         {(q || catF!=='All') && <div style={{ marginBottom:16 }}><span style={{ fontSize:13.5, color:T.ink3, fontWeight:600 }}>{shown.length} school{shown.length!==1?'s':''} found</span></div>}
         <div style={{ columnCount:3, columnGap:16 }}>{shown15.map(s=>C(s))}{shown.length===0&&<div style={{ columnSpan:'all', padding:'64px', textAlign:'center', color:T.ink3, fontSize:15 }}>No schools match your search.</div>}</div>
         <div style={{ textAlign:'center', marginTop:32 }}><button onClick={()=>onNav('find')} style={{ border:'1.5px solid '+T.cardBorder, background:T.cardBg, color:T.accent, borderRadius:T.btnR, padding:'12px 32px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>See all {schools.length.toLocaleString()} schools →</button></div>

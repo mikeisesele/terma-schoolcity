@@ -45,6 +45,10 @@ type DBSchool = {
 
 function mapDbToSchool(row: DBSchool): School {
   const features = row.features ?? [];
+  const tierExpiresAt = row.schoolcity_tier_expires_at;
+  const activeTier = tierExpiresAt && new Date(tierExpiresAt).getTime() > Date.now()
+    ? row.schoolcity_tier
+    : null;
   return {
     id:           row.id,
     slug:         toSlug(row.name),
@@ -76,8 +80,8 @@ function mapDbToSchool(row: DBSchool): School {
     special:      row.is_special ?? false,
     specialFocus: row.special_focus ?? [],
     isFeatured:   row.is_featured ?? false,
-    schoolcityTier: row.schoolcity_tier === 'spotlight' || row.schoolcity_tier === 'rated' ? row.schoolcity_tier : null,
-    schoolcityTierExpiresAt: row.schoolcity_tier_expires_at,
+    schoolcityTier: activeTier === 'spotlight' || activeTier === 'rated' ? activeTier : null,
+    schoolcityTierExpiresAt: tierExpiresAt,
     bannerUrl:    row.banner_url ?? undefined,
     imageUrl:     row.image_url ?? undefined,
     facilityImages: deriveFacilityImages(features),

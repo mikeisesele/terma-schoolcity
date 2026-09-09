@@ -50,7 +50,8 @@ export function useSchool(idOrSlug: string): UseSchoolResult {
                    type, gender, levels, orientation, transport, boarding,
                    fees_from_kobo, fees_to_kobo, features,
                    scholarships, review_count, students, established,
-                   is_featured, is_special, special_focus, rating,
+                   is_featured, schoolcity_tier, schoolcity_tier_expires_at,
+                   is_special, special_focus, rating,
                    lat, lng`)
           .eq('id', uuid)
           .maybeSingle(),
@@ -81,6 +82,10 @@ export function useSchool(idOrSlug: string): UseSchoolResult {
       const features = (row.features as string[]) ?? [];
       const campuses = (campusRes.data ?? []) as Campus[];
       const vacCount = vacCountRes.count ?? 0;
+      const tierExpiresAt = row.schoolcity_tier_expires_at != null ? String(row.schoolcity_tier_expires_at) : null;
+      const activeTier = tierExpiresAt && new Date(tierExpiresAt).getTime() > Date.now()
+        ? row.schoolcity_tier
+        : null;
 
       setSchool({
         id:           String(row.id),
@@ -113,6 +118,8 @@ export function useSchool(idOrSlug: string): UseSchoolResult {
         special:      Boolean(row.is_special),
         specialFocus: (row.special_focus as string[]) ?? [],
         isFeatured:   Boolean(row.is_featured),
+        schoolcityTier: activeTier === 'spotlight' || activeTier === 'rated' ? activeTier : null,
+        schoolcityTierExpiresAt: tierExpiresAt,
         bannerUrl:    row.banner_url != null ? String(row.banner_url) : undefined,
         imageUrl:     row.image_url != null ? String(row.image_url) : undefined,
         lat:          typeof row.lat === 'number' ? row.lat : null,

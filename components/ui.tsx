@@ -109,6 +109,11 @@ export function SCCard({ school, onSelect, isFav, onToggleFav, inCompare, onTogg
   onToggleCompare?: (id: string) => void;
 }) {
   const [hov, setHov] = useState(false);
+  const paidBadge = school.schoolcityTier === 'spotlight'
+    ? { label: '★ Spotlight', bg: 'rgba(184,125,32,.92)' }
+    : school.schoolcityTier === 'rated'
+      ? { label: '✓ Top-Rated', bg: 'rgba(31,107,69,.9)' }
+      : null;
   return (
     <div style={{ background:T.cardBg, borderRadius:T.cardR, overflow:'hidden', cursor:'pointer', transition:'transform .22s, box-shadow .22s', transform:hov?'translateY(-4px)':'none', boxShadow:hov?'0 16px 40px rgba(40,80,55,.14)':'0 2px 8px rgba(40,80,55,.07)', marginBottom:16, breakInside:'avoid', border:'1.5px solid '+T.cardBorder }}
       onMouseEnter={()=>setHov(true)} onMouseLeave={()=>setHov(false)}>
@@ -119,8 +124,9 @@ export function SCCard({ school, onSelect, isFav, onToggleFav, inCompare, onTogg
         <div style={{ position:'absolute', top:12, left:12, width:40, height:40, borderRadius:T.avatarR, background:'rgba(255,255,255,.22)', border:'2px solid rgba(255,255,255,.5)', display:'flex', alignItems:'center', justifyContent:'center', backdropFilter:'blur(8px)' }}>
           <span style={{ fontSize:18, fontWeight:800, color:'#fff', lineHeight:1 }}>{school.name[0]}</span>
         </div>
-        {school.ktPlan==='Standard'&&<span style={{ position:'absolute', top:10, right:10, fontSize:9.5, fontWeight:800, color:'#fff', background:'rgba(184,125,32,.88)', borderRadius:T.badgeR, padding:'3px 10px' }}>⭐ Standard</span>}
-        {school.verified&&school.ktPlan!=='Standard'&&<span style={{ position:'absolute', top:10, right:10, fontSize:9.5, fontWeight:800, color:'#fff', background:'rgba(255,255,255,.2)', borderRadius:T.badgeR, padding:'2px 8px', border:'1px solid rgba(255,255,255,.35)' }}>✓ Verified</span>}
+        {paidBadge&&<span style={{ position:'absolute', top:10, right:10, fontSize:9.5, fontWeight:800, color:'#fff', background:paidBadge.bg, borderRadius:T.badgeR, padding:'3px 10px' }}>{paidBadge.label}</span>}
+        {!paidBadge&&school.ktPlan==='Standard'&&<span style={{ position:'absolute', top:10, right:10, fontSize:9.5, fontWeight:800, color:'#fff', background:'rgba(184,125,32,.88)', borderRadius:T.badgeR, padding:'3px 10px' }}>Standard</span>}
+        {!paidBadge&&school.verified&&school.ktPlan!=='Standard'&&<span style={{ position:'absolute', top:10, right:10, fontSize:9.5, fontWeight:800, color:'#fff', background:'rgba(255,255,255,.2)', borderRadius:T.badgeR, padding:'2px 8px', border:'1px solid rgba(255,255,255,.35)' }}>✓ Verified</span>}
         <div style={{ position:'absolute', bottom:10, left:12, right:44 }}>
           <div style={{ fontSize:15, fontWeight:800, color:'#fff', lineHeight:1.2, textShadow:'0 1px 6px rgba(0,0,0,.45)' }}>{school.name}</div>
           <div style={{ fontSize:11.5, color:'rgba(255,255,255,.8)', fontWeight:600 }}>📍 {school.city}</div>

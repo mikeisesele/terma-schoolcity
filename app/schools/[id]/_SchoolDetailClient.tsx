@@ -207,10 +207,16 @@ export function SchoolDetailClient() {
     .map(cat => ({ label: cat, emoji: activityEmoji(cat), photos: byCategory[cat] }));
 
   // Awards — platform auto-badges + DB achievements
+  const paidPlacementBadge = school.schoolcityTier === 'spotlight'
+    ? { icon: '★', label: 'SchoolCity Spotlight', sub: 'Featured in the city Spotlight carousel', color: '#7A4A00', bg: '#FEF3C7' }
+    : school.schoolcityTier === 'rated'
+      ? { icon: '✓', label: 'SchoolCity Top-Rated', sub: 'Priority placement in Top-Rated schools', color: '#065F46', bg: '#D1FAE5' }
+      : null;
   const platformBadges = [
+    paidPlacementBadge,
     school.verified && { icon: '✅', label: 'Terma Verified',   sub: 'Identity & facilities verified by Terma',         color: '#1A3D2C', bg: '#E3EDE6' },
     school.ktPlan === 'Standard' && { icon: '⭐', label: 'Terma Standard', sub: 'Full platform — GPS, fees, CBT, analytics', color: '#B87D20', bg: '#F5EDD0' },
-    school.reviews > 0 && school.rating >= 4.7 && { icon: '🏆', label: 'Top Rated School', sub: `Rated ${school.rating.toFixed(1)}/5 by ${school.reviews} reviewers`, color: '#7A4A00', bg: '#FEF3C7' },
+    school.reviews > 0 && school.rating >= 4.7 && { icon: '🏆', label: 'Highly Reviewed', sub: `Rated ${school.rating.toFixed(1)}/5 by ${school.reviews} reviewers`, color: '#7A4A00', bg: '#FEF3C7' },
     school.scholarships > 2 && { icon: '🎓', label: 'Scholarship Excellence', sub: `${school.scholarships} scholarship programmes available`, color: '#5B21B6', bg: '#EDE9FE' },
     facilityFeatures.length >= 5 && { icon: '🌟', label: 'Well-Equipped Campus', sub: `${facilityFeatures.length} verified facilities`, color: '#065F46', bg: '#D1FAE5' },
     school.established > 0 && school.established <= 2005 && { icon: '🏛️', label: 'Established Institution', sub: `${2026 - school.established}+ years of academic excellence`, color: '#1E3A5F', bg: '#DBEAFE' },
@@ -319,8 +325,14 @@ export function SchoolDetailClient() {
                   {school.verified && (
                     <span style={{ background: 'rgba(255,255,255,.22)', border: '1px solid rgba(255,255,255,.45)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>✓ Verified</span>
                   )}
+                  {school.schoolcityTier === 'spotlight' && (
+                    <span style={{ background: 'rgba(184,125,32,.9)', border: '1px solid rgba(255,255,255,.3)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>★ Spotlight</span>
+                  )}
+                  {school.schoolcityTier === 'rated' && (
+                    <span style={{ background: 'rgba(31,107,69,.9)', border: '1px solid rgba(255,255,255,.3)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>✓ Top-Rated</span>
+                  )}
                   {school.ktPlan === 'Standard' && (
-                    <span style={{ background: 'rgba(184,125,32,.9)', border: '1px solid rgba(255,255,255,.3)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>⭐ Standard</span>
+                    <span style={{ background: 'rgba(255,255,255,.18)', border: '1px solid rgba(255,255,255,.35)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>Standard</span>
                   )}
                 </div>
                 {school.tagline && (
