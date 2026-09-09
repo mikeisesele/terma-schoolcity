@@ -110,9 +110,9 @@ export function SCCard({ school, onSelect, isFav, onToggleFav, inCompare, onTogg
 }) {
   const [hov, setHov] = useState(false);
   const paidBadge = school.schoolcityTier === 'spotlight'
-    ? { label: '★ Spotlight', bg: 'rgba(184,125,32,.92)' }
+    ? { label: school.schoolcityVisibilityScope === 'national' ? '★ National Spotlight' : '★ Spotlight', bg: 'rgba(184,125,32,.92)' }
     : school.schoolcityTier === 'rated'
-      ? { label: '✓ Top-Rated', bg: 'rgba(31,107,69,.9)' }
+      ? { label: school.schoolcityVisibilityScope === 'national' ? '✓ National Top-Rated' : '✓ Top-Rated', bg: 'rgba(31,107,69,.9)' }
       : null;
   return (
     <div style={{ background:T.cardBg, borderRadius:T.cardR, overflow:'hidden', cursor:'pointer', transition:'transform .22s, box-shadow .22s', transform:hov?'translateY(-4px)':'none', boxShadow:hov?'0 16px 40px rgba(40,80,55,.14)':'0 2px 8px rgba(40,80,55,.07)', marginBottom:16, breakInside:'avoid', border:'1.5px solid '+T.cardBorder }}

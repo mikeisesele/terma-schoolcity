@@ -27,6 +27,17 @@ export type UseSchoolResult = {
   notFound: boolean;
 };
 
+type VisibilityOrder = {
+  tier: string;
+  visibility_scope: string | null;
+  expires_at: string;
+};
+
+function normalizePlacement(row: VisibilityOrder): { tier: 'spotlight' | 'rated'; scope: 'city' | 'national'; expiresAt: string } | null {
+  if (row.tier !== 'spotlight' && row.tier !== 'rated') return null;
+  return { tier: row.tier, scope: row.visibility_scope === 'national' ? 'national' : 'city', expiresAt: row.expires_at };
+}
+
 export function useSchool(idOrSlug: string): UseSchoolResult {
   const [school,   setSchool]   = useState<School | null>(null);
   const [loading,  setLoading]  = useState(true);
@@ -42,7 +53,7 @@ export function useSchool(idOrSlug: string): UseSchoolResult {
     let cancelled = false;
 
     async function fetchByUuid(uuid: string) {
-      const [schoolRes, campusRes, vacCountRes] = await Promise.all([
+      const [schoolRes, campusRes, vacCountRes, visibilityRes] = await Promise.all([
         supabase
           .from('schools')
           .select(`id, name, city, state, address, phone, email, motto, plan,
@@ -50,7 +61,7 @@ export function useSchool(idOrSlug: string): UseSchoolResult {
                    type, gender, levels, orientation, transport, boarding,
                    fees_from_kobo, fees_to_kobo, features,
                    scholarships, review_count, students, established,
-                   is_featured, schoolcity_tier, schoolcity_tier_expires_at,
+                   is_featured, schoolcity_tier, schoolcity_visibility_scope, schoolcity_tier_expires_at,
                    is_special, special_focus, rating,
                    lat, lng`)
           .eq('id', uuid)
@@ -67,6 +78,13 @@ export function useSchool(idOrSlug: string): UseSchoolResult {
           .select('id', { count: 'exact', head: true })
           .eq('school_id', uuid)
           .eq('status', 'published'),
+
+        supabase
+          .from('schoolcity_visibility_orders')
+          .select('tier, visibility_scope, expires_at')
+          .eq('school_id', uuid)
+          .eq('paystack_status', 'confirmed')
+          .gt('expires_at', new Date().toISOString()),
       ]);
 
       if (cancelled) return;
@@ -82,6 +100,16 @@ export function useSchool(idOrSlug: string): UseSchoolResult {
       const features = (row.features as string[]) ?? [];
       const campuses = (campusRes.data ?? []) as Campus[];
       const vacCount = vacCountRes.count ?? 0;
+      const activePlacements = ((visibilityRes.data as VisibilityOrder[] | null) ?? [])
+        .map(normalizePlacement)
+        .filter((placement): placement is NonNullable<ReturnType<typeof normalizePlacement>> => !!placement);
+      const primaryPlacement = activePlacements.length > 0
+        ? [...activePlacements].sort((a, b) => {
+            const tierRank = (b.tier === 'spotlight' ? 2 : 1) - (a.tier === 'spotlight' ? 2 : 1);
+            if (tierRank !== 0) return tierRank;
+            return (b.scope === 'national' ? 2 : 1) - (a.scope === 'national' ? 2 : 1);
+          })[0]
+        : null;
       const tierExpiresAt = row.schoolcity_tier_expires_at != null ? String(row.schoolcity_tier_expires_at) : null;
       const activeTier = tierExpiresAt && new Date(tierExpiresAt).getTime() > Date.now()
         ? row.schoolcity_tier
@@ -118,8 +146,10 @@ export function useSchool(idOrSlug: string): UseSchoolResult {
         special:      Boolean(row.is_special),
         specialFocus: (row.special_focus as string[]) ?? [],
         isFeatured:   Boolean(row.is_featured),
-        schoolcityTier: activeTier === 'spotlight' || activeTier === 'rated' ? activeTier : null,
-        schoolcityTierExpiresAt: tierExpiresAt,
+        schoolcityTier: primaryPlacement?.tier ?? (activeTier === 'spotlight' || activeTier === 'rated' ? activeTier : null),
+        schoolcityVisibilityScope: primaryPlacement?.scope ?? (row.schoolcity_visibility_scope === 'national' ? 'national' : row.schoolcity_visibility_scope === 'city' ? 'city' : null),
+        schoolcityTierExpiresAt: primaryPlacement?.expiresAt ?? tierExpiresAt,
+        schoolcityPlacements: activePlacements,
         bannerUrl:    row.banner_url != null ? String(row.banner_url) : undefined,
         imageUrl:     row.image_url != null ? String(row.image_url) : undefined,
         lat:          typeof row.lat === 'number' ? row.lat : null,

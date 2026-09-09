@@ -26,24 +26,26 @@ export function HomeClient() {
   const [authReason, setAuthReason] = useState('save');
   const [pendingFavId, setPendingFavId] = useState<string|null>(null);
   const nowMs = Date.now();
+  const hasActivePlacement = (school: School, tier: 'spotlight' | 'rated') =>
+    (school.schoolcityPlacements ?? []).some(placement => placement.tier === tier && new Date(placement.expiresAt).getTime() > nowMs)
+    || (school.schoolcityTier === tier && !!school.schoolcityTierExpiresAt && new Date(school.schoolcityTierExpiresAt).getTime() > nowMs);
+  const hasNationalPlacement = (school: School, tier: 'spotlight' | 'rated') =>
+    (school.schoolcityPlacements ?? []).some(placement => placement.tier === tier && placement.scope === 'national' && new Date(placement.expiresAt).getTime() > nowMs)
+    || (school.schoolcityTier === tier && school.schoolcityVisibilityScope === 'national' && !!school.schoolcityTierExpiresAt && new Date(school.schoolcityTierExpiresAt).getTime() > nowMs);
   const activeSpotlights = schools.filter(s =>
     !s.special &&
-    s.schoolcityTier === 'spotlight' &&
-    !!s.schoolcityTierExpiresAt &&
-    new Date(s.schoolcityTierExpiresAt).getTime() > nowMs
+    hasActivePlacement(s, 'spotlight')
   );
   const spotlightCities = Array.from(new Set(activeSpotlights.map(s => s.city).filter(Boolean))).sort((a, b) => a.localeCompare(b));
   const cityFromSearch = spotlightCities.find(city => q.toLowerCase().includes(city.toLowerCase())) ?? '';
   const activeSpotlightCity = spotlightCity || cityFromSearch;
   const carousel = activeSpotlightCity
-    ? activeSpotlights.filter(s => s.city.toLowerCase() === activeSpotlightCity.toLowerCase())
+    ? activeSpotlights.filter(s => hasNationalPlacement(s, 'spotlight') || s.city.toLowerCase() === activeSpotlightCity.toLowerCase())
     : activeSpotlights;
   const activeTopRated = schools
     .filter(s =>
       !s.special &&
-      s.schoolcityTier === 'rated' &&
-      !!s.schoolcityTierExpiresAt &&
-      new Date(s.schoolcityTierExpiresAt).getTime() > nowMs
+      hasActivePlacement(s, 'rated')
     )
     .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews || a.name.localeCompare(b.name));
 
@@ -130,7 +132,7 @@ export function HomeClient() {
     return ms && mc;
   });
   const topRatedShown = activeTopRated.filter(s => {
-    const cityMatch = !activeSpotlightCity || s.city.toLowerCase() === activeSpotlightCity.toLowerCase();
+    const cityMatch = !activeSpotlightCity || hasNationalPlacement(s, 'rated') || s.city.toLowerCase() === activeSpotlightCity.toLowerCase();
     const ms = !q || s.name.toLowerCase().includes(q.toLowerCase()) || s.city.toLowerCase().includes(q.toLowerCase());
     const mc = catF==='All'||(catF==='Nursery'&&s.levels.includes('Nursery'))||(catF==='Primary'&&s.levels.includes('Primary'))||(catF==='Secondary'&&(s.levels.includes('JSS')||s.levels.includes('SSS')))||(catF==='Boarding'&&s.boarding)||(catF==='Scholarships'&&s.scholarships>0)||(catF==='Special Needs'&&!!s.special);
     return cityMatch && ms && mc;
@@ -178,7 +180,9 @@ export function HomeClient() {
               <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 55%)' }}/>
               <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', padding:'0 60px' }}>
                 <div style={{ flex:1, maxWidth:540 }}>
-                  <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,.62)', letterSpacing:1.8, textTransform:'uppercase', marginBottom:12 }}>Spotlight school · {s.city}</div>
+                  <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,.62)', letterSpacing:1.8, textTransform:'uppercase', marginBottom:12 }}>
+                    {hasNationalPlacement(s, 'spotlight') ? 'National Spotlight' : `Spotlight school · ${s.city}`}
+                  </div>
                   <h2 style={{ margin:'0 0 8px', fontSize:44, fontWeight:800, color:'#fff', lineHeight:1.05, letterSpacing:'-.02em' }}>{s.name}</h2>
                   <p style={{ margin:'0 0 18px', fontSize:17, color:'rgba(255,255,255,.78)', fontWeight:400 }}>{s.tagline}</p>
                   <div style={{ display:'flex', gap:10, marginBottom:20, flexWrap:'wrap' }}>
