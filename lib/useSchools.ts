@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { deriveFacilityImages, publicPlanLabel, toSlug } from '@/lib/data';
-import type { School } from '@/lib/data';
+import type { School, SchoolCityVisibilityScope } from '@/lib/data';
 
 type DBSchool = {
   id: string;
@@ -51,10 +51,20 @@ type VisibilityOrder = {
   expires_at: string;
 };
 
-function normalizePlacement(row: VisibilityOrder): { tier: 'spotlight' | 'rated'; scope: 'city' | 'national'; expiresAt: string } | null {
+function normalizeScope(scope: string | null): SchoolCityVisibilityScope {
+  if (scope === 'national' || scope === 'state') return scope;
+  return 'city';
+}
+
+function scopeRank(scope: SchoolCityVisibilityScope) {
+  if (scope === 'national') return 3;
+  if (scope === 'state') return 2;
+  return 1;
+}
+
+function normalizePlacement(row: VisibilityOrder): { tier: 'spotlight' | 'rated'; scope: SchoolCityVisibilityScope; expiresAt: string } | null {
   if (row.tier !== 'spotlight' && row.tier !== 'rated') return null;
-  const scope = row.visibility_scope === 'national' ? 'national' : 'city';
-  return { tier: row.tier, scope, expiresAt: row.expires_at };
+  return { tier: row.tier, scope: normalizeScope(row.visibility_scope), expiresAt: row.expires_at };
 }
 
 function mapDbToSchool(row: DBSchool): School {
@@ -95,7 +105,7 @@ function mapDbToSchool(row: DBSchool): School {
     specialFocus: row.special_focus ?? [],
     isFeatured:   row.is_featured ?? false,
     schoolcityTier: activeTier === 'spotlight' || activeTier === 'rated' ? activeTier : null,
-    schoolcityVisibilityScope: row.schoolcity_visibility_scope === 'national' ? 'national' : row.schoolcity_visibility_scope === 'city' ? 'city' : null,
+    schoolcityVisibilityScope: row.schoolcity_visibility_scope ? normalizeScope(row.schoolcity_visibility_scope) : null,
     schoolcityTierExpiresAt: tierExpiresAt,
     bannerUrl:    row.banner_url ?? undefined,
     imageUrl:     row.image_url ?? undefined,
@@ -158,7 +168,7 @@ export function useSchools(): UseSchoolsResult {
           const primary = [...activePlacements].sort((a, b) => {
             const tierRank = (b.tier === 'spotlight' ? 2 : 1) - (a.tier === 'spotlight' ? 2 : 1);
             if (tierRank !== 0) return tierRank;
-            return (b.scope === 'national' ? 2 : 1) - (a.scope === 'national' ? 2 : 1);
+            return scopeRank(b.scope) - scopeRank(a.scope);
           })[0]!;
           return {
             ...school,

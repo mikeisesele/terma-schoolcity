@@ -206,20 +206,34 @@ export function SchoolDetailClient() {
     .filter(cat => !featureSet.has(cat.toLowerCase()))
     .map(cat => ({ label: cat, emoji: activityEmoji(cat), photos: byCategory[cat] }));
 
+  const paidScopeName = school.schoolcityVisibilityScope === 'national'
+    ? 'National'
+    : school.schoolcityVisibilityScope === 'state'
+      ? school.state
+      : '';
+  const paidScopePrefix = paidScopeName ? `${paidScopeName} ` : '';
   // Awards — platform auto-badges + DB achievements
   const paidPlacementBadge = school.schoolcityTier === 'spotlight'
     ? {
         icon: '★',
-        label: school.schoolcityVisibilityScope === 'national' ? 'National SchoolCity Spotlight' : 'SchoolCity Spotlight',
-        sub: school.schoolcityVisibilityScope === 'national' ? 'Featured across national SchoolCity discovery' : 'Featured in the city Spotlight carousel',
+        label: `${paidScopePrefix}SchoolCity Spotlight`,
+        sub: school.schoolcityVisibilityScope === 'national'
+          ? 'Featured across national SchoolCity discovery'
+          : school.schoolcityVisibilityScope === 'state'
+            ? `Featured across ${school.state} SchoolCity discovery`
+            : 'Featured in the city Spotlight carousel',
         color: '#7A4A00',
         bg: '#FEF3C7',
       }
     : school.schoolcityTier === 'rated'
       ? {
           icon: '✓',
-          label: school.schoolcityVisibilityScope === 'national' ? 'National SchoolCity Top-Rated' : 'SchoolCity Top-Rated',
-          sub: school.schoolcityVisibilityScope === 'national' ? 'Priority placement across national Top-Rated schools' : 'Priority placement in Top-Rated schools',
+          label: `${paidScopePrefix}SchoolCity Top-Rated`,
+          sub: school.schoolcityVisibilityScope === 'national'
+            ? 'Priority placement across national Top-Rated schools'
+            : school.schoolcityVisibilityScope === 'state'
+              ? `Priority placement across ${school.state} Top-Rated schools`
+              : 'Priority placement in Top-Rated schools',
           color: '#065F46',
           bg: '#D1FAE5',
         }
@@ -338,10 +352,10 @@ export function SchoolDetailClient() {
                     <span style={{ background: 'rgba(255,255,255,.22)', border: '1px solid rgba(255,255,255,.45)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>✓ Verified</span>
                   )}
                   {school.schoolcityTier === 'spotlight' && (
-                    <span style={{ background: 'rgba(184,125,32,.9)', border: '1px solid rgba(255,255,255,.3)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>{school.schoolcityVisibilityScope === 'national' ? '★ National Spotlight' : '★ Spotlight'}</span>
+                    <span style={{ background: 'rgba(184,125,32,.9)', border: '1px solid rgba(255,255,255,.3)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>★ {paidScopePrefix}Spotlight</span>
                   )}
                   {school.schoolcityTier === 'rated' && (
-                    <span style={{ background: 'rgba(31,107,69,.9)', border: '1px solid rgba(255,255,255,.3)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>{school.schoolcityVisibilityScope === 'national' ? '✓ National Top-Rated' : '✓ Top-Rated'}</span>
+                    <span style={{ background: 'rgba(31,107,69,.9)', border: '1px solid rgba(255,255,255,.3)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>✓ {paidScopePrefix}Top-Rated</span>
                   )}
                   {school.ktPlan === 'Standard' && (
                     <span style={{ background: 'rgba(255,255,255,.18)', border: '1px solid rgba(255,255,255,.35)', borderRadius: T.btnR, fontSize: 11, fontWeight: 800, color: '#fff', padding: '3px 10px', whiteSpace: 'nowrap' }}>Standard</span>

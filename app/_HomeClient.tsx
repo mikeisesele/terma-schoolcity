@@ -26,21 +26,41 @@ export function HomeClient() {
   const [authReason, setAuthReason] = useState('save');
   const [pendingFavId, setPendingFavId] = useState<string|null>(null);
   const nowMs = Date.now();
+  const placementIsActive = (expiresAt: string) => new Date(expiresAt).getTime() > nowMs;
   const hasActivePlacement = (school: School, tier: 'spotlight' | 'rated') =>
-    (school.schoolcityPlacements ?? []).some(placement => placement.tier === tier && new Date(placement.expiresAt).getTime() > nowMs)
-    || (school.schoolcityTier === tier && !!school.schoolcityTierExpiresAt && new Date(school.schoolcityTierExpiresAt).getTime() > nowMs);
-  const hasNationalPlacement = (school: School, tier: 'spotlight' | 'rated') =>
-    (school.schoolcityPlacements ?? []).some(placement => placement.tier === tier && placement.scope === 'national' && new Date(placement.expiresAt).getTime() > nowMs)
-    || (school.schoolcityTier === tier && school.schoolcityVisibilityScope === 'national' && !!school.schoolcityTierExpiresAt && new Date(school.schoolcityTierExpiresAt).getTime() > nowMs);
+    (school.schoolcityPlacements ?? []).some(placement => placement.tier === tier && placementIsActive(placement.expiresAt))
+    || (school.schoolcityTier === tier && !!school.schoolcityTierExpiresAt && placementIsActive(school.schoolcityTierExpiresAt));
+  const hasScopePlacement = (school: School, tier: 'spotlight' | 'rated', scope: 'city' | 'state' | 'national') =>
+    (school.schoolcityPlacements ?? []).some(placement => placement.tier === tier && placement.scope === scope && placementIsActive(placement.expiresAt))
+    || (school.schoolcityTier === tier && school.schoolcityVisibilityScope === scope && !!school.schoolcityTierExpiresAt && placementIsActive(school.schoolcityTierExpiresAt));
   const activeSpotlights = schools.filter(s =>
     !s.special &&
     hasActivePlacement(s, 'spotlight')
   );
   const spotlightCities = Array.from(new Set(activeSpotlights.map(s => s.city).filter(Boolean))).sort((a, b) => a.localeCompare(b));
-  const cityFromSearch = spotlightCities.find(city => q.toLowerCase().includes(city.toLowerCase())) ?? '';
+  const spotlightStates = Array.from(new Set(activeSpotlights.map(s => s.state).filter(Boolean))).sort((a, b) => a.localeCompare(b));
+  const query = q.toLowerCase();
+  const cityFromSearch = spotlightCities.find(city => query.includes(city.toLowerCase())) ?? '';
+  const stateFromSearch = spotlightStates.find(state => query.includes(state.toLowerCase())) ?? '';
   const activeSpotlightCity = spotlightCity || cityFromSearch;
-  const carousel = activeSpotlightCity
-    ? activeSpotlights.filter(s => hasNationalPlacement(s, 'spotlight') || s.city.toLowerCase() === activeSpotlightCity.toLowerCase())
+  const activeSpotlightState = activeSpotlightCity
+    ? activeSpotlights.find(s => s.city.toLowerCase() === activeSpotlightCity.toLowerCase())?.state ?? ''
+    : stateFromSearch;
+  const matchesSelectedMarket = (school: School, tier: 'spotlight' | 'rated') => {
+    if (!activeSpotlightCity && !activeSpotlightState) return true;
+    if (hasScopePlacement(school, tier, 'national')) return true;
+    if (activeSpotlightState && hasScopePlacement(school, tier, 'state') && school.state.toLowerCase() === activeSpotlightState.toLowerCase()) return true;
+    if (activeSpotlightCity && hasScopePlacement(school, tier, 'city') && school.city.toLowerCase() === activeSpotlightCity.toLowerCase()) return true;
+    return false;
+  };
+  const placementLabel = (school: School, tier: 'spotlight' | 'rated') => {
+    const name = tier === 'spotlight' ? 'Spotlight' : 'Top-Rated';
+    if (hasScopePlacement(school, tier, 'national')) return `National ${name}`;
+    if (hasScopePlacement(school, tier, 'state')) return `${school.state} ${name}`;
+    return tier === 'spotlight' ? `Spotlight school · ${school.city}` : `${school.city} Top-Rated`;
+  };
+  const carousel = activeSpotlightCity || activeSpotlightState
+    ? activeSpotlights.filter(s => matchesSelectedMarket(s, 'spotlight'))
     : activeSpotlights;
   const activeTopRated = schools
     .filter(s =>
@@ -127,15 +147,15 @@ export function HomeClient() {
   };
 
   const shown = schools.filter(s => {
-    const ms = !q || s.name.toLowerCase().includes(q.toLowerCase()) || s.city.toLowerCase().includes(q.toLowerCase());
+    const ms = !q || s.name.toLowerCase().includes(query) || s.city.toLowerCase().includes(query) || s.state.toLowerCase().includes(query);
     const mc = catF==='All'||(catF==='Nursery'&&s.levels.includes('Nursery'))||(catF==='Primary'&&s.levels.includes('Primary'))||(catF==='Secondary'&&(s.levels.includes('JSS')||s.levels.includes('SSS')))||(catF==='Boarding'&&s.boarding)||(catF==='Scholarships'&&s.scholarships>0)||(catF==='Special Needs'&&!!s.special);
     return ms && mc;
   });
   const topRatedShown = activeTopRated.filter(s => {
-    const cityMatch = !activeSpotlightCity || hasNationalPlacement(s, 'rated') || s.city.toLowerCase() === activeSpotlightCity.toLowerCase();
-    const ms = !q || s.name.toLowerCase().includes(q.toLowerCase()) || s.city.toLowerCase().includes(q.toLowerCase());
+    const locationMatch = matchesSelectedMarket(s, 'rated');
+    const ms = !q || s.name.toLowerCase().includes(query) || s.city.toLowerCase().includes(query) || s.state.toLowerCase().includes(query);
     const mc = catF==='All'||(catF==='Nursery'&&s.levels.includes('Nursery'))||(catF==='Primary'&&s.levels.includes('Primary'))||(catF==='Secondary'&&(s.levels.includes('JSS')||s.levels.includes('SSS')))||(catF==='Boarding'&&s.boarding)||(catF==='Scholarships'&&s.scholarships>0)||(catF==='Special Needs'&&!!s.special);
-    return cityMatch && ms && mc;
+    return locationMatch && ms && mc;
   }).slice(0, 6);
   const shown15 = showAll ? shown : shown.slice(0, 15);
   const C = (s: School) => <SCCard key={s.id} school={s} onSelect={onSelect} isFav={favs.includes(s.id)} onToggleFav={toggleFav} inCompare={compare.includes(s.id)} onToggleCompare={toggleCompare}/>;
@@ -166,7 +186,7 @@ export function HomeClient() {
                 </div>
                 <h2 style={{ margin:'0 0 10px', fontSize:44, fontWeight:800, color:'#fff', lineHeight:1.05, letterSpacing:'-.02em' }}>Find schools near you</h2>
                 <p style={{ margin:'0 0 24px', fontSize:17, color:'rgba(255,255,255,.78)', fontWeight:500, lineHeight:1.6 }}>
-                  No Spotlight schools are active{activeSpotlightCity ? ` in ${activeSpotlightCity}` : ''} right now. Browse verified schools below or search by city.
+                  No Spotlight schools are active{activeSpotlightCity ? ` in ${activeSpotlightCity}` : activeSpotlightState ? ` in ${activeSpotlightState}` : ''} right now. Browse verified schools below or search by city.
                 </p>
                 <button onClick={()=>onNav('find')} style={{ border:'none', background:'#fff', color:T.navInk, borderRadius:T.btnR, padding:'13px 28px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>Browse verified schools →</button>
               </div>
@@ -181,7 +201,7 @@ export function HomeClient() {
               <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', padding:'0 60px' }}>
                 <div style={{ flex:1, maxWidth:540 }}>
                   <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,.62)', letterSpacing:1.8, textTransform:'uppercase', marginBottom:12 }}>
-                    {hasNationalPlacement(s, 'spotlight') ? 'National Spotlight' : `Spotlight school · ${s.city}`}
+                    {placementLabel(s, 'spotlight')}
                   </div>
                   <h2 style={{ margin:'0 0 8px', fontSize:44, fontWeight:800, color:'#fff', lineHeight:1.05, letterSpacing:'-.02em' }}>{s.name}</h2>
                   <p style={{ margin:'0 0 18px', fontSize:17, color:'rgba(255,255,255,.78)', fontWeight:400 }}>{s.tagline}</p>
@@ -247,7 +267,7 @@ export function HomeClient() {
                 <h2 style={{ margin:0, fontFamily:T.headFont, fontSize:28, color:T.ink, lineHeight:1.1 }}>Priority schools parents should compare first</h2>
               </div>
               <div style={{ fontSize:12.5, fontWeight:700, color:T.ink3, whiteSpace:'nowrap' }}>
-                {activeSpotlightCity ? `${activeSpotlightCity} placements` : 'Active placements'}
+                {activeSpotlightCity ? `${activeSpotlightCity} placements` : activeSpotlightState ? `${activeSpotlightState} placements` : 'Active placements'}
               </div>
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:16 }}>

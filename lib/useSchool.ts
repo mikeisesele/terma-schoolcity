@@ -6,7 +6,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { deriveFacilityImages, publicPlanLabel, toSlug } from '@/lib/data';
-import type { School, Campus } from '@/lib/data';
+import type { School, Campus, SchoolCityVisibilityScope } from '@/lib/data';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -33,9 +33,20 @@ type VisibilityOrder = {
   expires_at: string;
 };
 
-function normalizePlacement(row: VisibilityOrder): { tier: 'spotlight' | 'rated'; scope: 'city' | 'national'; expiresAt: string } | null {
+function normalizeScope(scope: string | null): SchoolCityVisibilityScope {
+  if (scope === 'national' || scope === 'state') return scope;
+  return 'city';
+}
+
+function scopeRank(scope: SchoolCityVisibilityScope) {
+  if (scope === 'national') return 3;
+  if (scope === 'state') return 2;
+  return 1;
+}
+
+function normalizePlacement(row: VisibilityOrder): { tier: 'spotlight' | 'rated'; scope: SchoolCityVisibilityScope; expiresAt: string } | null {
   if (row.tier !== 'spotlight' && row.tier !== 'rated') return null;
-  return { tier: row.tier, scope: row.visibility_scope === 'national' ? 'national' : 'city', expiresAt: row.expires_at };
+  return { tier: row.tier, scope: normalizeScope(row.visibility_scope), expiresAt: row.expires_at };
 }
 
 export function useSchool(idOrSlug: string): UseSchoolResult {
@@ -107,7 +118,7 @@ export function useSchool(idOrSlug: string): UseSchoolResult {
         ? [...activePlacements].sort((a, b) => {
             const tierRank = (b.tier === 'spotlight' ? 2 : 1) - (a.tier === 'spotlight' ? 2 : 1);
             if (tierRank !== 0) return tierRank;
-            return (b.scope === 'national' ? 2 : 1) - (a.scope === 'national' ? 2 : 1);
+            return scopeRank(b.scope) - scopeRank(a.scope);
           })[0]
         : null;
       const tierExpiresAt = row.schoolcity_tier_expires_at != null ? String(row.schoolcity_tier_expires_at) : null;
@@ -147,7 +158,7 @@ export function useSchool(idOrSlug: string): UseSchoolResult {
         specialFocus: (row.special_focus as string[]) ?? [],
         isFeatured:   Boolean(row.is_featured),
         schoolcityTier: primaryPlacement?.tier ?? (activeTier === 'spotlight' || activeTier === 'rated' ? activeTier : null),
-        schoolcityVisibilityScope: primaryPlacement?.scope ?? (row.schoolcity_visibility_scope === 'national' ? 'national' : row.schoolcity_visibility_scope === 'city' ? 'city' : null),
+        schoolcityVisibilityScope: primaryPlacement?.scope ?? (typeof row.schoolcity_visibility_scope === 'string' ? normalizeScope(row.schoolcity_visibility_scope) : null),
         schoolcityTierExpiresAt: primaryPlacement?.expiresAt ?? tierExpiresAt,
         schoolcityPlacements: activePlacements,
         bannerUrl:    row.banner_url != null ? String(row.banner_url) : undefined,

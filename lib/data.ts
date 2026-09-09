@@ -6,6 +6,8 @@ export type Campus = {
   phone?: string;
 };
 
+export type SchoolCityVisibilityScope = 'city' | 'state' | 'national';
+
 export type School = {
   id: string; slug: string; name: string; ktPlan?: string; city: string; state: string;
   type: string; gender: string; levels: string; orientation: string;
@@ -16,9 +18,9 @@ export type School = {
   email: string; special?: boolean; specialFocus?: string[];
   isFeatured?: boolean;
   schoolcityTier?: 'spotlight' | 'rated' | null;
-  schoolcityVisibilityScope?: 'city' | 'national' | null;
+  schoolcityVisibilityScope?: SchoolCityVisibilityScope | null;
   schoolcityTierExpiresAt?: string | null;
-  schoolcityPlacements?: Array<{ tier: 'spotlight' | 'rated'; scope: 'city' | 'national'; expiresAt: string }>;
+  schoolcityPlacements?: Array<{ tier: 'spotlight' | 'rated'; scope: SchoolCityVisibilityScope; expiresAt: string }>;
   campuses?: Campus[];
   bannerUrl?: string;
   imageUrl?: string;
