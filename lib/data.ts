@@ -48,6 +48,37 @@ export function toSlug(name: string): string {
     .replace(/^-|-$/g, '');
 }
 
+const SCHOOL_HERO_FALLBACKS = [
+  '/schools/banner23.jpg',
+  '/schools/banner10.jpg',
+  '/schools/banner17.jpg',
+  '/schools/banner22.jpg',
+  '/schools/banner2.jpg',
+  '/schools/banner9-all-boys-school.jpg',
+];
+
+export function shouldUseSchoolCityDemoImages(): boolean {
+  return process.env.NEXT_PUBLIC_SCHOOLCITY_STAGING_VISIBILITY === 'true'
+    || (typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname));
+}
+
+/** Stable local demo hero fallback for staging only. */
+export function schoolHeroFallbackUrl(school: Pick<School, 'id' | 'name'>): string {
+  const name = school.name.toLowerCase();
+  if (name.includes('greenfield')) return '/schools/banner23.jpg';
+
+  const seed = `${school.id}:${school.name}`;
+  let hash = 0;
+  for (let i = 0; i < seed.length; i += 1) hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  return SCHOOL_HERO_FALLBACKS[hash % SCHOOL_HERO_FALLBACKS.length]!;
+}
+
+/** Prefer school-owned banners; use demo imagery only on local/staging. */
+export function schoolHeroImageUrl(school: Pick<School, 'id' | 'name' | 'bannerUrl'>, failedUrls: string[] = []): string | undefined {
+  if (school.bannerUrl && !failedUrls.includes(school.bannerUrl)) return school.bannerUrl;
+  return shouldUseSchoolCityDemoImages() ? schoolHeroFallbackUrl(school) : undefined;
+}
+
 // ── Facility image pools (static CDN path constants — not real data) ──────────
 export const FI = {
   scienceLab:  ['/schools/facility-schence-lab1.jpeg', '/schools/facility-sciencelab2.png', '/schools/facility-sciencelab3.webp'],

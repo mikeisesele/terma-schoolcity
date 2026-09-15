@@ -6,13 +6,14 @@ import toast from 'react-hot-toast';
 import { T } from '@/lib/tokens';
 import { SCNav, SCCard, SCCompareBar, SCCompareModal, SCAuthModal } from '@/components/ui';
 import { useSchools } from '@/lib/useSchools';
+import { schoolHeroImageUrl } from '@/lib/data';
 import type { School } from '@/lib/data';
 
 const SCHOOLOS_URL = process.env.NEXT_PUBLIC_SCHOOLOS_URL ?? 'https://terma.ng';
 
 export function HomeClient() {
   const router = useRouter();
-  const { schools } = useSchools();
+  const { schools, loading, error } = useSchools();
   const [q, setQ]         = useState('');
   const [catF, setCatF]   = useState('All');
   const [spotlightCity, setSpotlightCity] = useState('');
@@ -25,27 +26,47 @@ export function HomeClient() {
   const [showAuth, setShowAuth] = useState(false);
   const [authReason, setAuthReason] = useState('save');
   const [pendingFavId, setPendingFavId] = useState<string|null>(null);
+  const [failedBannerUrls, setFailedBannerUrls] = useState<string[]>([]);
   const nowMs = Date.now();
+  const stagingVisibilityEnabled = process.env.NEXT_PUBLIC_SCHOOLCITY_STAGING_VISIBILITY === 'true'
+    || (typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname));
   const placementIsActive = (expiresAt: string) => new Date(expiresAt).getTime() > nowMs;
   const hasActivePlacement = (school: School, tier: 'spotlight' | 'rated') =>
     (school.schoolcityPlacements ?? []).some(placement => placement.tier === tier && placementIsActive(placement.expiresAt))
-    || (school.schoolcityTier === tier && !!school.schoolcityTierExpiresAt && placementIsActive(school.schoolcityTierExpiresAt));
+    || (school.schoolcityTier === tier && !!school.schoolcityTierExpiresAt && placementIsActive(school.schoolcityTierExpiresAt))
+    || (stagingVisibilityEnabled && tier === 'spotlight' && !!school.isFeatured);
   const hasScopePlacement = (school: School, tier: 'spotlight' | 'rated', scope: 'city' | 'state' | 'national') =>
     (school.schoolcityPlacements ?? []).some(placement => placement.tier === tier && placement.scope === scope && placementIsActive(placement.expiresAt))
-    || (school.schoolcityTier === tier && school.schoolcityVisibilityScope === scope && !!school.schoolcityTierExpiresAt && placementIsActive(school.schoolcityTierExpiresAt));
+    || (school.schoolcityTier === tier && school.schoolcityVisibilityScope === scope && !!school.schoolcityTierExpiresAt && placementIsActive(school.schoolcityTierExpiresAt))
+    || (stagingVisibilityEnabled && tier === 'spotlight' && scope === 'national' && !!school.isFeatured);
   const activeSpotlights = schools.filter(s =>
     !s.special &&
     hasActivePlacement(s, 'spotlight')
+  );
+  const hasScopedSpotlightMarket = activeSpotlights.some(s =>
+    !hasScopePlacement(s, 'spotlight', 'national') &&
+    ((s.schoolcityPlacements ?? []).some(placement =>
+      placement.tier === 'spotlight' &&
+      placementIsActive(placement.expiresAt) &&
+      (placement.scope === 'city' || placement.scope === 'state')
+    ) ||
+      (!stagingVisibilityEnabled &&
+        s.schoolcityTier === 'spotlight' &&
+        !!s.schoolcityTierExpiresAt &&
+        placementIsActive(s.schoolcityTierExpiresAt) &&
+        (s.schoolcityVisibilityScope === 'city' || s.schoolcityVisibilityScope === 'state')))
   );
   const spotlightCities = Array.from(new Set(activeSpotlights.map(s => s.city).filter(Boolean))).sort((a, b) => a.localeCompare(b));
   const spotlightStates = Array.from(new Set(activeSpotlights.map(s => s.state).filter(Boolean))).sort((a, b) => a.localeCompare(b));
   const query = q.toLowerCase();
   const cityFromSearch = spotlightCities.find(city => query.includes(city.toLowerCase())) ?? '';
   const stateFromSearch = spotlightStates.find(state => query.includes(state.toLowerCase())) ?? '';
-  const activeSpotlightCity = spotlightCity || cityFromSearch;
-  const activeSpotlightState = activeSpotlightCity
-    ? activeSpotlights.find(s => s.city.toLowerCase() === activeSpotlightCity.toLowerCase())?.state ?? ''
-    : stateFromSearch;
+  const activeSpotlightCity = hasScopedSpotlightMarket ? spotlightCity || cityFromSearch : '';
+  const activeSpotlightState = hasScopedSpotlightMarket
+    ? activeSpotlightCity
+      ? activeSpotlights.find(s => s.city.toLowerCase() === activeSpotlightCity.toLowerCase())?.state ?? ''
+      : stateFromSearch
+    : '';
   const matchesSelectedMarket = (school: School, tier: 'spotlight' | 'rated') => {
     if (!activeSpotlightCity && !activeSpotlightState) return true;
     if (hasScopePlacement(school, tier, 'national')) return true;
@@ -159,6 +180,10 @@ export function HomeClient() {
   }).slice(0, 6);
   const shown15 = showAll ? shown : shown.slice(0, 15);
   const C = (s: School) => <SCCard key={s.id} school={s} onSelect={onSelect} isFav={favs.includes(s.id)} onToggleFav={toggleFav} inCompare={compare.includes(s.id)} onToggleCompare={toggleCompare}/>;
+  const isDirectoryLoading = loading && schools.length === 0;
+  const hasDirectoryError = !!error && schools.length === 0;
+  const heroHeight = isDirectoryLoading || hasDirectoryError || carousel.length === 0 ? 420 : 520;
+  const schoolLoaders = Array.from({ length: 6 }, (_, i) => i);
 
   const userSlot = user
     ? <div style={{ display:'flex', alignItems:'center', gap:8 }}>
@@ -177,8 +202,38 @@ export function HomeClient() {
 
       {/* Spotlight school carousel — padded, rounded */}
       <div style={{ padding:'28px 40px 0' }}>
-        <div style={{ position:'relative', borderRadius:28, overflow:'hidden', height:520 }}>
-          {carousel.length === 0 && (
+        <div style={{ position:'relative', borderRadius:28, overflow:'hidden', height:heroHeight }}>
+          {isDirectoryLoading && (
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg,#1A3D2C 0%,#1f6b45 60%,#B87D20 140%)', display:'flex', alignItems:'center', padding:'0 60px' }}>
+              <div style={{ width:'100%', maxWidth:620 }}>
+                <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,.62)', letterSpacing:1.8, textTransform:'uppercase', marginBottom:14 }}>
+                  Spotlight schools
+                </div>
+                <h2 style={{ margin:'0 0 12px', fontSize:42, fontWeight:800, color:'#fff', lineHeight:1.05, letterSpacing:'-.02em' }}>Finding verified schools</h2>
+                <p style={{ margin:'0 0 28px', fontSize:17, color:'rgba(255,255,255,.78)', fontWeight:500, lineHeight:1.6 }}>
+                  Loading SchoolCity placements and verified school profiles.
+                </p>
+                <div style={{ display:'grid', gap:12, maxWidth:520 }}>
+                  {[0, 1, 2].map(i => <div key={i} style={{ height:i === 0 ? 46 : 18, borderRadius:999, background:'rgba(255,255,255,.18)', border:'1px solid rgba(255,255,255,.16)' }}/>)}
+                </div>
+              </div>
+            </div>
+          )}
+          {hasDirectoryError && (
+            <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg,#1A3D2C 0%,#31513A 100%)', display:'flex', alignItems:'center', padding:'0 60px' }}>
+              <div style={{ maxWidth:560 }}>
+                <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,.62)', letterSpacing:1.8, textTransform:'uppercase', marginBottom:12 }}>
+                  School directory
+                </div>
+                <h2 style={{ margin:'0 0 10px', fontSize:40, fontWeight:800, color:'#fff', lineHeight:1.05, letterSpacing:'-.02em' }}>Schools could not load</h2>
+                <p style={{ margin:'0 0 24px', fontSize:17, color:'rgba(255,255,255,.78)', fontWeight:500, lineHeight:1.6 }}>
+                  We could not reach the SchoolCity directory. Refresh the page to try again.
+                </p>
+                <button onClick={()=>window.location.reload()} style={{ border:'none', background:'#fff', color:T.navInk, borderRadius:T.btnR, padding:'13px 28px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>Refresh SchoolCity</button>
+              </div>
+            </div>
+          )}
+          {!isDirectoryLoading && !hasDirectoryError && carousel.length === 0 && (
             <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg,#1A3D2C 0%,#1f6b45 60%,#B87D20 140%)', display:'flex', alignItems:'center', padding:'0 60px' }}>
               <div style={{ maxWidth:560 }}>
                 <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,.62)', letterSpacing:1.8, textTransform:'uppercase', marginBottom:12 }}>
@@ -186,7 +241,7 @@ export function HomeClient() {
                 </div>
                 <h2 style={{ margin:'0 0 10px', fontSize:44, fontWeight:800, color:'#fff', lineHeight:1.05, letterSpacing:'-.02em' }}>Find schools near you</h2>
                 <p style={{ margin:'0 0 24px', fontSize:17, color:'rgba(255,255,255,.78)', fontWeight:500, lineHeight:1.6 }}>
-                  No Spotlight schools are active{activeSpotlightCity ? ` in ${activeSpotlightCity}` : activeSpotlightState ? ` in ${activeSpotlightState}` : ''} right now. Browse verified schools below or search by city.
+                  Spotlight schools are opening soon{activeSpotlightCity ? ` in ${activeSpotlightCity}` : activeSpotlightState ? ` in ${activeSpotlightState}` : ''}. Browse verified schools below or search by city.
                 </p>
                 <button onClick={()=>onNav('find')} style={{ border:'none', background:'#fff', color:T.navInk, borderRadius:T.btnR, padding:'13px 28px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>Browse verified schools →</button>
               </div>
@@ -194,7 +249,18 @@ export function HomeClient() {
           )}
           {carousel.map((s, i) => (
             <div key={s.id} style={{ position:'absolute', inset:0, transition:'opacity 1.2s cubic-bezier(.4,0,.2,1)', opacity:i===safeSlide?1:0, pointerEvents:i===safeSlide?'auto':'none', background:'linear-gradient(135deg,'+s.color+' 0%,'+s.color+'dd 45%,'+s.color+'99 100%)' }}>
-              {s.bannerUrl && <div style={{ position:'absolute', inset:0, backgroundImage:`url(${s.bannerUrl})`, backgroundSize:'cover', backgroundPosition:'center' }}/>}
+              {schoolHeroImageUrl(s, failedBannerUrls) && (
+                <img
+                  src={schoolHeroImageUrl(s, failedBannerUrls)}
+                  alt=""
+                  aria-hidden="true"
+                  onError={() => {
+                    if (!s.bannerUrl) return;
+                    setFailedBannerUrls(prev => prev.includes(s.bannerUrl!) ? prev : [...prev, s.bannerUrl!]);
+                  }}
+                  style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' }}
+                />
+              )}
               <div style={{ position:'absolute', inset:0, backgroundImage:'repeating-linear-gradient(45deg,rgba(255,255,255,.03) 0,rgba(255,255,255,.03) 1px,transparent 1px,transparent 50px)' }}/>
               <div style={{ position:'absolute', inset:0, background:'linear-gradient(to right, rgba(0,0,0,.62) 0%, rgba(0,0,0,.38) 40%, rgba(0,0,0,.05) 70%, rgba(0,0,0,0) 100%)' }}/>
               <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 55%)' }}/>
@@ -220,24 +286,25 @@ export function HomeClient() {
               </div>
             </div>
           ))}
-          <div style={{ position:'absolute', bottom:18, left:'50%', transform:'translateX(-50%)', display:'flex', gap:7 }}>
+          {carousel.length > 0 && <div style={{ position:'absolute', bottom:18, left:'50%', transform:'translateX(-50%)', display:'flex', gap:7 }}>
             {carousel.map((_,i)=><button key={i} onClick={()=>setSlide(i)} style={{ width:i===safeSlide?22:7, height:7, borderRadius:4, border:'none', background:i===safeSlide?'rgba(255,255,255,.95)':'rgba(255,255,255,.38)', cursor:'pointer', padding:0, transition:'all .3s' }}/>)}
-          </div>
+          </div>}
           {carousel.length > 1 && <div style={{ position:'absolute', bottom:18, right:20, display:'flex', gap:0 }}>
             <button onClick={e=>{e.stopPropagation();setSlide(s=>(s-1+carousel.length)%carousel.length);}} style={{ border:'none', background:'rgba(0,0,0,.28)', backdropFilter:'blur(8px)', color:'#fff', width:40, height:36, fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'6px 0 0 6px', borderRight:'1px solid rgba(255,255,255,.15)' }}>‹</button>
             <button onClick={e=>{e.stopPropagation();setSlide(s=>(s+1)%(carousel.length||1));}} style={{ border:'none', background:'rgba(0,0,0,.28)', backdropFilter:'blur(8px)', color:'#fff', width:40, height:36, fontSize:18, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'0 6px 6px 0' }}>›</button>
           </div>}
-          {spotlightCities.length > 0 && (
+          {!isDirectoryLoading && hasScopedSpotlightMarket && spotlightCities.length > 0 && (
             <div style={{ position:'absolute', top:18, right:20, display:'flex', gap:8, alignItems:'center', justifyContent:'flex-end', maxWidth:'calc(100% - 40px)' }}>
               <select
                 value={activeSpotlightCity}
                 onChange={e=>chooseSpotlightCity(e.target.value)}
                 aria-label="Filter Spotlight schools by city"
-                style={{ border:'1px solid rgba(255,255,255,.34)', background:'rgba(255,255,255,.92)', color:T.navInk, borderRadius:999, padding:'8px 34px 8px 13px', fontFamily:'inherit', fontSize:12, fontWeight:800, cursor:'pointer', backdropFilter:'blur(10px)', outline:'none' }}
+                style={{ appearance:'none', WebkitAppearance:'none', border:'1px solid rgba(255,255,255,.34)', background:'rgba(255,255,255,.92)', color:T.navInk, borderRadius:999, padding:'8px 48px 8px 16px', fontFamily:'inherit', fontSize:12, fontWeight:800, cursor:'pointer', backdropFilter:'blur(10px)', outline:'none' }}
               >
                 <option value="">All Spotlight cities</option>
                 {spotlightCities.map(city => <option key={city} value={city}>{city}</option>)}
               </select>
+              <span aria-hidden="true" style={{ position:'absolute', right:20, top:'50%', transform:'translateY(-52%)', color:T.navInk, fontSize:11, fontWeight:900, pointerEvents:'none' }}>⌄</span>
             </div>
           )}
         </div>
@@ -281,9 +348,24 @@ export function HomeClient() {
             <h2 style={{ margin:0, fontFamily:T.headFont, fontSize:26, color:T.ink, lineHeight:1.1 }}>All verified schools</h2>
           </div>
         </div>
-        {(q || catF!=='All') && <div style={{ marginBottom:16 }}><span style={{ fontSize:13.5, color:T.ink3, fontWeight:600 }}>{shown.length} school{shown.length!==1?'s':''} found</span></div>}
-        <div style={{ columnCount:3, columnGap:16 }}>{shown15.map(s=>C(s))}{shown.length===0&&<div style={{ columnSpan:'all', padding:'64px', textAlign:'center', color:T.ink3, fontSize:15 }}>No schools match your search.</div>}</div>
-        <div style={{ textAlign:'center', marginTop:32 }}><button onClick={()=>onNav('find')} style={{ border:'1.5px solid '+T.cardBorder, background:T.cardBg, color:T.accent, borderRadius:T.btnR, padding:'12px 32px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:'pointer' }}>See all {schools.length.toLocaleString()} schools →</button></div>
+        {!isDirectoryLoading && !hasDirectoryError && (q || catF!=='All') && <div style={{ marginBottom:16 }}><span style={{ fontSize:13.5, color:T.ink3, fontWeight:600 }}>{shown.length} school{shown.length!==1?'s':''} found</span></div>}
+        <div style={{ columnCount:3, columnGap:16 }}>
+          {isDirectoryLoading && schoolLoaders.map(i => (
+            <div key={i} style={{ display:'inline-block', width:'100%', height:220, margin:'0 0 16px', borderRadius:18, background:T.cardBg, border:'1.5px solid '+T.cardBorder, boxShadow:'0 4px 20px rgba(40,80,55,.08)', padding:18, boxSizing:'border-box', breakInside:'avoid' }}>
+              <div style={{ width:'100%', height:92, borderRadius:14, background:`${T.accent}12`, marginBottom:18 }}/>
+              <div style={{ width:'70%', height:16, borderRadius:999, background:`${T.ink3}24`, marginBottom:10 }}/>
+              <div style={{ width:'46%', height:12, borderRadius:999, background:`${T.ink3}18`, marginBottom:20 }}/>
+              <div style={{ display:'flex', gap:8 }}>
+                <div style={{ width:82, height:28, borderRadius:999, background:`${T.accent}14` }}/>
+                <div style={{ width:104, height:28, borderRadius:999, background:`${T.accent}10` }}/>
+              </div>
+            </div>
+          ))}
+          {hasDirectoryError && <div style={{ columnSpan:'all', padding:'56px', textAlign:'center', color:T.ink3, fontSize:15, background:T.cardBg, border:'1.5px solid '+T.cardBorder, borderRadius:18 }}>SchoolCity could not load schools right now. Refresh the page to try again.</div>}
+          {!isDirectoryLoading && !hasDirectoryError && shown15.map(s=>C(s))}
+          {!isDirectoryLoading && !hasDirectoryError && shown.length===0&&<div style={{ columnSpan:'all', padding:'64px', textAlign:'center', color:T.ink3, fontSize:15 }}>No schools match your search.</div>}
+        </div>
+        <div style={{ textAlign:'center', marginTop:32 }}><button disabled={isDirectoryLoading || hasDirectoryError} onClick={()=>onNav('find')} style={{ border:'1.5px solid '+T.cardBorder, background:T.cardBg, color:isDirectoryLoading || hasDirectoryError ? T.ink3 : T.accent, borderRadius:T.btnR, padding:'12px 32px', fontFamily:'inherit', fontSize:14, fontWeight:800, cursor:isDirectoryLoading || hasDirectoryError ? 'default' : 'pointer' }}>{isDirectoryLoading ? 'Loading schools…' : `See all ${schools.length.toLocaleString()} schools →`}</button></div>
       </div>
 
 

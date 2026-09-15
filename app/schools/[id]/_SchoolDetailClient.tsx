@@ -11,7 +11,7 @@ import { useReviews } from '@/lib/useReviews';
 import { useSchoolPhotos } from '@/lib/useSchoolPhotos';
 import { useSchoolAchievements } from '@/lib/useSchoolAchievements';
 import { supabase } from '@/lib/supabase';
-import { deriveFacilityImages } from '@/lib/data';
+import { deriveFacilityImages, schoolHeroImageUrl } from '@/lib/data';
 import type { AchievementType } from '@/lib/useSchoolAchievements';
 import { useSchoolVacancies } from '@/lib/useVacancies';
 
@@ -123,6 +123,7 @@ export function SchoolDetailClient() {
   const [saveOpen, setSaveOpen]             = useState(false);
   const [isFav, setIsFav]                   = useState(false);
   const [expandedCampus, setExpandedCampus] = useState<string | null>(null);
+  const [failedBannerUrls, setFailedBannerUrls] = useState<string[]>([]);
 
   useEffect(() => {
     try { const f = JSON.parse(localStorage.getItem('sc_favs') || '[]'); setIsFav(f.includes(rawId)); } catch {}
@@ -331,10 +332,19 @@ export function SchoolDetailClient() {
 
       {/* ── Hero banner ──────────────────────────────────────────────────────── */}
       <div style={{ background: `linear-gradient(135deg, ${school.color} 0%, ${school.color}dd 60%, ${school.color}99 100%)`, position: 'relative', overflow: 'hidden', minHeight: 280 }}>
-        {school.bannerUrl && (
-          <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${school.bannerUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+        {schoolHeroImageUrl(school, failedBannerUrls) && (
+          <img
+            src={schoolHeroImageUrl(school, failedBannerUrls)}
+            alt=""
+            aria-hidden="true"
+            onError={() => {
+              if (!school.bannerUrl) return;
+              setFailedBannerUrls(prev => prev.includes(school.bannerUrl!) ? prev : [...prev, school.bannerUrl!]);
+            }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+          />
         )}
-        <div style={{ position: 'absolute', inset: 0, background: school.bannerUrl ? 'linear-gradient(to bottom,rgba(0,0,0,.28) 0%,rgba(0,0,0,.75) 100%)' : 'linear-gradient(to bottom,rgba(0,0,0,.08) 0%,rgba(0,0,0,.5) 100%)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom,rgba(0,0,0,.28) 0%,rgba(0,0,0,.75) 100%)' }} />
         <div style={{ position: 'relative', padding: '32px 40px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', minHeight: 250 }}>
           {/* Left: logo + name + info */}
           <div style={{ paddingBottom: 4, flex: 1 }}>

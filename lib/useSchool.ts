@@ -33,6 +33,13 @@ type VisibilityOrder = {
   expires_at: string;
 };
 
+const STAGING_VISIBILITY_EXPIRES_AT = '2099-12-31T23:59:59.999Z';
+
+function stagingVisibilityEnabled() {
+  return process.env.NEXT_PUBLIC_SCHOOLCITY_STAGING_VISIBILITY === 'true'
+    || (typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname));
+}
+
 function normalizeScope(scope: string | null): SchoolCityVisibilityScope {
   if (scope === 'national' || scope === 'state') return scope;
   return 'city';
@@ -122,9 +129,23 @@ export function useSchool(idOrSlug: string): UseSchoolResult {
           })[0]
         : null;
       const tierExpiresAt = row.schoolcity_tier_expires_at != null ? String(row.schoolcity_tier_expires_at) : null;
-      const activeTier = tierExpiresAt && new Date(tierExpiresAt).getTime() > Date.now()
-        ? row.schoolcity_tier
+      const activeTier: 'spotlight' | 'rated' | null = tierExpiresAt && new Date(tierExpiresAt).getTime() > Date.now()
+        ? row.schoolcity_tier === 'spotlight' || row.schoolcity_tier === 'rated'
+          ? row.schoolcity_tier
+          : null
         : null;
+      const stagingTier: 'spotlight' | 'rated' | null = stagingVisibilityEnabled()
+        ? row.schoolcity_tier === 'spotlight' || Boolean(row.is_featured)
+          ? 'spotlight'
+          : row.schoolcity_tier === 'rated'
+            ? 'rated'
+            : null
+        : null;
+      const effectiveTier = primaryPlacement?.tier ?? activeTier ?? stagingTier;
+      const effectiveScope = primaryPlacement?.scope
+        ?? (typeof row.schoolcity_visibility_scope === 'string' ? normalizeScope(row.schoolcity_visibility_scope) : null)
+        ?? (stagingTier ? 'national' : null);
+      const effectiveExpiresAt = primaryPlacement?.expiresAt ?? (activeTier ? tierExpiresAt : stagingTier ? STAGING_VISIBILITY_EXPIRES_AT : tierExpiresAt);
 
       setSchool({
         id:           String(row.id),
@@ -157,9 +178,9 @@ export function useSchool(idOrSlug: string): UseSchoolResult {
         special:      Boolean(row.is_special),
         specialFocus: (row.special_focus as string[]) ?? [],
         isFeatured:   Boolean(row.is_featured),
-        schoolcityTier: primaryPlacement?.tier ?? (activeTier === 'spotlight' || activeTier === 'rated' ? activeTier : null),
-        schoolcityVisibilityScope: primaryPlacement?.scope ?? (typeof row.schoolcity_visibility_scope === 'string' ? normalizeScope(row.schoolcity_visibility_scope) : null),
-        schoolcityTierExpiresAt: primaryPlacement?.expiresAt ?? tierExpiresAt,
+        schoolcityTier: effectiveTier,
+        schoolcityVisibilityScope: effectiveScope,
+        schoolcityTierExpiresAt: effectiveExpiresAt,
         schoolcityPlacements: activePlacements,
         bannerUrl:    row.banner_url != null ? String(row.banner_url) : undefined,
         imageUrl:     row.image_url != null ? String(row.image_url) : undefined,
