@@ -3,7 +3,7 @@ import { Suspense } from 'react';
 import { createServerClient } from '@/lib/supabase-server';
 import { SchoolDetailClient } from './_SchoolDetailClient';
 
-type Props = { params: { id: string } };
+type Props = { params: Promise<{ id: string }> };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -52,7 +52,8 @@ async function fetchSchoolSeo(idOrSlug: string) {
 
 // ── Metadata ─────────────────────────────────────────────────────────────────
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const school = await fetchSchoolSeo(params.id);
+  const { id } = await params;
+  const school = await fetchSchoolSeo(id);
 
   if (!school) {
     return { title: 'School Not Found | SchoolCity' };
@@ -73,7 +74,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: `https://schools.terma.ng/schools/${params.id}` },
+    alternates: { canonical: `https://schools.terma.ng/schools/${id}` },
     openGraph: {
       title,
       description,
@@ -84,7 +85,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 export default async function SCDetailPage({ params }: Props) {
-  const school = await fetchSchoolSeo(params.id);
+  const { id } = await params;
+  const school = await fetchSchoolSeo(id);
 
   const jsonLd = school
     ? {
@@ -97,7 +99,7 @@ export default async function SCDetailPage({ params }: Props) {
           addressRegion: school.state,
           addressCountry: 'NG',
         },
-        url: `https://schools.terma.ng/schools/${params.id}`,
+        url: `https://schools.terma.ng/schools/${id}`,
         ...(typeof school.rating === 'number' &&
           school.rating > 0 &&
           typeof school.review_count === 'number' &&
