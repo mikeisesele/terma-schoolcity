@@ -311,8 +311,8 @@ export function HomeClient() {
       </div>
 
       {/* Search + category pills */}
-      <div style={{ background:'linear-gradient(180deg,'+T.bg+' 0%,'+T.bg+' 100%)', padding:'36px 48px 28px', textAlign:'center' }}>
-        <div style={{ maxWidth:640, margin:'0 auto', display:'flex', alignItems:'stretch', gap:0, background:T.cardBg, borderRadius:T.btnR, boxShadow:'0 4px 24px rgba(40,80,55,.12)', border:'1.5px solid '+T.cardBorder, overflow:'hidden', height:58 }}>
+      <div className="sc-search-section" style={{ background:'linear-gradient(180deg,'+T.bg+' 0%,'+T.bg+' 100%)', padding:'36px 48px 28px', textAlign:'center' }}>
+        <div className="sc-search-row" style={{ maxWidth:640, margin:'0 auto', display:'flex', alignItems:'stretch', gap:0, background:T.cardBg, borderRadius:T.btnR, boxShadow:'0 4px 24px rgba(40,80,55,.12)', border:'1.5px solid '+T.cardBorder, overflow:'hidden', height:58 }}>
           <span style={{ padding:'0 18px', fontSize:20, color:T.ink3, display:'flex', alignItems:'center' }}>🔍</span>
           <input value={q} onChange={e=>setQ(e.target.value)} placeholder="School name, area, or city…" style={{ flex:1, border:'none', outline:'none', fontSize:16, fontWeight:500, color:T.ink, fontFamily:T.font, background:'transparent' }}/>
           <button style={{ border:'none', background:T.accent, color:T.accentText, padding:'0 36px', fontSize:15, fontWeight:800, cursor:'pointer', fontFamily:T.font, borderRadius:'0 100px 100px 0' }}>Search</button>

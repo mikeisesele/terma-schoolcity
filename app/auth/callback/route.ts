@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
   const next = searchParams.get('next') ?? '/';
+  const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/';
 
   if (code) {
     // Use a server-side client to exchange the code for a session.
@@ -37,5 +38,5 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  return NextResponse.redirect(new URL(next, origin));
+  return NextResponse.redirect(new URL(safeNext, origin));
 }

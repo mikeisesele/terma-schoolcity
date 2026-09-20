@@ -123,6 +123,15 @@ select {
   font-size: inherit;
 }
 
+@media (max-width: 640px) {
+  .sc-main-nav { padding-inline: 16px !important; gap: 8px !important; }
+  .sc-main-nav > div:first-child > div:last-child > div:last-child { display: none; }
+  .sc-desktop-nav-action { display: none !important; }
+  .sc-search-section { padding: 28px 20px 22px !important; }
+  .sc-search-row input { min-width: 0; }
+  .sc-search-row button { padding-inline: 18px !important; }
+}
+
 ul,
 ol {
   list-style: none;

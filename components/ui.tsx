@@ -41,7 +41,7 @@ export function SCNav({ onBack, backHref, rightSlot, onNav }: {
     else router.push('/');
   });
   return (
-    <div style={{ background:T.navBg, backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', borderBottom:'1px solid '+T.navBorder, padding:'0 48px', display:'flex', alignItems:'center', gap:16, height:72, position:'sticky', top:0, zIndex:100, fontFamily:T.font }}>
+    <div className="sc-main-nav" style={{ background:T.navBg, backdropFilter:'blur(16px)', WebkitBackdropFilter:'blur(16px)', borderBottom:'1px solid '+T.navBorder, padding:'0 48px', display:'flex', alignItems:'center', gap:16, height:72, position:'sticky', top:0, zIndex:100, fontFamily:T.font }}>
       <div style={{ display:'flex', alignItems:'center', gap:10, cursor:'pointer' }} onClick={()=>nav('home')}>
         <div style={{ width:34, height:34, borderRadius:10, background:T.accent, display:'flex', alignItems:'center', justifyContent:'center' }}>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1L14 4v4c0 3.5-2.5 6-6 7C3.5 14 2 11.5 2 8V4Z" fill="white" opacity=".9"/><polyline points="5,8 7.2,10.2 11,6.5" stroke="#D4A04A" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -67,11 +67,11 @@ export function SCNav({ onBack, backHref, rightSlot, onNav }: {
       </>}
       <div style={{ flex:1 }}/>
       {!onBack && ([['Browse schools','find'],['Vacancies','find-vacancy']] as [string,string][]).map(([lbl,v])=>(
-        <button key={lbl} onClick={()=>nav(v)} style={{ border:'none', background:'transparent', color:T.ink3, fontFamily:'inherit', fontSize:14, fontWeight:600, cursor:'pointer', padding:'4px 8px', transition:'color .15s' }}
+        <button className="sc-desktop-nav-action" key={lbl} onClick={()=>nav(v)} style={{ border:'none', background:'transparent', color:T.ink3, fontFamily:'inherit', fontSize:14, fontWeight:600, cursor:'pointer', padding:'4px 8px', transition:'color .15s' }}
           onMouseEnter={e=>(e.currentTarget.style.color=T.navInk)} onMouseLeave={e=>(e.currentTarget.style.color=T.ink3)}>{lbl}</button>
       ))}
       {rightSlot}
-      {!onBack && <button onClick={()=>nav('list-school')} style={{ background:T.accent, color:T.accentText, border:'none', borderRadius:T.btnR, padding:'10px 22px', fontFamily:'inherit', fontSize:13, fontWeight:700, cursor:'pointer' }}>For schools →</button>}
+      {!onBack && <button className="sc-desktop-nav-action" onClick={()=>nav('list-school')} style={{ background:T.accent, color:T.accentText, border:'none', borderRadius:T.btnR, padding:'10px 22px', fontFamily:'inherit', fontSize:13, fontWeight:700, cursor:'pointer' }}>For schools →</button>}
     </div>
   );
 }

@@ -108,8 +108,8 @@ export function deriveFacilityImages(features: string[]): Record<string, string[
     if (lower.includes('science'))         map[f] = FI.scienceLab;
     else if (lower.includes('computer'))   map[f] = FI.computerLab;
     else if (lower.includes('library'))    map[f] = FI.library;
-    else if (lower.includes('sport'))      map[f] = FI.sports;
     else if (lower.includes('transport'))  map[f] = FI.transport;
+    else if (lower.includes('sport'))      map[f] = FI.sports;
     else if (lower.includes('swimming'))   map[f] = FI.swimming;
     else if (lower.includes('boarding') || lower.includes('hostel')) map[f] = FI.hostel;
     else if (lower.includes('music'))      map[f] = FI.music;
