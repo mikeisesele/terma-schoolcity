@@ -7,6 +7,9 @@ import { ExtrasNav, SCCard, SCAuthModal } from '@/components/ui';
 import type { School } from '@/lib/data';
 import { useSchools } from '@/lib/useSchools';
 import { T } from '@/lib/tokens';
+import { supabase } from '@/lib/supabase';
+import { loadSavedSchoolIds, setSavedSchool } from '@/lib/savedSchools';
+import type { User } from '@supabase/supabase-js';
 
 export default function SNFavorites() {
   const router = useRouter();
@@ -16,8 +19,37 @@ export default function SNFavorites() {
   const { schools: allSchools } = useSchools();
 
   useEffect(() => {
-    try { const u = localStorage.getItem('sc_user'); if (u) setUser(JSON.parse(u)); } catch {}
+    let mounted = true;
+    const applySession = (sessionUser: User | null) => {
+      if (!mounted) return;
+      if (!sessionUser) { setUser(null); return; }
+      const metadata = sessionUser.user_metadata ?? {};
+      const account = {
+        name: String(metadata.full_name ?? metadata.name ?? sessionUser.email ?? 'SchoolCity user'),
+        email: sessionUser.email ?? '',
+        avatar: String(metadata.avatar_url ?? metadata.picture ?? ''),
+        color: '#B87D20',
+      };
+      setUser(account);
+      try { localStorage.setItem('sc_user', JSON.stringify(account)); } catch {}
+    };
+    void supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.user) {
+        applySession(data.session.user);
+        void loadSavedSchoolIds(data.session.user).then(setFavIds).catch(() => {});
+        return;
+      }
+      // Keep compatibility with older local sessions while the browser session is restored.
+      try {
+        const cached = localStorage.getItem('sc_user');
+        if (cached) setUser(JSON.parse(cached));
+      } catch {}
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      applySession(session?.user ?? null);
+    });
     try { const f = localStorage.getItem('sc_favs'); if (f) setFavIds(JSON.parse(f)); } catch {}
+    return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
 
   const schools = allSchools.filter(s => favIds.includes(s.id));
@@ -26,6 +58,10 @@ export default function SNFavorites() {
     const next = favIds.includes(id) ? favIds.filter(x=>x!==id) : [...favIds, id];
     setFavIds(next);
     try { localStorage.setItem('sc_favs', JSON.stringify(next)); } catch {}
+    void supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return;
+      return setSavedSchool(data.user, id, next.includes(id));
+    }).catch(() => toast('Could not sync saved school'));
     toast(next.includes(id) ? 'School saved ♥' : 'Removed from saved');
   };
 

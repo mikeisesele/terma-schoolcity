@@ -8,6 +8,9 @@ import { SCNav, SCCard, SCCompareBar, SCCompareModal, SCAuthModal } from '@/comp
 import { useSchools } from '@/lib/useSchools';
 import { schoolHeroImageUrl } from '@/lib/data';
 import type { School } from '@/lib/data';
+import { supabase } from '@/lib/supabase';
+import { loadSavedSchoolIds, setSavedSchool } from '@/lib/savedSchools';
+import type { User } from '@supabase/supabase-js';
 
 const SCHOOLOS_URL = process.env.NEXT_PUBLIC_SCHOOLOS_URL ?? 'https://terma.ng';
 
@@ -91,10 +94,42 @@ export function HomeClient() {
     .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews || a.name.localeCompare(b.name));
 
   useEffect(() => {
-    try { const u = localStorage.getItem('sc_user'); if (u) setUser(JSON.parse(u)); } catch {}
+    let mounted = true;
+    const applySession = (sessionUser: User | null) => {
+      if (!mounted) return;
+      if (!sessionUser) {
+        setUser(null);
+        return;
+      }
+      const metadata = sessionUser.user_metadata ?? {};
+      const name = String(metadata.full_name ?? metadata.name ?? sessionUser.email ?? 'SchoolCity user');
+      const account = {
+        name,
+        email: sessionUser.email ?? '',
+        avatar: String(metadata.avatar_url ?? metadata.picture ?? ''),
+        color: '#B87D20',
+      };
+      setUser(account);
+      try { localStorage.setItem('sc_user', JSON.stringify(account)); } catch {}
+    };
+    void supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.user) {
+        applySession(data.session.user);
+        void loadSavedSchoolIds(data.session.user).then(setFavs).catch(() => {});
+        return;
+      }
+      try {
+        const cached = localStorage.getItem('sc_user');
+        if (cached) setUser(JSON.parse(cached));
+      } catch {}
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      applySession(session?.user ?? null);
+    });
     try { const f = localStorage.getItem('sc_favs'); if (f) setFavs(JSON.parse(f)); } catch {}
     try { const c = localStorage.getItem('sc_compare'); if (c) setCompare(JSON.parse(c)); } catch {}
     try { const city = localStorage.getItem('sc_spotlight_city'); if (city) setSpotlightCity(city); } catch {}
+    return () => { mounted = false; subscription.unsubscribe(); };
   }, []);
 
   useEffect(() => {
@@ -124,8 +159,10 @@ export function HomeClient() {
     toast('Welcome, ' + account.name.split(' ')[0] + '!');
   };
   const signOut = () => {
+    void supabase.auth.signOut();
     setUser(null);
-    try { localStorage.removeItem('sc_user'); } catch {}
+    try { localStorage.removeItem('sc_user'); localStorage.removeItem('sc_favs'); } catch {}
+    setFavs([]);
     toast('Signed out');
   };
   const doToggleFav = (id: string, u?: typeof user) => {
@@ -134,6 +171,10 @@ export function HomeClient() {
     setFavs(prev => {
       const next = prev.includes(id) ? prev.filter(x=>x!==id) : [...prev, id];
       try { localStorage.setItem('sc_favs', JSON.stringify(next)); } catch {}
+      void supabase.auth.getUser().then(({ data }) => {
+        if (!data.user) return;
+        return setSavedSchool(data.user, id, next.includes(id));
+      }).catch(() => toast('Could not sync saved school'));
       toast(next.includes(id) ? 'School saved ♥' : 'Removed from saved');
       return next;
     });
@@ -190,7 +231,13 @@ export function HomeClient() {
         <button onClick={() => router.push('/favourites')} style={{ border:`1.5px solid ${T.navInk}25`, background:favs.length>0?`${T.accent}15`:'transparent', color:T.navInk, borderRadius:T.btnR, padding:'6px 13px', fontFamily:'inherit', fontSize:13, fontWeight:700, cursor:'pointer', display:'flex', alignItems:'center', gap:5 }}>
           <span style={{ color:favs.length>0?'#EF4444':T.navInk }}>♥</span> Saved{favs.length>0&&<span style={{ background:'#EF4444', color:'#fff', borderRadius:999, fontSize:10, fontWeight:800, padding:'1px 6px', marginLeft:2 }}>{favs.length}</span>}
         </button>
-        <div style={{ width:30, height:30, borderRadius:'50%', background:T.gold, display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:800, color:'#fff' }}>{user.avatar||user.name[0]}</div>
+        <div
+          aria-label={`${user.name}'s profile`}
+          title={user.name}
+          style={{ width:30, height:30, borderRadius:'50%', background:T.gold, display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:800, color:'#fff' }}
+        >
+          {user.name.trim().split(/\s+/).map(part => part[0]).join('').slice(0, 2).toUpperCase() || 'SC'}
+        </div>
         <span style={{ fontSize:13, fontWeight:700, color:T.navInk }}>{user.name.split(' ')[0]}</span>
         <button onClick={signOut} style={{ border:`1px solid ${T.navInk}22`, background:'transparent', color:`${T.navInk}60`, borderRadius:T.btnR, padding:'4px 9px', fontFamily:'inherit', fontSize:12, fontWeight:600, cursor:'pointer' }}>Sign out</button>
       </div>
@@ -257,6 +304,12 @@ export function HomeClient() {
                   onError={() => {
                     if (!s.bannerUrl) return;
                     setFailedBannerUrls(prev => prev.includes(s.bannerUrl!) ? prev : [...prev, s.bannerUrl!]);
+                  }}
+                  onLoad={event => {
+                    if (event.currentTarget.naturalWidth <= 1 || event.currentTarget.naturalHeight <= 1) {
+                      if (!s.bannerUrl) return;
+                      setFailedBannerUrls(prev => prev.includes(s.bannerUrl!) ? prev : [...prev, s.bannerUrl!]);
+                    }
                   }}
                   style={{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover' }}
                 />

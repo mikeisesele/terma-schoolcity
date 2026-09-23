@@ -8,6 +8,8 @@ const mocks = vi.hoisted(() => ({
   replace: vi.fn(),
   search: new URLSearchParams(),
   schools: [] as Array<Record<string, unknown>>,
+  session: null as unknown,
+  authChange: null as ((event: string, session: unknown) => void) | null,
 }));
 
 vi.mock('next/navigation', () => ({
@@ -15,6 +17,23 @@ vi.mock('next/navigation', () => ({
   useSearchParams: () => mocks.search,
 }));
 vi.mock('@/lib/useSchools', () => ({ useSchools: () => ({ schools: mocks.schools, loading: false, error: null }) }));
+vi.mock('@/lib/supabase', () => ({
+  supabase: {
+    auth: {
+      getSession: vi.fn(async () => ({ data: { session: mocks.session } })),
+      getUser: vi.fn(async () => ({ data: { user: (mocks.session as { user?: unknown } | null)?.user ?? null } })),
+      onAuthStateChange: vi.fn((_callback: (event: string, session: unknown) => void) => {
+        mocks.authChange = _callback;
+        return { data: { subscription: { unsubscribe: vi.fn() } } };
+      }),
+      signOut: vi.fn(async () => ({ error: null })),
+    },
+  },
+}));
+vi.mock('@/lib/savedSchools', () => ({
+  loadSavedSchoolIds: vi.fn(async () => ['school-1']),
+  setSavedSchool: vi.fn(async () => undefined),
+}));
 vi.mock('react-hot-toast', () => ({ default: vi.fn() }));
 vi.mock('@/components/ui', () => ({
   ExtrasNav: () => <nav>SchoolCity</nav>,
@@ -110,6 +129,15 @@ describe('SchoolCity directory workflows', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Clear all' }));
     expect(screen.getByText('No saved schools yet')).toBeTruthy();
     expect(localStorage.getItem('sc_favs')).toBeNull();
+  });
+
+  it('restores an authenticated Supabase session and saved schools', async () => {
+    mocks.session = { user: { id: 'user-1', email: 'ada@test.dev', user_metadata: {} } };
+    render(<SNFavorites />);
+    expect(await screen.findByText('Greenfield Academy')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Save Greenfield Academy' }));
+    mocks.authChange?.('SIGNED_OUT', null);
+    mocks.session = null;
   });
 
   it('filters from URL state and routes filter changes back into the URL', () => {
