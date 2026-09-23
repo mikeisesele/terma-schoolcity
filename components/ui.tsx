@@ -66,12 +66,12 @@ export function SCNav({ onBack, backHref, rightSlot, onNav }: {
         }
       </>}
       <div style={{ flex:1 }}/>
-      {!onBack && ([['Browse schools','find'],['Vacancies','find-vacancy']] as [string,string][]).map(([lbl,v])=>(
+      {!onBack && ([['All schools','find'],['Vacancies','find-vacancy']] as [string,string][]).map(([lbl,v])=>(
         <button className="sc-desktop-nav-action" key={lbl} onClick={()=>nav(v)} style={{ border:'none', background:'transparent', color:T.ink3, fontFamily:'inherit', fontSize:14, fontWeight:600, cursor:'pointer', padding:'4px 8px', transition:'color .15s' }}
           onMouseEnter={e=>(e.currentTarget.style.color=T.navInk)} onMouseLeave={e=>(e.currentTarget.style.color=T.ink3)}>{lbl}</button>
       ))}
       {rightSlot}
-      {!onBack && <button className="sc-desktop-nav-action" onClick={()=>nav('list-school')} style={{ background:T.accent, color:T.accentText, border:'none', borderRadius:T.btnR, padding:'10px 22px', fontFamily:'inherit', fontSize:13, fontWeight:700, cursor:'pointer' }}>For schools →</button>}
+      {!onBack && <button className="sc-desktop-nav-action" onClick={()=>nav('list-school')} style={{ background:T.accent, color:T.accentText, border:'none', borderRadius:T.btnR, padding:'10px 22px', fontFamily:'inherit', fontSize:13, fontWeight:700, cursor:'pointer' }}>List your school →</button>}
     </div>
   );
 }
@@ -142,7 +142,7 @@ export function SCCard({ school, onSelect, isFav, onToggleFav, inCompare, onTogg
       </div>
       <div onClick={()=>onSelect(school)} style={{ padding:'12px 14px 10px' }}>
         <div style={{ fontSize:12, color:T.ink3, lineHeight:1.4, marginBottom:8 }}>{school.tagline}</div>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}><Stars rating={school.rating}/><span style={{ fontSize:11.5, color:T.ink3 }}>{school.reviews}</span></div>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}><Stars rating={school.rating}/><span style={{ fontSize:11.5, color:T.ink3 }}>{school.reviews} {school.reviews === 1 ? 'review' : 'reviews'}</span></div>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', paddingTop:8, borderTop:'1px solid '+T.line }}>
           <span style={{ fontSize:12.5, fontWeight:700, color:T.ink2 }}>{school.levels}</span>
           <span style={{ fontSize:12, color:T.ink3 }}>{school.students}</span>

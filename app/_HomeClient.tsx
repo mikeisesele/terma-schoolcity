@@ -266,9 +266,6 @@ export function HomeClient() {
               <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(0,0,0,.55) 0%, rgba(0,0,0,0) 55%)' }}/>
               <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', padding:'0 60px' }}>
                 <div style={{ flex:1, maxWidth:540 }}>
-                  <div style={{ fontSize:11, fontWeight:800, color:'rgba(255,255,255,.62)', letterSpacing:1.8, textTransform:'uppercase', marginBottom:12 }}>
-                    {placementLabel(s, 'spotlight')}
-                  </div>
                   <h2 style={{ margin:'0 0 8px', fontSize:44, fontWeight:800, color:'#fff', lineHeight:1.05, letterSpacing:'-.02em' }}>{s.name}</h2>
                   <p style={{ margin:'0 0 18px', fontSize:17, color:'rgba(255,255,255,.78)', fontWeight:400 }}>{s.tagline}</p>
                   <div style={{ display:'flex', gap:10, marginBottom:20, flexWrap:'wrap' }}>
@@ -329,13 +326,7 @@ export function HomeClient() {
         {topRatedShown.length > 0 && (
           <section aria-label="Top-Rated schools" style={{ marginBottom:32 }}>
             <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between', gap:16, marginBottom:14 }}>
-              <div>
-                <div style={{ fontSize:11, fontWeight:900, letterSpacing:1.4, textTransform:'uppercase', color:T.accent, marginBottom:5 }}>Top-Rated schools</div>
-                <h2 style={{ margin:0, fontFamily:T.headFont, fontSize:28, color:T.ink, lineHeight:1.1 }}>Priority schools parents should compare first</h2>
-              </div>
-              <div style={{ fontSize:12.5, fontWeight:700, color:T.ink3, whiteSpace:'nowrap' }}>
-                {activeSpotlightCity ? `${activeSpotlightCity} placements` : activeSpotlightState ? `${activeSpotlightState} placements` : 'Active placements'}
-              </div>
+              <h2 style={{ margin:0, fontFamily:T.headFont, fontSize:28, color:T.ink, lineHeight:1.1 }}>Top-Rated Schools</h2>
             </div>
             <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:16 }}>
               {topRatedShown.map(s=>C(s))}
